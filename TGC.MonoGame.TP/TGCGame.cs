@@ -39,7 +39,9 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
+        private Model ModelBox { get; set; }
+        private Model ModelMarble { get; set; }
+        private Model ModelCurve { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -59,14 +61,11 @@ namespace TGC.MonoGame.TP
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 100, Vector3.Zero, Vector3.Up);
+            View = Matrix.CreateLookAt(Vector3.UnitZ * 200, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
@@ -84,22 +83,41 @@ namespace TGC.MonoGame.TP
             //SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            ModelMarble = Content.Load<Model>(ContentFolder3D + "marble/marble_high");
+            ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            // Asigno los efectos para cada parte de las mesh.
+
+            foreach (var mesh in ModelBox.Meshes)
             {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
+                // recordar que un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
                 {
                     meshPart.Effect = Effect;
                 }
             }
+
+            foreach (var mesh in ModelMarble.Meshes)
+            {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = Effect;
+                }
+            }
+
+            foreach (var mesh in ModelCurve.Meshes)
+            {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = Effect;
+                }
+            }
+
 
             base.LoadContent();
         }
@@ -142,12 +160,15 @@ namespace TGC.MonoGame.TP
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
         {
+            // esto sirve para acomodar en que parte del espacio quiero que se dibujen los modelos
+            var offset = new Vector3(-150f, 60f, 0);
+
             for (int row = 0; row < rows; row++)
             {
                 for (int col = 0; col < cols; col++)
                 {
                     // Posición ordenada en filas
-                    var position = new Vector3((col - cols / 2f) * spacing, 0, (row - rows / 2f) * spacing);
+                    var position = new Vector3(col * spacing, row * spacing, 0) + offset;
                     var worldMatrix = Matrix.CreateTranslation(position);
 
                     // Color aleatorio
@@ -170,14 +191,47 @@ namespace TGC.MonoGame.TP
 
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+
+            //Dibujo de la canica
+
+            var baseTransforsMarble = new Matrix[ModelMarble.Bones.Count];
+            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsMarble);
+
+            foreach (var mesh in ModelMarble.Meshes)
+            {
+
+                var relativeTransform = baseTransforsMarble[mesh.ParentBone.Index];
+                Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 70f, 0f));
+                mesh.Draw();
+            }
 
 
+
+
+            //Dibujo de las cajas
             Random = new Random(SEED);
 
-            var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
-            Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            var baseTransforsBox = new Matrix[ModelBox.Bones.Count];
+            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsBox);
 
-            DrawModelBoxes(Model, modelMeshesBaseTransforms, 2, 5, 20f);
+            DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
+
+
+            //Dibujo una curva
+
+            var baseTransforsCurve = new Matrix[ModelCurve.Bones.Count];
+            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsCurve);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
+
+            foreach (var mesh in ModelCurve.Meshes)
+            {
+
+                var relativeTransform = baseTransforsMarble[mesh.ParentBone.Index];
+                Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 40f, 0f));
+                mesh.Draw();
+            }
+
 
         }
 
