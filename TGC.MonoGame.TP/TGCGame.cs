@@ -26,10 +26,10 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            
+
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            
+
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
@@ -45,6 +45,8 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private Random Random;
+        private const int SEED = 0;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -64,7 +66,7 @@ namespace TGC.MonoGame.TP
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            View = Matrix.CreateLookAt(Vector3.UnitZ * 100, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
@@ -79,10 +81,10 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            //SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            Model = Content.Load<Model>(ContentFolder3D + "skybox/cube");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -117,7 +119,7 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
+
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -126,25 +128,57 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
+        private Color RandomColor(Random random)
+        {
+            // Construye un color aleatorio en base a un entero de 32 bits
+            return new Color((uint)random.Next());
+        }
+
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
+        ///
+
+        private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
+        {
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    // Posición ordenada en filas
+                    var position = new Vector3((col - cols / 2f) * spacing, 0, (row - rows / 2f) * spacing);
+                    var worldMatrix = Matrix.CreateTranslation(position);
+
+                    // Color aleatorio
+                    Effect.Parameters["DiffuseColor"].SetValue(RandomColor(Random).ToVector3());
+
+                    foreach (var mesh in model.Meshes)
+                    {
+                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                        Effect.Parameters["World"].SetValue(relativeTransform * worldMatrix);
+                        mesh.Draw();
+                    }
+                }
+            }
+        }
+
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
-            foreach (var mesh in Model.Meshes)
-            {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                mesh.Draw();
-            }
+
+            Random = new Random(SEED);
+
+            var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
+            Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+
+            DrawModelBoxes(Model, modelMeshesBaseTransforms, 2, 5, 20f);
+
         }
 
         /// <summary>
@@ -159,3 +193,4 @@ namespace TGC.MonoGame.TP
         }
     }
 }
+
