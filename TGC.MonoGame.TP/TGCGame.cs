@@ -49,6 +49,7 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         private Random Random;
         private const int SEED = 0;
+        private FreeCamera FreeCamera { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -58,10 +59,9 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            // Seria hasta aca.
+            var screenCenter = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, screenCenter);
+
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -142,6 +142,10 @@ namespace TGC.MonoGame.TP
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             World = Matrix.CreateRotationY(Rotation);
+
+            FreeCamera.Update(gameTime);
+            View = FreeCamera.View;
+            Projection = FreeCamera.Projection;
 
             base.Update(gameTime);
         }
