@@ -77,6 +77,9 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
+        ///
+
+
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
@@ -209,9 +212,6 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 70f, 0f));
                 mesh.Draw();
             }
-
-
-
 
             //Dibujo de las cajas
             Random = new Random(SEED);
