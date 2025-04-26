@@ -51,6 +51,16 @@ namespace TGC.MonoGame.TP
         private Model SplitDoubleSides { get; set; }
         private Model Tunnel { get; set; }
         private Model CurveLarge { get; set; }
+        private Model HelixLeft {get; set;}
+        private Model HelixRight {get; set;}
+        private Model HelixHalfLeft {get; set;}
+        private Model HelixHalfRight {get; set;}
+        private Model HelixLargeHalfLeft {get; set;}
+        private Model HelixLargeHalfRight {get; set;}
+        private Model HelixLargeLeft {get; set;}
+        private Model HelixLargeRight {get; set;}
+        private Model HelixLargeQuarterLeft {get; set;}
+        private Model HelixLargeQuarterRight {get; set;}
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -77,8 +87,6 @@ namespace TGC.MonoGame.TP
             FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, screenCenter);
 
             Matrix VistaNivel1 = Matrix.CreateLookAt(new Vector3(340, 350, 510), new Vector3(240, 300, 360), Vector3.Up);
-
-
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -115,6 +123,16 @@ namespace TGC.MonoGame.TP
             Straight = Content.Load<Model>(ContentFolder3D + "straights/straight");
             SplitDoubleSides = Content.Load<Model>(ContentFolder3D + "splits/split_double_sides");
             Tunnel = Content.Load<Model>(ContentFolder3D + "extras/tunnel");
+            HelixLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_left");
+            HelixRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_right");
+            HelixHalfLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_half_left");
+            HelixHalfRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_half_right");
+            HelixLargeHalfLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_half_left");
+            HelixLargeHalfRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_half_right");
+            HelixLargeLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_left");
+            HelixLargeRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_right");
+            HelixLargeQuarterLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_quarter_left");
+            HelixLargeQuarterRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_quarter_right");
             // preguntar si se pueden declarar en otro archivo? dejarian de ser private
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -136,7 +154,16 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(Straight, Effect);
             TrackLoader.AsignarEfecto(SplitDoubleSides, Effect);
             TrackLoader.AsignarEfecto(Tunnel, Effect);
-
+            TrackLoader.AsignarEfecto(HelixLeft,Effect);
+            TrackLoader.AsignarEfecto(HelixRight,Effect);
+            TrackLoader.AsignarEfecto(HelixHalfLeft,Effect);
+            TrackLoader.AsignarEfecto(HelixHalfRight,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeHalfLeft,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeHalfRight,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeLeft,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeRight,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeQuarterLeft,Effect);
+            TrackLoader.AsignarEfecto(HelixLargeQuarterRight,Effect);
 
 
             base.LoadContent();
@@ -162,7 +189,7 @@ namespace TGC.MonoGame.TP
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             KeyboardState keyboard = Keyboard.GetState();
-            
+
             if  (keyboard.IsKeyDown(Keys.W))
                 cameraPosition.Z -= cameraSpeed;
             if (keyboard.IsKeyDown(Keys.S))
@@ -199,6 +226,18 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         ///
+        private void DrawModel(Model model, float xPosition, float yPosition, float zPosition, Matrix offset){
+            var baseTransforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(baseTransforms);
+
+            foreach (var mesh in model.Meshes)
+            {
+                var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Pink.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform *  World * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
+                mesh.Draw();
+            }
+        }
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
         {
@@ -444,8 +483,35 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 10f) * globalOffset);
                 mesh.Draw();
             }
-            // -- Helix  (izquierda)
+            // -- Helix Left
+            DrawModel(HelixLeft,-110f, -15f, 0f,globalOffset);
 
+            // -- Helix Right
+            DrawModel(HelixRight,110f, -15f, -10f,globalOffset);
+
+            // -- Helix Half Left
+            DrawModel(HelixHalfLeft,110f, -15f, -20f,globalOffset);
+
+            // -- Helix Half Right
+            DrawModel(HelixHalfRight,110f, -15f, -30f,globalOffset);
+
+            // -- Helix Large Half Left
+            DrawModel(HelixLargeHalfLeft,110f, -15f, -40f,globalOffset);
+
+            // -- Helix Large Half Right
+            DrawModel(HelixLargeHalfRight,110f, -15f, -50f,globalOffset);
+
+            // -- Helix Large Left
+            DrawModel(HelixLargeLeft,110f, -15f, -60f,globalOffset);
+            
+            // -- Helix Large Right
+            DrawModel(HelixLargeRight,110f, -15f, -70f,globalOffset);
+
+            // -- Helix Large Quarter Left
+            DrawModel(HelixLargeQuarterLeft,110f, -15f, -80f,globalOffset);
+
+            // -- Helix Large Quarter Right
+            DrawModel(HelixLargeQuarterRight,110f, -15f, -90f,globalOffset);
 
             // --- Recta después de la curva ---
             var baseTransformsSlant1 = new Matrix[SlantLongA.Bones.Count];
@@ -571,6 +637,7 @@ namespace TGC.MonoGame.TP
             DrawLevel1();
             DrawLevel2();
 
+        
 
 
         }
