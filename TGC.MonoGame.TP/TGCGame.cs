@@ -60,6 +60,11 @@ namespace TGC.MonoGame.TP
         private const int SEED = 0;
         private FreeCamera FreeCamera { get; set; }
 
+        Vector3 cameraPosition = new Vector3(340, 350, 510);
+        Vector3 cameraTarget = new Vector3(240, 300, 360);
+        Vector3 cameraUp = Vector3.Up;
+        float cameraSpeed = 5f;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -152,6 +157,24 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
+
+            //Movimiento Camara
+
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            KeyboardState keyboard = Keyboard.GetState();
+            
+            if  (keyboard.IsKeyDown(Keys.W))
+                cameraPosition.Z -= cameraSpeed;
+            if (keyboard.IsKeyDown(Keys.S))
+                cameraPosition.Z += cameraSpeed;
+            if (keyboard.IsKeyDown(Keys.A))
+                cameraPosition.X -= cameraSpeed;
+            if (keyboard.IsKeyDown(Keys.D))
+                cameraPosition.X += cameraSpeed;
+            if (keyboard.IsKeyDown(Keys.Q))
+                cameraPosition.Y += cameraSpeed;
+            if (keyboard.IsKeyDown(Keys.E))
+                cameraPosition.Y -= cameraSpeed;
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
