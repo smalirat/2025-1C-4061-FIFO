@@ -52,6 +52,10 @@ namespace TGC.MonoGame.TP
         private Model RampLongC { get; set; }
         private Model RampLongD { get; set; }
         private Model Straight { get; set; }
+        private Model Split { get; set; }
+        private Model SplitLeft { get; set; }
+        private Model SplitRight { get; set; }
+        private Model SplitDouble { get; set; }
         private Model SplitDoubleSides { get; set; }
         private Model Tunnel { get; set; }
         private Model CurveLarge { get; set; }
@@ -131,6 +135,10 @@ namespace TGC.MonoGame.TP
             RampLongD = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_D");
             CurveLarge = Content.Load<Model>(ContentFolder3D + "curves/curve_large");
             Straight = Content.Load<Model>(ContentFolder3D + "straights/straight");
+            Split = Content.Load<Model>(ContentFolder3D + "splits/split");
+            SplitLeft = Content.Load<Model>(ContentFolder3D + "splits/split_left");
+            SplitRight = Content.Load<Model>(ContentFolder3D + "splits/split_right");
+            SplitDouble = Content.Load<Model>(ContentFolder3D + "splits/split_double");
             SplitDoubleSides = Content.Load<Model>(ContentFolder3D + "splits/split_double_sides");
             Tunnel = Content.Load<Model>(ContentFolder3D + "extras/tunnel");
             HelixLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_left");
@@ -167,6 +175,10 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(RampLongD, Effect);
             TrackLoader.AsignarEfecto(CurveLarge, Effect);
             TrackLoader.AsignarEfecto(Straight, Effect);
+            TrackLoader.AsignarEfecto(Split, Effect);
+            TrackLoader.AsignarEfecto(SplitLeft, Effect);
+            TrackLoader.AsignarEfecto(SplitRight, Effect);
+            TrackLoader.AsignarEfecto(SplitDouble, Effect);
             TrackLoader.AsignarEfecto(SplitDoubleSides, Effect);
             TrackLoader.AsignarEfecto(Tunnel, Effect);
             TrackLoader.AsignarEfecto(HelixLeft,Effect);
