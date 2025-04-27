@@ -39,6 +39,8 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+
+        // Modelos
         private Model ModelBox { get; set; }
         private Model ModelMarble { get; set; }
         private Model ModelCurve { get; set; }
@@ -46,6 +48,8 @@ namespace TGC.MonoGame.TP
         private Model BumpA { get; set; }
         private Model BumpSolidB { get; set; }
         private Model RampLongA { get; set; }
+        private Model RampLongB { get; set; }
+        private Model RampLongC { get; set; }
         private Model RampLongD { get; set; }
         private Model Straight { get; set; }
         private Model SplitDoubleSides { get; set; }
@@ -61,6 +65,10 @@ namespace TGC.MonoGame.TP
         private Model HelixLargeRight {get; set;}
         private Model HelixLargeQuarterLeft {get; set;}
         private Model HelixLargeQuarterRight {get; set;}
+        private Model WaveA {get; set;}
+        private Model WaveB {get; set;}
+        private Model WaveC {get; set;}
+
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -118,6 +126,8 @@ namespace TGC.MonoGame.TP
             BumpA = Content.Load<Model>(ContentFolder3D + "bump/bump_A");
             BumpSolidB = Content.Load<Model>(ContentFolder3D + "bump/bump_solid_B");
             RampLongA = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_A");
+            RampLongB = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_B");
+            RampLongC = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_C");
             RampLongD = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_D");
             CurveLarge = Content.Load<Model>(ContentFolder3D + "curves/curve_large");
             Straight = Content.Load<Model>(ContentFolder3D + "straights/straight");
@@ -133,6 +143,9 @@ namespace TGC.MonoGame.TP
             HelixLargeRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_right");
             HelixLargeQuarterLeft = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_quarter_left");
             HelixLargeQuarterRight = Content.Load<Model>(ContentFolder3D + "helixs/helix_large_quarter_right");
+            WaveA = Content.Load<Model>(ContentFolder3D + "waves/wave_A");
+            WaveB = Content.Load<Model>(ContentFolder3D + "waves/wave_B");
+            WaveC = Content.Load<Model>(ContentFolder3D + "waves/wave_C");
             // preguntar si se pueden declarar en otro archivo? dejarian de ser private
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -149,6 +162,8 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(BumpA, Effect);
             TrackLoader.AsignarEfecto(BumpSolidB, Effect);
             TrackLoader.AsignarEfecto(RampLongA, Effect);
+            TrackLoader.AsignarEfecto(RampLongB, Effect);
+            TrackLoader.AsignarEfecto(RampLongC, Effect);
             TrackLoader.AsignarEfecto(RampLongD, Effect);
             TrackLoader.AsignarEfecto(CurveLarge, Effect);
             TrackLoader.AsignarEfecto(Straight, Effect);
@@ -163,8 +178,10 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(HelixLargeLeft,Effect);
             TrackLoader.AsignarEfecto(HelixLargeRight,Effect);
             TrackLoader.AsignarEfecto(HelixLargeQuarterLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeQuarterRight,Effect);
-
+            TrackLoader.AsignarEfecto(HelixLargeQuarterRight,Effect);   
+            TrackLoader.AsignarEfecto(WaveA,Effect);
+            TrackLoader.AsignarEfecto(WaveB,Effect);
+            TrackLoader.AsignarEfecto(WaveC,Effect);
 
             base.LoadContent();
         }
@@ -575,6 +592,107 @@ namespace TGC.MonoGame.TP
         }
 
 
+        private void DrawLevel3()
+        {
+            // MATRIZ DE OFFSET GLOBAL
+            Matrix globalOffset = Matrix.CreateTranslation(0f, 200f, 0f);
+
+            // --- Straight #1 ---
+            var baseTransformsStraight = new Matrix[Straight.Bones.Count];
+            Straight.CopyAbsoluteBoneTransformsTo(baseTransformsStraight);
+
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(0f, 0f, 0f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- CurveLarge #1 ---
+            var baseTransformsCurveLarge = new Matrix[CurveLarge.Bones.Count];
+            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsCurveLarge);
+
+            foreach (var mesh in CurveLarge.Meshes)
+            {
+                var relativeTransform = baseTransformsCurveLarge[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(10f, 0f, 20f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- Straight #2 ---
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(30f, 0f, 30f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- WaveA #1 (2.5f/2) ---
+            var baseTransformsWaveA = new Matrix[WaveA.Bones.Count];
+            WaveA.CopyAbsoluteBoneTransformsTo(baseTransformsWaveA);
+
+            foreach (var mesh in WaveA.Meshes)
+            {
+                var relativeTransform = baseTransformsWaveA[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(55f, 0f, 28.75f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- Straight #3 ---
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(80f, 0f, 30f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- CurveLarge #2 ---
+            foreach (var mesh in CurveLarge.Meshes)
+            {
+                var relativeTransform = baseTransformsCurveLarge[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(100f, 0f, 20f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- WaveB #1 (5f/2)---
+            var baseTransformsWaveB = new Matrix[WaveB.Bones.Count];
+            WaveB.CopyAbsoluteBoneTransformsTo(baseTransformsWaveB);
+
+            foreach (var mesh in WaveB.Meshes)
+            {
+                var relativeTransform = baseTransformsWaveB[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(112.5f, 0f, -15f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- Straight #4 ---
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(110f, 0f, -40f) * globalOffset);
+                mesh.Draw();
+            }
+
+            // --- WaveC #1 (10f/2)---
+            var baseTransformsWaveC = new Matrix[WaveC.Bones.Count];
+            WaveC.CopyAbsoluteBoneTransformsTo(baseTransformsWaveC);
+
+            foreach (var mesh in WaveC.Meshes)
+            {
+                var relativeTransform = baseTransformsWaveC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(115f, 0f, -65f) * globalOffset);
+                mesh.Draw();
+            }
+        }
 
 
 
@@ -636,7 +754,7 @@ namespace TGC.MonoGame.TP
 
             DrawLevel1();
             DrawLevel2();
-
+            DrawLevel3();
         
 
 
