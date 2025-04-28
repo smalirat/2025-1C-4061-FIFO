@@ -260,17 +260,17 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         ///
-        private void DrawModel(Model model, float xPosition, float yPosition, float zPosition, Matrix offset){
+        private void DrawModel(Model model,float xPosition, float yPosition, float zPosition, Matrix offset, Color color){
             var baseTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(baseTransforms);
 
             foreach (var mesh in model.Meshes)
-            {
-                var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Pink.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform *  World * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                mesh.Draw();
-            }
+                {
+                    var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                    Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
+                    mesh.Draw();
+                }
         }
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
@@ -468,7 +468,19 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            //Double Split
+            //Split
+
+            //DrawModel(Split, false, -90f, -15f, 100f, globalOffset, Color.Beige);
+
+            //SplitLeft
+
+            //DrawModel(SplitLeft, false,-90f, -15f, 100f, globalOffset, Color.Violet);
+
+            //SplitRight
+
+            //Split Double
+
+            //Double Split Sides
 
             var baseTransformsSplitDoubleSides = new Matrix[SplitDoubleSides.Bones.Count];
             CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsSplitDoubleSides);
@@ -517,35 +529,6 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 10f) * globalOffset);
                 mesh.Draw();
             }
-            // -- Helix Left
-            DrawModel(HelixLeft,-110f, -15f, 0f,globalOffset);
-
-            // -- Helix Right
-            DrawModel(HelixRight,110f, -15f, -10f,globalOffset);
-
-            // -- Helix Half Left
-            DrawModel(HelixHalfLeft,110f, -15f, -20f,globalOffset);
-
-            // -- Helix Half Right
-            DrawModel(HelixHalfRight,110f, -15f, -30f,globalOffset);
-
-            // -- Helix Large Half Left
-            DrawModel(HelixLargeHalfLeft,110f, -15f, -40f,globalOffset);
-
-            // -- Helix Large Half Right
-            DrawModel(HelixLargeHalfRight,110f, -15f, -50f,globalOffset);
-
-            // -- Helix Large Left
-            DrawModel(HelixLargeLeft,110f, -15f, -60f,globalOffset);
-            
-            // -- Helix Large Right
-            DrawModel(HelixLargeRight,110f, -15f, -70f,globalOffset);
-
-            // -- Helix Large Quarter Left
-            DrawModel(HelixLargeQuarterLeft,110f, -15f, -80f,globalOffset);
-
-            // -- Helix Large Quarter Right
-            DrawModel(HelixLargeQuarterRight,110f, -15f, -90f,globalOffset);
 
             // --- Recta después de la curva ---
             var baseTransformsSlant1 = new Matrix[SlantLongA.Bones.Count];
@@ -607,7 +590,6 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
-
 
         private void DrawLevel3()
         {
@@ -711,6 +693,49 @@ namespace TGC.MonoGame.TP
             }
         }
 
+        private void DrawLevel4()
+{
+    Matrix globalOffset = Matrix.CreateTranslation(0f, 0f, 0f);
+
+    float baseY = 0f; // altura base de todos
+    float separationY = 5f; // separación vertical entre modelos (más separación = más espacio)
+
+    Model[] models = new Model[]
+    {
+        HelixLeft,
+        HelixRight,
+        HelixHalfLeft,
+        HelixHalfRight,
+        HelixLargeHalfLeft,
+        HelixLargeHalfRight,
+        HelixLargeLeft,
+        HelixLargeRight,
+        HelixLargeQuarterLeft,
+        HelixLargeQuarterRight
+    };
+
+    /*
+    Color[] colors = new Color[]
+    {
+        Color.Red,
+        Color.White,
+        Color.Black,
+        Color.Pink,
+        Color.Orange,
+        Color.Green,
+        Color.Red,
+        Color.Beige,
+        Color.Pink,
+        Color.HotPink
+    };
+    */
+    for (int i = 0; i < models.Length; i++)
+    {
+        float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
+        DrawModel(models[i], 0f, yPosition, 0f, globalOffset, Color.Violet); // usas 0 para x y z
+    }
+}
+
 
 
         protected override void Draw(GameTime gameTime)
@@ -759,9 +784,10 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            DrawLevel1();
-            DrawLevel2();
-            DrawLevel3();
+            //DrawLevel1();
+            //DrawLevel2();
+            //DrawLevel3();
+            DrawLevel4();
         
 
 
