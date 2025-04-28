@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Content.Models;
 
 namespace TGC.MonoGame.TP
 {
@@ -41,8 +42,10 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         // Modelos
+
+        private Pelota pelotita { get; set; }
         private Model ModelBox { get; set; }
-        private Model ModelMarble { get; set; }
+        //private Model ModelMarble { get; set; }
         private Model ModelCurve { get; set; }
         private Model SlantLongA { get; set; }
         private Model BumpA { get; set; }
@@ -103,7 +106,7 @@ namespace TGC.MonoGame.TP
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = VistaNivel1;
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 10, 2500000);
 
             base.Initialize();
         }
@@ -122,9 +125,9 @@ namespace TGC.MonoGame.TP
             //SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo los modelos.
-
+            pelotita = new Pelota(Content);
             ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-            ModelMarble = Content.Load<Model>(ContentFolder3D + "marble/marble_high");
+            //ModelMarble = Content.Load<Model>(ContentFolder3D + "marble/marble_high");
             ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
             SlantLongA = Content.Load<Model>(ContentFolder3D + "slants/slant_long_A");
             BumpA = Content.Load<Model>(ContentFolder3D + "bump/bump_A");
@@ -164,7 +167,7 @@ namespace TGC.MonoGame.TP
             // Asigno los efectos para cada parte de las mesh.
 
             TrackLoader.AsignarEfecto(ModelBox, Effect);
-            TrackLoader.AsignarEfecto(ModelMarble, Effect);
+            //TrackLoader.AsignarEfecto(ModelMarble, Effect);
             TrackLoader.AsignarEfecto(ModelCurve, Effect);
             TrackLoader.AsignarEfecto(SlantLongA, Effect);
             TrackLoader.AsignarEfecto(BumpA, Effect);
@@ -231,6 +234,8 @@ namespace TGC.MonoGame.TP
                 cameraPosition.Y += cameraSpeed;
             if (keyboard.IsKeyDown(Keys.E))
                 cameraPosition.Y -= cameraSpeed;
+
+            pelotita.Update(gameTime, keyboard);//movimientos ikjl
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -717,18 +722,8 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
-            //Dibujo de la canica
-
-            var baseTransforsMarble = new Matrix[ModelMarble.Bones.Count];
-            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsMarble);
-
-            foreach (var mesh in ModelMarble.Meshes)
-            {
-
-                var relativeTransform = baseTransforsMarble[mesh.ParentBone.Index];
-                Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 70f, 0f));
-                mesh.Draw();
-            }
+            //Dibujo de la canica/pelotita
+            pelotita.Draw(World, View, Projection);
 
             //Dibujo de las cajas
             Random = new Random(SEED);
@@ -748,7 +743,7 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in ModelCurve.Meshes)
             {
 
-                var relativeTransform = baseTransforsMarble[mesh.ParentBone.Index];
+                var relativeTransform = baseTransforsCurve[mesh.ParentBone.Index];
                 Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 40f, 0f));
                 mesh.Draw();
             }
