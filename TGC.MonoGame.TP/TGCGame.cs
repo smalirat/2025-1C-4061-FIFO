@@ -43,10 +43,11 @@ namespace TGC.MonoGame.TP
 
         // Modelos
 
-        private Pelota pelotita { get; set; }
+        // private Pelota pelotita { get; set; }
         private Model ModelBox { get; set; }
         private Model ModelCurve { get; set; }
         private Model SlantLongA { get; set; }
+        private Model SlantLongC { get; set; }
         private Model BumpA { get; set; }
         private Model BumpSolidB { get; set; }
         private Model RampLongA { get; set; }
@@ -61,24 +62,22 @@ namespace TGC.MonoGame.TP
         private Model SplitDoubleSides { get; set; }
         private Model Tunnel { get; set; }
         private Model CurveLarge { get; set; }
-        private Model HelixLeft {get; set;}
-        private Model HelixRight {get; set;}
-        private Model HelixHalfLeft {get; set;}
-        private Model HelixHalfRight {get; set;}
-        private Model HelixLargeHalfLeft {get; set;}
-        private Model HelixLargeHalfRight {get; set;}
-        private Model HelixLargeLeft {get; set;}
-        private Model HelixLargeRight {get; set;}
-        private Model HelixLargeQuarterLeft {get; set;}
-        private Model HelixLargeQuarterRight {get; set;}
-        private Model WaveA {get; set;}
-        private Model WaveB {get; set;}
-        private Model WaveC {get; set;}
-        private Model Funnel {get; set;}
-        private Model FunnelLong {get; set;}
-
-        private Model WallHalf {get; set;}
-
+        private Model HelixLeft { get; set; }
+        private Model HelixRight { get; set; }
+        private Model HelixHalfLeft { get; set; }
+        private Model HelixHalfRight { get; set; }
+        private Model HelixLargeHalfLeft { get; set; }
+        private Model HelixLargeHalfRight { get; set; }
+        private Model HelixLargeLeft { get; set; }
+        private Model HelixLargeRight { get; set; }
+        private Model HelixLargeQuarterLeft { get; set; }
+        private Model HelixLargeQuarterRight { get; set; }
+        private Model WaveA { get; set; }
+        private Model WaveB { get; set; }
+        private Model WaveC { get; set; }
+        private Model Funnel { get; set; }
+        private Model FunnelLong { get; set; }
+        private Model WallHalf { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -88,10 +87,10 @@ namespace TGC.MonoGame.TP
         private const int SEED = 0;
         private FreeCamera FreeCamera { get; set; }
 
-        Vector3 cameraPosition = new Vector3(340, 350, 510);
+        /* Vector3 cameraPosition = new Vector3(340, 350, 510);
         Vector3 cameraTarget = new Vector3(240, 300, 360);
         Vector3 cameraUp = Vector3.Up;
-        float cameraSpeed = 5f;
+        float cameraSpeed = 5f; */
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -128,10 +127,11 @@ namespace TGC.MonoGame.TP
             //SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo los modelos.
-            pelotita = new Pelota(Content);
+            //pelotita = new Pelota(Content);
             ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
             SlantLongA = Content.Load<Model>(ContentFolder3D + "slants/slant_long_A");
+            SlantLongC = Content.Load<Model>(ContentFolder3D + "slants/slant_long_C");
             BumpA = Content.Load<Model>(ContentFolder3D + "bump/bump_A");
             BumpSolidB = Content.Load<Model>(ContentFolder3D + "bump/bump_solid_B");
             RampLongA = Content.Load<Model>(ContentFolder3D + "ramps/ramp_long_A");
@@ -161,7 +161,7 @@ namespace TGC.MonoGame.TP
             WaveC = Content.Load<Model>(ContentFolder3D + "waves/wave_C");
             Funnel = Content.Load<Model>(ContentFolder3D + "funnels/funnel");
             FunnelLong = Content.Load<Model>(ContentFolder3D + "funnels/funnel_long");
-            WallHalf =  Content.Load<Model>(ContentFolder3D + "extras/wallHalf");
+            WallHalf = Content.Load<Model>(ContentFolder3D + "extras/wallHalf");
             // preguntar si se pueden declarar en otro archivo? dejarian de ser private
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -175,6 +175,7 @@ namespace TGC.MonoGame.TP
             //TrackLoader.AsignarEfecto(ModelMarble, Effect);
             TrackLoader.AsignarEfecto(ModelCurve, Effect);
             TrackLoader.AsignarEfecto(SlantLongA, Effect);
+            TrackLoader.AsignarEfecto(SlantLongC, Effect);
             TrackLoader.AsignarEfecto(BumpA, Effect);
             TrackLoader.AsignarEfecto(BumpSolidB, Effect);
             TrackLoader.AsignarEfecto(RampLongA, Effect);
@@ -189,22 +190,22 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(SplitDouble, Effect);
             TrackLoader.AsignarEfecto(SplitDoubleSides, Effect);
             TrackLoader.AsignarEfecto(Tunnel, Effect);
-            TrackLoader.AsignarEfecto(HelixLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixRight,Effect);
-            TrackLoader.AsignarEfecto(HelixHalfLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixHalfRight,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeHalfLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeHalfRight,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeRight,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeQuarterLeft,Effect);
-            TrackLoader.AsignarEfecto(HelixLargeQuarterRight,Effect);   
-            TrackLoader.AsignarEfecto(WaveA,Effect);
-            TrackLoader.AsignarEfecto(WaveB,Effect);
-            TrackLoader.AsignarEfecto(WaveC,Effect);
-            TrackLoader.AsignarEfecto(Funnel,Effect);
-            TrackLoader.AsignarEfecto(FunnelLong,Effect);
-            TrackLoader.AsignarEfecto(WallHalf,Effect);
+            TrackLoader.AsignarEfecto(HelixLeft, Effect);
+            TrackLoader.AsignarEfecto(HelixRight, Effect);
+            TrackLoader.AsignarEfecto(HelixHalfLeft, Effect);
+            TrackLoader.AsignarEfecto(HelixHalfRight, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeHalfLeft, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeHalfRight, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeLeft, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeRight, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeQuarterLeft, Effect);
+            TrackLoader.AsignarEfecto(HelixLargeQuarterRight, Effect);
+            TrackLoader.AsignarEfecto(WaveA, Effect);
+            TrackLoader.AsignarEfecto(WaveB, Effect);
+            TrackLoader.AsignarEfecto(WaveC, Effect);
+            TrackLoader.AsignarEfecto(Funnel, Effect);
+            TrackLoader.AsignarEfecto(FunnelLong, Effect);
+            TrackLoader.AsignarEfecto(WallHalf, Effect);
 
             base.LoadContent();
         }
@@ -230,20 +231,21 @@ namespace TGC.MonoGame.TP
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             KeyboardState keyboard = Keyboard.GetState();
 
-            if  (keyboard.IsKeyDown(Keys.W))
-                cameraPosition.Z -= cameraSpeed;
-            if (keyboard.IsKeyDown(Keys.S))
-                cameraPosition.Z += cameraSpeed;
-            if (keyboard.IsKeyDown(Keys.A))
-                cameraPosition.X -= cameraSpeed;
-            if (keyboard.IsKeyDown(Keys.D))
-                cameraPosition.X += cameraSpeed;
-            if (keyboard.IsKeyDown(Keys.Q))
-                cameraPosition.Y += cameraSpeed;
-            if (keyboard.IsKeyDown(Keys.E))
-                cameraPosition.Y -= cameraSpeed;
+            /*  if (keyboard.IsKeyDown(Keys.W))
+                  cameraPosition.Z -= cameraSpeed;
+              if (keyboard.IsKeyDown(Keys.S))
+                  cameraPosition.Z += cameraSpeed;
+              if (keyboard.IsKeyDown(Keys.A))
+                  cameraPosition.X -= cameraSpeed;
+              if (keyboard.IsKeyDown(Keys.D))
+                  cameraPosition.X += cameraSpeed;
+              if (keyboard.IsKeyDown(Keys.Q))
+                  cameraPosition.Y += cameraSpeed;
+              if (keyboard.IsKeyDown(Keys.E))
+                  cameraPosition.Y -= cameraSpeed;*/
 
-            pelotita.Update(gameTime, keyboard);//movimientos ikjl
+            //pelotita.Update(gameTime, keyboard);//movimientos ikjl
+
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -268,22 +270,25 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         ///
-        private void DrawModel(Model model, bool rotate, float xPosition, float yPosition, float zPosition, Matrix offset, Color color){
+        private void DrawModel(Model model, bool rotate, float xPosition, float yPosition, float zPosition, Matrix offset, Color color)
+        {
             var baseTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(baseTransforms);
             foreach (var mesh in model.Meshes)
+            {
+                var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                if (rotate)
                 {
-                    var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                    Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
-                    if(rotate){
-                        Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                    }
-                    else{
-
-                        Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                    }
-                    mesh.Draw();
+                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition, zPosition) * offset);
                 }
+                else
+                {
+
+                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition, zPosition) * offset);
+                }
+                mesh.Draw();
+            }
         }
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
@@ -437,7 +442,6 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            // --- Primera Curva Amplia ---
             // --- Straight #3
             foreach (var mesh in Straight.Meshes)
             {
@@ -481,17 +485,6 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            //Split
-
-            //DrawModel(Split, false, -90f, -15f, 100f, globalOffset, Color.Beige);
-
-            //SplitLeft
-
-            //DrawModel(SplitLeft, false,-90f, -15f, 100f, globalOffset, Color.Violet);
-
-            //SplitRight
-
-            //Split Double
 
             //Double Split Sides
 
@@ -534,6 +527,7 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 20f) * globalOffset);
                 mesh.Draw();
             }
+
             // --- Straight #6
             foreach (var mesh in Straight.Meshes)
             {
@@ -543,65 +537,86 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            // --- Recta después de la curva ---
-            var baseTransformsSlant1 = new Matrix[SlantLongA.Bones.Count];
-            SlantLongA.CopyAbsoluteBoneTransformsTo(baseTransformsSlant1);
+            // --- Helix Large Right #1
+            var baseTransformsHelixLargeRight = new Matrix[HelixLargeRight.Bones.Count];
+            HelixLargeRight.CopyAbsoluteBoneTransformsTo(baseTransformsHelixLargeRight);
 
-            foreach (var mesh in SlantLongA.Meshes)
+            foreach (var mesh in HelixLargeRight.Meshes)
             {
-                var relativeTransform = baseTransformsSlant1[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(80f, 0f, 140f) * globalOffset);
+                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -35f, 5f) * globalOffset);
                 mesh.Draw();
             }
 
-            // --- Bucle Central Grande ---
-            var baseTransformsCurveLarge2 = new Matrix[CurveLarge.Bones.Count];
-            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsCurveLarge2);
-
-            foreach (var mesh in CurveLarge.Meshes)
+            // --- Helix Large Right #2
+            foreach (var mesh in HelixLargeRight.Meshes)
             {
-                var relativeTransform = baseTransformsCurveLarge2[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(150f, 0f, 220f) * globalOffset);
+                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -55f, 5f) * globalOffset);
                 mesh.Draw();
             }
 
-            // --- Salida del Bucle con Rampa ---
-            var baseTransformsRamp2 = new Matrix[RampLongA.Bones.Count];
-            RampLongA.CopyAbsoluteBoneTransformsTo(baseTransformsRamp2);
-
-            foreach (var mesh in RampLongA.Meshes)
+            // --- Straight #6
+            foreach (var mesh in Straight.Meshes)
             {
-                var relativeTransform = baseTransformsRamp2[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(220f, -20f, 180f) * globalOffset);
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -30f) * globalOffset);
+                mesh.Draw();
+            }
+            // --- Straight #7
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -40f) * globalOffset);
+                mesh.Draw();
+            }
+            // --- Straight #8
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -50f) * globalOffset);
                 mesh.Draw();
             }
 
-            // --- Pequeña Curva ---
-            var baseTransformsModelCurve = new Matrix[ModelCurve.Bones.Count];
-            ModelCurve.CopyAbsoluteBoneTransformsTo(baseTransformsModelCurve);
+            // --- SLANT LONG C  ---
+            var baseTransformsSlantLongC = new Matrix[SlantLongC.Bones.Count];
+            SlantLongC.CopyAbsoluteBoneTransformsTo(baseTransformsSlantLongC);
 
-            foreach (var mesh in ModelCurve.Meshes)
+            foreach (var mesh in SlantLongC.Meshes)
             {
-                var relativeTransform = baseTransformsModelCurve[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(260f, -20f, 120f) * globalOffset);
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -90f, -65f) * globalOffset);
+                mesh.Draw();
+            }
+            // --- SLANT LONG C #2  ---
+
+            foreach (var mesh in SlantLongC.Meshes)
+            {
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -95f, -75f) * globalOffset);
+                mesh.Draw();
+            }
+            foreach (var mesh in SlantLongC.Meshes)
+            {
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -100f, -85f) * globalOffset);
                 mesh.Draw();
             }
 
-            // --- Final - Bache para Caída ---
-            var baseTransformsBump = new Matrix[BumpSolidB.Bones.Count];
-            BumpSolidB.CopyAbsoluteBoneTransformsTo(baseTransformsBump);
+            //Tunnel
 
-            foreach (var mesh in BumpSolidB.Meshes)
-            {
-                var relativeTransform = baseTransformsBump[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Orange.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(280f, -40f, 80f) * globalOffset);
-                mesh.Draw();
-            }
+
+
+
+
         }
 
         private void DrawLevel3()
@@ -710,8 +725,8 @@ namespace TGC.MonoGame.TP
         {
             Matrix globalOffset = Matrix.CreateTranslation(0f, 0f, 0f);
 
-            float baseY = 0f; 
-            float separationY = 5f; 
+            float baseY = 0f;
+            float separationY = 5f;
 
             Model[] models = new Model[]
             {
@@ -726,26 +741,28 @@ namespace TGC.MonoGame.TP
                 HelixLargeQuarterLeft,
                 HelixLargeQuarterRight
             };
-            
+
             for (int i = 0; i < models.Length; i++)
-            {   
+            {
                 float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
                 DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, Color.Purple);
             }
         }
 
-        private void DrawLevel5(){
+        private void DrawLevel5()
+        {
             float zBasePosition = 0f;
             float yBasePosition = 0f;
             Matrix globalOffset = Matrix.CreateTranslation(0f, 150f, 0f);
-            
-            for(int i = 0; i < 30; i++){
-                DrawModel(Funnel, true,0f,yBasePosition, zBasePosition,globalOffset,Color.Peru);
+
+            for (int i = 0; i < 30; i++)
+            {
+                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, Color.Peru);
                 zBasePosition += 10f;
-                yBasePosition += 5f;    
-                DrawModel(Funnel, true,0f, yBasePosition,zBasePosition,globalOffset,Color.Wheat);
-                zBasePosition += 10f;   
-                yBasePosition += 5f;     
+                yBasePosition += 5f;
+                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, Color.Wheat);
+                zBasePosition += 10f;
+                yBasePosition += 5f;
             }
         }
 
@@ -761,7 +778,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
             //Dibujo de la canica/pelotita
-            pelotita.Draw(World, View, Projection);
+            //pelotita.Draw(World, View, Projection);
 
             //Dibujo de las cajas
             Random = new Random(SEED);
@@ -771,31 +788,6 @@ namespace TGC.MonoGame.TP
 
             DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
 
-
-            //Dibujo una curva
-
-            var baseTransforsCurve = new Matrix[ModelCurve.Bones.Count];
-            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsCurve);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
-
-            foreach (var mesh in ModelCurve.Meshes)
-            {
-
-                var relativeTransform = baseTransforsCurve[mesh.ParentBone.Index];
-                Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 40f, 0f));
-                mesh.Draw();
-            }
-
-            var baseTransforsSlantLongA = new Matrix[SlantLongA.Bones.Count];
-            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsSlantLongA);
-
-            foreach (var mesh in SlantLongA.Meshes)
-            {
-
-                var relativeTransform = baseTransforsSlantLongA[mesh.ParentBone.Index];
-                Effect.Parameters["World"].SetValue(relativeTransform * World * Matrix.CreateTranslation(-60f, 20f, 0f));
-                mesh.Draw();
-            }
 
             DrawLevel1();
             DrawLevel2();
