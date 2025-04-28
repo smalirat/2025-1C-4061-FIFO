@@ -72,6 +72,10 @@ namespace TGC.MonoGame.TP
         private Model WaveA {get; set;}
         private Model WaveB {get; set;}
         private Model WaveC {get; set;}
+        private Model Funnel {get; set;}
+        private Model FunnelLong {get; set;}
+
+        private Model WallHalf {get; set;}
 
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
@@ -154,6 +158,9 @@ namespace TGC.MonoGame.TP
             WaveA = Content.Load<Model>(ContentFolder3D + "waves/wave_A");
             WaveB = Content.Load<Model>(ContentFolder3D + "waves/wave_B");
             WaveC = Content.Load<Model>(ContentFolder3D + "waves/wave_C");
+            Funnel = Content.Load<Model>(ContentFolder3D + "funnels/funnel");
+            FunnelLong = Content.Load<Model>(ContentFolder3D + "funnels/funnel_long");
+            WallHalf =  Content.Load<Model>(ContentFolder3D + "extras/wallHalf");
             // preguntar si se pueden declarar en otro archivo? dejarian de ser private
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -194,6 +201,9 @@ namespace TGC.MonoGame.TP
             TrackLoader.AsignarEfecto(WaveA,Effect);
             TrackLoader.AsignarEfecto(WaveB,Effect);
             TrackLoader.AsignarEfecto(WaveC,Effect);
+            TrackLoader.AsignarEfecto(Funnel,Effect);
+            TrackLoader.AsignarEfecto(FunnelLong,Effect);
+            TrackLoader.AsignarEfecto(WallHalf,Effect);
 
             base.LoadContent();
         }
@@ -255,17 +265,27 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         ///
-        private void DrawModel(Model model,float xPosition, float yPosition, float zPosition, Matrix offset, Color color){
+        private void DrawModel(Model model, bool rotate, float xPosition, float yPosition, float zPosition, Matrix offset, Color color){
             var baseTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(baseTransforms);
-
-            foreach (var mesh in model.Meshes)
-                {
-                    var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                    Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
-                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                    mesh.Draw();
-                }
+            if(rotate){
+                foreach (var mesh in model.Meshes)
+                    {
+                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                        Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                        Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
+                        mesh.Draw();
+                    }
+            }
+            else{
+                foreach (var mesh in model.Meshes)
+                    {
+                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                        Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                        Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
+                        mesh.Draw();
+                    }
+            }
         }
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
@@ -689,47 +709,44 @@ namespace TGC.MonoGame.TP
         }
 
         private void DrawLevel4()
-{
-    Matrix globalOffset = Matrix.CreateTranslation(0f, 0f, 0f);
+        {
+            Matrix globalOffset = Matrix.CreateTranslation(0f, 0f, 0f);
 
-    float baseY = 0f; // altura base de todos
-    float separationY = 5f; // separación vertical entre modelos (más separación = más espacio)
+            float baseY = 0f; 
+            float separationY = 5f; 
 
-    Model[] models = new Model[]
-    {
-        HelixLeft,
-        HelixRight,
-        HelixHalfLeft,
-        HelixHalfRight,
-        HelixLargeHalfLeft,
-        HelixLargeHalfRight,
-        HelixLargeLeft,
-        HelixLargeRight,
-        HelixLargeQuarterLeft,
-        HelixLargeQuarterRight
-    };
+            Model[] models = new Model[]
+            {
+                HelixLeft,
+                HelixRight,
+                HelixHalfLeft,
+                HelixHalfRight,
+                HelixLargeHalfLeft,
+                HelixLargeHalfRight,
+                HelixLargeLeft,
+                HelixLargeRight,
+                HelixLargeQuarterLeft,
+                HelixLargeQuarterRight
+            };
+            for (int i = 0; i < models.Length; i++)
+            {
+                float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
+                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, Color.Violet); 
+            }
+        }
 
-    /*
-    Color[] colors = new Color[]
-    {
-        Color.Red,
-        Color.White,
-        Color.Black,
-        Color.Pink,
-        Color.Orange,
-        Color.Green,
-        Color.Red,
-        Color.Beige,
-        Color.Pink,
-        Color.HotPink
-    };
-    */
-    for (int i = 0; i < models.Length; i++)
-    {
-        float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-        DrawModel(models[i], 0f, yPosition, 0f, globalOffset, Color.Violet); // usas 0 para x y z
-    }
-}
+        private void DrawLevel5(){
+            float zBasePosition = 10f;
+            Matrix globalOffset = Matrix.CreateTranslation(0f, 150f, 0f);
+            
+            for(int i = 0; i < 6; i++){
+                DrawModel(FunnelLong, false, 0f, 0f, zBasePosition, globalOffset, Color.Peru);
+                zBasePosition += 30f;
+                DrawModel(FunnelLong, true, 0f, 0f, zBasePosition, globalOffset, Color.Wheat);
+                zBasePosition += 30f;    
+            }
+            
+        }
 
 
 
@@ -789,11 +806,11 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            //DrawLevel1();
-            //DrawLevel2();
-            //DrawLevel3();
+            DrawLevel1();
+            DrawLevel2();
+            DrawLevel3();
             DrawLevel4();
-        
+            DrawLevel5();
 
 
         }
