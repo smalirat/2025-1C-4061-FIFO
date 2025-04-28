@@ -45,7 +45,6 @@ namespace TGC.MonoGame.TP
 
         private Pelota pelotita { get; set; }
         private Model ModelBox { get; set; }
-        //private Model ModelMarble { get; set; }
         private Model ModelCurve { get; set; }
         private Model SlantLongA { get; set; }
         private Model BumpA { get; set; }
@@ -127,7 +126,6 @@ namespace TGC.MonoGame.TP
             // Cargo los modelos.
             pelotita = new Pelota(Content);
             ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-            //ModelMarble = Content.Load<Model>(ContentFolder3D + "marble/marble_high");
             ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
             SlantLongA = Content.Load<Model>(ContentFolder3D + "slants/slant_long_A");
             BumpA = Content.Load<Model>(ContentFolder3D + "bump/bump_A");
@@ -784,9 +782,9 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            //DrawLevel1();
-            //DrawLevel2();
-            //DrawLevel3();
+            DrawLevel1();
+            DrawLevel2();
+            DrawLevel3();
             DrawLevel4();
         
 
