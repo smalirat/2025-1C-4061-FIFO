@@ -271,24 +271,19 @@ namespace TGC.MonoGame.TP
         private void DrawModel(Model model, bool rotate, float xPosition, float yPosition, float zPosition, Matrix offset, Color color){
             var baseTransforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(baseTransforms);
-            if(rotate){
-                foreach (var mesh in model.Meshes)
-                    {
-                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                        Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+            foreach (var mesh in model.Meshes)
+                {
+                    var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                    Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                    if(rotate){
                         Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                        mesh.Draw();
                     }
-            }
-            else{
-                foreach (var mesh in model.Meshes)
-                    {
-                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                        Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+                    else{
+
                         Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition,zPosition) * offset);
-                        mesh.Draw();
                     }
-            }
+                    mesh.Draw();
+                }
         }
 
         private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
@@ -731,24 +726,27 @@ namespace TGC.MonoGame.TP
                 HelixLargeQuarterLeft,
                 HelixLargeQuarterRight
             };
+            
             for (int i = 0; i < models.Length; i++)
-            {
+            {   
                 float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, Color.Violet); 
+                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, Color.Purple);
             }
         }
 
         private void DrawLevel5(){
-            float zBasePosition = 10f;
+            float zBasePosition = 0f;
+            float yBasePosition = 0f;
             Matrix globalOffset = Matrix.CreateTranslation(0f, 150f, 0f);
             
-            for(int i = 0; i < 6; i++){
-                DrawModel(FunnelLong, false, 0f, 0f, zBasePosition, globalOffset, Color.Peru);
-                zBasePosition += 30f;
-                DrawModel(FunnelLong, true, 0f, 0f, zBasePosition, globalOffset, Color.Wheat);
-                zBasePosition += 30f;    
+            for(int i = 0; i < 30; i++){
+                DrawModel(Funnel, true,0f,yBasePosition, zBasePosition,globalOffset,Color.Peru);
+                zBasePosition += 10f;
+                yBasePosition += 5f;    
+                DrawModel(Funnel, true,0f, yBasePosition,zBasePosition,globalOffset,Color.Wheat);
+                zBasePosition += 10f;   
+                yBasePosition += 5f;     
             }
-            
         }
 
 
