@@ -118,13 +118,13 @@ namespace TGC.MonoGame.TP
 
             //Dibujo de la canica/pelotita
             pelotita.Draw(World, View, Projection);
-            
+
             Random = new Random(SEED);
 
             //Dibujo el escenario
             DrawLevel1();
             DrawLevel2();
-            DrawLevel3();
+            //DrawLevel3();
             DrawLevel4();
             DrawLevel5();
             DrawLevel6();
@@ -168,7 +168,7 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            
+
             // Cargo los modelos.
             pelotita = new Pelota(Content);
             escenaRecta = new EscenaRecta(Content);
@@ -345,43 +345,6 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        private void DrawLevel3()
-        {
-            Matrix globalOffset = Matrix.CreateTranslation(0f, -250f, -600f);
-
-            float baseY = 0f;
-            float separationY = 10f;
-
-            Model[] models =
-            [
-                HelixLeft,
-                HelixRight,
-                HelixHalfLeft,
-                HelixHalfRight,
-                HelixLargeHalfLeft,
-                HelixLargeHalfRight,
-                HelixLargeLeft,
-                HelixLargeRight,
-                HelixLargeQuarterLeft,
-                HelixLargeQuarterRight
-            ];
-
-            Color[] colors = [
-                Color.Red,
-                Color.White
-            ];
-
-            int colorIndex = 0;
-
-            for (int i = 0; i < models.Length; i++)
-            {
-                float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, colors[colorIndex]);
-                colorIndex++;
-                if (colorIndex > 1)
-                    colorIndex = 0;
-            }
-        }
 
         private void DrawLevel4()
         {
