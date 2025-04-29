@@ -25,9 +25,6 @@ namespace TGC.MonoGame.TP
 
         private Random Random;
 
-        /// <summary>
-        ///     Constructor del juego.
-        /// </summary>
         public TGCGame()
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
@@ -110,10 +107,6 @@ namespace TGC.MonoGame.TP
         private Model WaveB { get; set; }
         private Model WaveC { get; set; }
         private Matrix World { get; set; }
-        /* Vector3 cameraPosition = new Vector3(340, 350, 510);
-        Vector3 cameraTarget = new Vector3(240, 300, 360);
-        Vector3 cameraUp = Vector3.Up;
-        float cameraSpeed = 5f; */
 
         protected override void Draw(GameTime gameTime)
         {
@@ -125,23 +118,23 @@ namespace TGC.MonoGame.TP
 
             //Dibujo de la canica/pelotita
             pelotita.Draw(World, View, Projection);
-
-            //Dibujo de las cajas
+            
             Random = new Random(SEED);
 
-            var baseTransforsBox = new Matrix[ModelBox.Bones.Count];
-            ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsBox);
-
-            DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
-
             //Dibujo el escenario
-            DrawLevel0();
             DrawLevel1();
             DrawLevel2();
             DrawLevel3();
             DrawLevel4();
             DrawLevel5();
             DrawLevel6();
+
+            // OTROS
+            //DrawLevel0();
+            //DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
+            //Dibujo de las cajas
+            //var baseTransforsBox = new Matrix[ModelBox.Bones.Count];
+            //ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsBox);
         }
 
         /// <summary>
@@ -153,9 +146,9 @@ namespace TGC.MonoGame.TP
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
             var screenCenter = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, screenCenter);
+            FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 300), screenCenter);
 
-            Matrix VistaNivel1 = Matrix.CreateLookAt(new Vector3(340, 350, 510), new Vector3(240, 300, 360), Vector3.Up);
+            Matrix VistaNivel1 = Matrix.CreateLookAt(new Vector3(340, 350, 510), new Vector3(0, 0, 0), Vector3.Up);
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -175,8 +168,7 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            //SpriteBatch = new SpriteBatch(GraphicsDevice);
-
+            
             // Cargo los modelos.
             pelotita = new Pelota(Content);
             escenaRecta = new EscenaRecta(Content);
@@ -222,16 +214,13 @@ namespace TGC.MonoGame.TP
             BumpD = Content.Load<Model>(ContentFolder3D + "bump/bump_D");
             BannerHigh = Content.Load<Model>(ContentFolder3D + "banners/banner_high");
             Bend = Content.Load<Model>(ContentFolder3D + "bend/bend_medium");
-            // preguntar si se pueden declarar en otro archivo? dejarian de ser private
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Asigno los efectos para cada parte de las mesh.
-
             TrackLoader.AsignarEfecto(ModelBox, Effect);
-            //TrackLoader.AsignarEfecto(ModelMarble, Effect);
             TrackLoader.AsignarEfecto(ModelCurve, Effect);
             TrackLoader.AsignarEfecto(SlantLongA, Effect);
             TrackLoader.AsignarEfecto(SlantLongC, Effect);
@@ -309,19 +298,6 @@ namespace TGC.MonoGame.TP
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             KeyboardState keyboard = Keyboard.GetState();
 
-            /*  if (keyboard.IsKeyDown(Keys.W))
-                  cameraPosition.Z -= cameraSpeed;
-              if (keyboard.IsKeyDown(Keys.S))
-                  cameraPosition.Z += cameraSpeed;
-              if (keyboard.IsKeyDown(Keys.A))
-                  cameraPosition.X -= cameraSpeed;
-              if (keyboard.IsKeyDown(Keys.D))
-                  cameraPosition.X += cameraSpeed;
-              if (keyboard.IsKeyDown(Keys.Q))
-                  cameraPosition.Y += cameraSpeed;
-              if (keyboard.IsKeyDown(Keys.E))
-                  cameraPosition.Y -= cameraSpeed;*/
-
             pelotita.Update(gameTime, keyboard);//movimientos ikjl
 
             // Basado en el tiempo que paso se va generando una rotacion.
@@ -336,311 +312,81 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
-        private void DrawLevel0()
+        private void DrawLevel1()
         {
             escenaRecta.Draw(World, View, Projection, new Vector3(0, -20, 0));
             escenaRecta.Draw(World, View, Projection, new Vector3(0, -16, -80));
             escenaRecta.Draw(World, View, Projection, new Vector3(0, -12, -160));
         }
 
-        private void DrawLevel1()
-        {
-            // MATRIZ DE OFFSET GLOBAL
-            Matrix globalOffset = Matrix.CreateTranslation(100f, 0f, 0f);
-
-            // --- SLANT LONG A #1 ---
-            var baseTransformsSlant = new Matrix[SlantLongA.Bones.Count];
-            SlantLongA.CopyAbsoluteBoneTransformsTo(baseTransformsSlant);
-
-            foreach (var mesh in SlantLongA.Meshes)
-            {
-                var relativeTransform = baseTransformsSlant[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 20f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- SLANT LONG A #2 ---
-            foreach (var mesh in SlantLongA.Meshes)
-            {
-                var relativeTransform = baseTransformsSlant[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 50f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- MODEL CURVE ---
-            var baseTransformsCurve = new Matrix[ModelCurve.Bones.Count];
-            ModelCurve.CopyAbsoluteBoneTransformsTo(baseTransformsCurve);
-
-            foreach (var mesh in ModelCurve.Meshes)
-            {
-                var relativeTransform = baseTransformsCurve[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 80f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- BUMP SOLID B ---
-            var baseTransformsBump = new Matrix[BumpSolidB.Bones.Count];
-            BumpSolidB.CopyAbsoluteBoneTransformsTo(baseTransformsBump);
-
-            foreach (var mesh in BumpSolidB.Meshes)
-            {
-                var relativeTransform = baseTransformsBump[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Orange.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 110f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- RAMP SHORT A ---
-            var baseTransformsRampLongA = new Matrix[RampLongA.Bones.Count];
-            RampLongA.CopyAbsoluteBoneTransformsTo(baseTransformsRampLongA);
-
-            foreach (var mesh in RampLongA.Meshes)
-            {
-                var relativeTransform = baseTransformsRampLongA[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 150f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- CURVE LARGE  ---
-            var baseTransformsCurveLarge = new Matrix[CurveLarge.Bones.Count];
-            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsCurveLarge);
-
-            foreach (var mesh in CurveLarge.Meshes)
-            {
-                var relativeTransform = baseTransformsCurveLarge[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.White.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 200f) * globalOffset);
-                mesh.Draw();
-            }
-        }
-
         private void DrawLevel2()
         {
-            Matrix globalOffset = Matrix.CreateTranslation(300f, 300f, 300f);
+            float zBasePosition = 0f;
+            float yBasePosition = 0f;
+            Matrix globalOffset = Matrix.CreateTranslation(10f, -160f, -500f);
 
-            // --- INICIO
+            Color[] colors = new Color[]{
+                Color.Peru,
+                Color.Wheat
+            };
 
-            // --- Straight #1
-            var baseTransformsStraight = new Matrix[Straight.Bones.Count];
-            Straight.CopyAbsoluteBoneTransformsTo(baseTransformsStraight);
+            int colorIndex = 0;
 
-            foreach (var mesh in Straight.Meshes)
+            for (int i = 0; i < 30; i++)
             {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 20f) * globalOffset);
-                mesh.Draw();
+                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, colors[colorIndex]);
+                zBasePosition += 10f;
+                yBasePosition += 5f;
+
+                colorIndex++;
+
+                if (colorIndex > 1)
+                    colorIndex = 0;
             }
-
-            // --- Straight #2
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 30f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Tunel #1
-            var baseTransformsTunnel = new Matrix[Tunnel.Bones.Count];
-            Tunnel.CopyAbsoluteBoneTransformsTo(baseTransformsTunnel);
-
-            foreach (var mesh in Tunnel.Meshes)
-            {
-                var relativeTransform = baseTransformsTunnel[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 5f, 20f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Tunel #2
-            foreach (var mesh in Tunnel.Meshes)
-            {
-                var relativeTransform = baseTransformsTunnel[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 5f, 30f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Straight #3
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 40f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Ramp Long D
-            var baseTransformsRampLongD = new Matrix[RampLongD.Bones.Count];
-            RampLongD.CopyAbsoluteBoneTransformsTo(baseTransformsRampLongD);
-
-            foreach (var mesh in RampLongD.Meshes)
-            {
-                var relativeTransform = baseTransformsRampLongD[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-60f, -15f, 55f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- CURVE LARGE  ---
-
-            var baseTransformsCurveLarge = new Matrix[CurveLarge.Bones.Count];
-            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsCurveLarge);
-
-            foreach (var mesh in CurveLarge.Meshes)
-            {
-                var relativeTransform = baseTransformsCurveLarge[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-70f, -15f, 80f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Straight #4
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-90f, -15f, 90f) * globalOffset);
-                mesh.Draw();
-            }
-
-            //Double Split Sides
-
-            var baseTransformsSplitDoubleSides = new Matrix[SplitDoubleSides.Bones.Count];
-            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsSplitDoubleSides);
-
-            foreach (var mesh in SplitDoubleSides.Meshes)
-            {
-                var relativeTransform = baseTransformsSplitDoubleSides[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2 * -1) * Matrix.CreateTranslation(-105f, -15f, 90f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // Bump A (derecha)
-            var baseTransformsBumpA = new Matrix[BumpA.Bones.Count];
-            BumpA.CopyAbsoluteBoneTransformsTo(baseTransformsBumpA);
-
-            foreach (var mesh in BumpA.Meshes)
-            {
-                var relativeTransform = baseTransformsBumpA[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -15f, 55f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Straight #4
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 30f) * globalOffset);
-                mesh.Draw();
-            }
-            // --- Straight #5
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 20f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Straight #6
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 10f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Helix Large Right #1
-            var baseTransformsHelixLargeRight = new Matrix[HelixLargeRight.Bones.Count];
-            HelixLargeRight.CopyAbsoluteBoneTransformsTo(baseTransformsHelixLargeRight);
-
-            foreach (var mesh in HelixLargeRight.Meshes)
-            {
-                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -35f, 5f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Helix Large Right #2
-            foreach (var mesh in HelixLargeRight.Meshes)
-            {
-                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -55f, 5f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- Straight #6
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -30f) * globalOffset);
-                mesh.Draw();
-            }
-            // --- Straight #7
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -40f) * globalOffset);
-                mesh.Draw();
-            }
-            // --- Straight #8
-            foreach (var mesh in Straight.Meshes)
-            {
-                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -50f) * globalOffset);
-                mesh.Draw();
-            }
-
-            // --- SLANT LONG C  ---
-            var baseTransformsSlantLongC = new Matrix[SlantLongC.Bones.Count];
-            SlantLongC.CopyAbsoluteBoneTransformsTo(baseTransformsSlantLongC);
-
-            foreach (var mesh in SlantLongC.Meshes)
-            {
-                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -90f, -65f) * globalOffset);
-                mesh.Draw();
-            }
-            // --- SLANT LONG C #2  ---
-
-            foreach (var mesh in SlantLongC.Meshes)
-            {
-                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -95f, -75f) * globalOffset);
-                mesh.Draw();
-            }
-            foreach (var mesh in SlantLongC.Meshes)
-            {
-                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
-                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -100f, -85f) * globalOffset);
-                mesh.Draw();
-            }
-
-            //Tunnel
         }
 
         private void DrawLevel3()
         {
+            Matrix globalOffset = Matrix.CreateTranslation(0f, -250f, -600f);
+
+            float baseY = 0f;
+            float separationY = 10f;
+
+            Model[] models =
+            [
+                HelixLeft,
+                HelixRight,
+                HelixHalfLeft,
+                HelixHalfRight,
+                HelixLargeHalfLeft,
+                HelixLargeHalfRight,
+                HelixLargeLeft,
+                HelixLargeRight,
+                HelixLargeQuarterLeft,
+                HelixLargeQuarterRight
+            ];
+
+            Color[] colors = [
+                Color.Red,
+                Color.White
+            ];
+
+            int colorIndex = 0;
+
+            for (int i = 0; i < models.Length; i++)
+            {
+                float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
+                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, colors[colorIndex]);
+                colorIndex++;
+                if (colorIndex > 1)
+                    colorIndex = 0;
+            }
+        }
+
+        private void DrawLevel4()
+        {
             // MATRIZ DE OFFSET GLOBAL
-            Matrix globalOffset = Matrix.CreateTranslation(0f, 200f, 0f);
+            Matrix globalOffset = Matrix.CreateTranslation(0f, -270f, -600f);
 
             // --- Straight #1 ---
             var baseTransformsStraight = new Matrix[Straight.Bones.Count];
@@ -987,74 +733,231 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        private void DrawLevel4()
-        {
-            Matrix globalOffset = Matrix.CreateTranslation(0f, 0f, 0f);
-
-            float baseY = 0f;
-            float separationY = 5f;
-
-            Model[] models = new Model[]
-            {
-                HelixLeft,
-                HelixRight,
-                HelixHalfLeft,
-                HelixHalfRight,
-                HelixLargeHalfLeft,
-                HelixLargeHalfRight,
-                HelixLargeLeft,
-                HelixLargeRight,
-                HelixLargeQuarterLeft,
-                HelixLargeQuarterRight
-            };
-
-            Color[] colors = new Color[]{
-                Color.Red,
-                Color.White
-            };
-
-            int colorIndex = 0;
-
-            for (int i = 0; i < models.Length; i++)
-            {
-                float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, colors[colorIndex]);
-                colorIndex++;
-                if (colorIndex > 1)
-                    colorIndex = 0;
-            }
-        }
-
         private void DrawLevel5()
         {
-            float zBasePosition = 0f;
-            float yBasePosition = 0f;
-            Matrix globalOffset = Matrix.CreateTranslation(0f, 150f, 0f);
+            Matrix globalOffset = Matrix.CreateTranslation(60f, -270f, 600f);
+            Matrix globalRotation = Matrix.CreateRotationY(MathHelper.Pi);
 
-            Color[] colors = new Color[]{
-                Color.Peru,
-                Color.Wheat
-            };
+            // --- INICIO
 
-            int colorIndex = 0;
+            // --- Straight #1
+            var baseTransformsStraight = new Matrix[Straight.Bones.Count];
+            Straight.CopyAbsoluteBoneTransformsTo(baseTransformsStraight);
 
-            for (int i = 0; i < 30; i++)
+            foreach (var mesh in Straight.Meshes)
             {
-                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, colors[colorIndex]);
-                zBasePosition += 10f;
-                yBasePosition += 5f;
-
-                colorIndex++;
-
-                if (colorIndex > 1)
-                    colorIndex = 0;
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 20f) * globalOffset * globalRotation);
+                mesh.Draw();
             }
+
+            // --- Straight #2
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 30f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Tunel #1
+            var baseTransformsTunnel = new Matrix[Tunnel.Bones.Count];
+            Tunnel.CopyAbsoluteBoneTransformsTo(baseTransformsTunnel);
+
+            foreach (var mesh in Tunnel.Meshes)
+            {
+                var relativeTransform = baseTransformsTunnel[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 5f, 20f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Tunel #2
+            foreach (var mesh in Tunnel.Meshes)
+            {
+                var relativeTransform = baseTransformsTunnel[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 5f, 30f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Straight #3
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-60f, 0f, 40f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Ramp Long D
+            var baseTransformsRampLongD = new Matrix[RampLongD.Bones.Count];
+            RampLongD.CopyAbsoluteBoneTransformsTo(baseTransformsRampLongD);
+
+            foreach (var mesh in RampLongD.Meshes)
+            {
+                var relativeTransform = baseTransformsRampLongD[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-60f, -15f, 55f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- CURVE LARGE  ---
+
+            var baseTransformsCurveLarge = new Matrix[CurveLarge.Bones.Count];
+            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsCurveLarge);
+
+            foreach (var mesh in CurveLarge.Meshes)
+            {
+                var relativeTransform = baseTransformsCurveLarge[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-70f, -15f, 80f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Straight #4
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-90f, -15f, 90f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            //Double Split Sides
+
+            var baseTransformsSplitDoubleSides = new Matrix[SplitDoubleSides.Bones.Count];
+            CurveLarge.CopyAbsoluteBoneTransformsTo(baseTransformsSplitDoubleSides);
+
+            foreach (var mesh in SplitDoubleSides.Meshes)
+            {
+                var relativeTransform = baseTransformsSplitDoubleSides[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2 * -1) * Matrix.CreateTranslation(-105f, -15f, 90f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // Bump A (derecha)
+            var baseTransformsBumpA = new Matrix[BumpA.Bones.Count];
+            BumpA.CopyAbsoluteBoneTransformsTo(baseTransformsBumpA);
+
+            foreach (var mesh in BumpA.Meshes)
+            {
+                var relativeTransform = baseTransformsBumpA[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -15f, 55f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Straight #4
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 30f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+            // --- Straight #5
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 20f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Straight #6
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -15f, 10f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Helix Large Right #1
+            var baseTransformsHelixLargeRight = new Matrix[HelixLargeRight.Bones.Count];
+            HelixLargeRight.CopyAbsoluteBoneTransformsTo(baseTransformsHelixLargeRight);
+
+            foreach (var mesh in HelixLargeRight.Meshes)
+            {
+                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -35f, 5f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Helix Large Right #2
+            foreach (var mesh in HelixLargeRight.Meshes)
+            {
+                var relativeTransform = baseTransformsHelixLargeRight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(-135f, -55f, 5f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- Straight #6
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -30f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+            // --- Straight #7
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -40f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+            // --- Straight #8
+            foreach (var mesh in Straight.Meshes)
+            {
+                var relativeTransform = baseTransformsStraight[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(-110f, -80f, -50f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            // --- SLANT LONG C  ---
+            var baseTransformsSlantLongC = new Matrix[SlantLongC.Bones.Count];
+            SlantLongC.CopyAbsoluteBoneTransformsTo(baseTransformsSlantLongC);
+
+            foreach (var mesh in SlantLongC.Meshes)
+            {
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -90f, -65f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+            // --- SLANT LONG C #2  ---
+
+            foreach (var mesh in SlantLongC.Meshes)
+            {
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -95f, -75f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+            foreach (var mesh in SlantLongC.Meshes)
+            {
+                var relativeTransform = baseTransformsSlantLongC[mesh.ParentBone.Index];
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Purple.ToVector3());
+                Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(-110f, -100f, -85f) * globalOffset * globalRotation);
+                mesh.Draw();
+            }
+
+            //Tunnel
         }
 
         private void DrawLevel6()
         {
             // Posicion global del nivel
-            Matrix globalOffset = Matrix.CreateTranslation(500f, 0f, 0f);
+            Matrix globalOffset = Matrix.CreateTranslation(-50f, -900f, 140f);
+            Matrix globalRotation = Matrix.CreateRotationY(MathHelper.Pi);
 
             // Dibujamos rampas rectas con caida hacia abajo
             var rampDownScale = Matrix.CreateScale(xScale: 1, yScale: 1.5f, zScale: 2);
@@ -1489,7 +1392,7 @@ namespace TGC.MonoGame.TP
                 var baseModelTransforms = new Matrix[model.Bones.Count];
                 model.CopyAbsoluteBoneTransformsTo(baseModelTransforms);
 
-                var transform = scale * translation * rotation * globalOffset;
+                var transform = scale * translation * rotation * globalOffset * globalRotation;
 
                 foreach (var mesh in model.Meshes)
                 {
@@ -1526,38 +1429,6 @@ namespace TGC.MonoGame.TP
                 }
                 mesh.Draw();
             }
-        }
-
-        private void DrawModelBoxes(Model model, Matrix[] baseTransforms, int rows, int cols, float spacing) // Revisar como se distribuyen las columnas y filas
-        {
-            // esto sirve para acomodar en que parte del espacio quiero que se dibujen los modelos
-            var offset = new Vector3(-150f, 60f, 0);
-
-            for (int row = 0; row < rows; row++)
-            {
-                for (int col = 0; col < cols; col++)
-                {
-                    // Posición ordenada en filas
-                    var position = new Vector3(col * spacing, row * spacing, 0) + offset;
-                    var worldMatrix = Matrix.CreateTranslation(position);
-
-                    // Color aleatorio
-                    Effect.Parameters["DiffuseColor"].SetValue(RandomColor(Random).ToVector3());
-
-                    foreach (var mesh in model.Meshes)
-                    {
-                        var relativeTransform = baseTransforms[mesh.ParentBone.Index];
-                        Effect.Parameters["World"].SetValue(relativeTransform * worldMatrix);
-                        mesh.Draw();
-                    }
-                }
-            }
-        }
-
-        private Color RandomColor(Random random)
-        {
-            // Construye un color aleatorio en base a un entero de 32 bits
-            return new Color((uint)random.Next());
         }
     }
 }
