@@ -742,10 +742,20 @@ namespace TGC.MonoGame.TP
                 HelixLargeQuarterRight
             };
 
+            Color[] colors = new Color[]{
+                Color.Red,
+                Color.White
+            };
+
+            int colorIndex = 0;
+
             for (int i = 0; i < models.Length; i++)
             {
                 float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, Color.Purple);
+                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, colors[colorIndex]);
+                colorIndex++;
+                if(colorIndex > 1)
+                    colorIndex = 0;
             }
         }
 
@@ -755,14 +765,23 @@ namespace TGC.MonoGame.TP
             float yBasePosition = 0f;
             Matrix globalOffset = Matrix.CreateTranslation(0f, 150f, 0f);
 
+            Color[] colors = new Color[]{
+                Color.Peru,
+                Color.Wheat
+            };
+
+            int colorIndex = 0;
+
             for (int i = 0; i < 30; i++)
             {
-                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, Color.Peru);
+                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, colors[colorIndex]);
                 zBasePosition += 10f;
                 yBasePosition += 5f;
-                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, Color.Wheat);
-                zBasePosition += 10f;
-                yBasePosition += 5f;
+
+                colorIndex++;
+
+                if(colorIndex > 1)
+                    colorIndex = 0;
             }
         }
 
