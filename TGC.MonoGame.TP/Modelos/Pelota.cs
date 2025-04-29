@@ -64,7 +64,7 @@ namespace TGC.MonoGame.TP.Content.Models
             {
 
                 var relativeTransform = modelMeshesBaseTransforms[mesh.ParentBone.Index];
-                Effect.Parameters["World"].SetValue(relativeTransform * matrizPelotita * origen);
+                Effect.Parameters["World"].SetValue(relativeTransform * matrizPelotita * origen * Matrix.CreateTranslation(8,-16,72));
                 mesh.Draw();
             }
         }

@@ -42,8 +42,8 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         // Modelos
-
-        // private Pelota pelotita { get; set; }
+        private Pelota pelotita { get; set; }
+        private EscenaRecta escenaRecta { get; set; }
         private Model ModelBox { get; set; }
         private Model ModelCurve { get; set; }
         private Model SlantLongA { get; set; }
@@ -127,7 +127,8 @@ namespace TGC.MonoGame.TP
             //SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo los modelos.
-            //pelotita = new Pelota(Content);
+            pelotita = new Pelota(Content);
+            escenaRecta = new EscenaRecta(Content);
             ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
             SlantLongA = Content.Load<Model>(ContentFolder3D + "slants/slant_long_A");
@@ -244,7 +245,7 @@ namespace TGC.MonoGame.TP
               if (keyboard.IsKeyDown(Keys.E))
                   cameraPosition.Y -= cameraSpeed;*/
 
-            //pelotita.Update(gameTime, keyboard);//movimientos ikjl
+            pelotita.Update(gameTime, keyboard);//movimientos ikjl
 
 
             // Basado en el tiempo que paso se va generando una rotacion.
@@ -317,6 +318,12 @@ namespace TGC.MonoGame.TP
             }
         }
 
+        private void DrawLevel0()
+        {
+            escenaRecta.Draw(World, View, Projection, new Vector3(0, -20, 0));
+            escenaRecta.Draw(World, View, Projection, new Vector3(0, -16, -80));
+            escenaRecta.Draw(World, View, Projection, new Vector3(0, -12, -160));
+        }
 
         private void DrawLevel1()
         {
@@ -797,7 +804,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
             //Dibujo de la canica/pelotita
-            //pelotita.Draw(World, View, Projection);
+            pelotita.Draw(World, View, Projection);
 
             //Dibujo de las cajas
             Random = new Random(SEED);
@@ -807,7 +814,8 @@ namespace TGC.MonoGame.TP
 
             DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
 
-
+            //Dibujo el escenario
+            DrawLevel0();
             DrawLevel1();
             DrawLevel2();
             DrawLevel3();
