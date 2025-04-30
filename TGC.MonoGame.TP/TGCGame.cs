@@ -48,41 +48,24 @@ namespace TGC.MonoGame.TP
         private Model CurveLarge { get; set; }
         private Effect Effect { get; set; }
         private Model EndSquare { get; set; }
-        private EscenaRecta escenaRecta { get; set; }
         private FreeCamera FreeCamera { get; set; }
         private Model Funnel { get; set; }
         private Model FunnelLong { get; set; }
         private GraphicsDeviceManager Graphics { get; }
-
         private Model HelixHalfLeft { get; set; }
-
         private Model HelixHalfRight { get; set; }
-
         private Model HelixLargeHalfLeft { get; set; }
-
         private Model HelixLargeHalfRight { get; set; }
-
         private Model HelixLargeLeft { get; set; }
-
         private Model HelixLargeQuarterLeft { get; set; }
-
         private Model HelixLargeQuarterRight { get; set; }
-
         private Model HelixLargeRight { get; set; }
-
         private Model HelixLeft { get; set; }
-
         private Model HelixRight { get; set; }
-
         private Model ModelBox { get; set; }
-
         private Model ModelCurve { get; set; }
-
         private Model NormalTree { get; set; }
-
-        // Modelos
         private Pelota pelotita { get; set; }
-
         private Matrix Projection { get; set; }
         private Model RampLongA { get; set; }
         private Model RampLongB { get; set; }
@@ -116,25 +99,16 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
-            //Dibujo de la canica/pelotita
-            pelotita.Draw(World, View, Projection);
-            
             Random = new Random(SEED);
 
             //Dibujo el escenario
-            DrawLevel1();
+            //DrawLevel1();
             DrawLevel2();
             DrawLevel3();
             DrawLevel4();
             DrawLevel5();
             DrawLevel6();
 
-            // OTROS
-            //DrawLevel0();
-            //DrawModelBoxes(ModelBox, baseTransforsBox, 2, 5, 20f);
-            //Dibujo de las cajas
-            //var baseTransforsBox = new Matrix[ModelBox.Bones.Count];
-            //ModelBox.CopyAbsoluteBoneTransformsTo(baseTransforsBox);
         }
 
         /// <summary>
@@ -168,10 +142,8 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            
             // Cargo los modelos.
-            pelotita = new Pelota(Content);
-            escenaRecta = new EscenaRecta(Content);
+
             ModelBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             ModelCurve = Content.Load<Model>(ContentFolder3D + "curves/curve");
             SlantLongA = Content.Load<Model>(ContentFolder3D + "slants/slant_long_A");
@@ -295,10 +267,9 @@ namespace TGC.MonoGame.TP
 
             //Movimiento Camara
 
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            KeyboardState keyboard = Keyboard.GetState();
 
-            pelotita.Update(gameTime, keyboard);//movimientos ikjl
+            //float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //KeyboardState keyboard = Keyboard.GetState();
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -312,76 +283,351 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
-        private void DrawLevel1()
-        {
-            escenaRecta.Draw(World, View, Projection, new Vector3(0, -20, 0));
-            escenaRecta.Draw(World, View, Projection, new Vector3(0, -16, -80));
-            escenaRecta.Draw(World, View, Projection, new Vector3(0, -12, -160));
-        }
-
         private void DrawLevel2()
         {
             float zBasePosition = 0f;
             float yBasePosition = 0f;
             Matrix globalOffset = Matrix.CreateTranslation(10f, -160f, -500f);
+            Matrix globalRotation = Matrix.Identity; // No se especifica rotación global
 
-            Color[] colors = new Color[]{
-                Color.Peru,
-                Color.Wheat
+            Color[] colors = new Color[]
+            {
+        Color.Peru,
+        Color.Wheat
             };
 
             int colorIndex = 0;
 
             for (int i = 0; i < 30; i++)
             {
-                DrawModel(Funnel, true, 0f, yBasePosition, zBasePosition, globalOffset, colors[colorIndex]);
+                // Matrices locales
+                Matrix scale = Matrix.CreateScale(1f); // Sin escala personalizada
+                Matrix rotation = Matrix.Identity;     // Sin rotación personalizada
+                Matrix translation = Matrix.CreateTranslation(0f, yBasePosition, zBasePosition);
+
+                // Llamada directa al método original
+                DrawModel(scale, translation, rotation, Funnel, colors[colorIndex], globalOffset, globalRotation);
+
+                // Actualización de posición
                 zBasePosition += 10f;
                 yBasePosition += 5f;
 
-                colorIndex++;
-
-                if (colorIndex > 1)
-                    colorIndex = 0;
+                // Alternancia de color
+                colorIndex = (colorIndex + 1) % colors.Length;
             }
         }
 
         private void DrawLevel3()
         {
-            Matrix globalOffset = Matrix.CreateTranslation(0f, -250f, -600f);
+            // Posicion global del nivel
+            Matrix globalOffset = Matrix.CreateTranslation(-1000f, 0f, 0f);
+            Matrix globalRotation = Matrix.CreateRotationY(MathHelper.Pi);
 
-            float baseY = 0f;
-            float separationY = 10f;
 
-            Model[] models =
-            [
-                HelixLeft,
-                HelixRight,
-                HelixHalfLeft,
-                HelixHalfRight,
-                HelixLargeHalfLeft,
-                HelixLargeHalfRight,
-                HelixLargeLeft,
-                HelixLargeRight,
-                HelixLargeQuarterLeft,
-                HelixLargeQuarterRight
-            ];
-
-            Color[] colors = [
-                Color.Red,
-                Color.White
-            ];
-
-            int colorIndex = 0;
-
-            for (int i = 0; i < models.Length; i++)
+            // Dibujamos los "pisos"
+            var floorScale = Matrix.CreateScale(xScale: 50f, yScale: 1f, zScale: 500f);
+            var floorColor = Color.SandyBrown;
+            var floorPositions = new List<Vector3>
             {
-                float yPosition = baseY + i * separationY; // cada modelo se apila verticalmente
-                DrawModel(models[i], false, 0f, yPosition, 0f, globalOffset, colors[colorIndex]);
-                colorIndex++;
-                if (colorIndex > 1)
-                    colorIndex = 0;
+                new Vector3(0, -40, -200)
+            };
+            var floorRotation = Matrix.CreateRotationX(0);
+
+            foreach (var floorPosition in floorPositions)
+            {
+                var translation = Matrix.CreateTranslation(floorPosition);
+                DrawModel(floorScale, translation, floorRotation, ModelBox, floorColor, globalOffset, globalRotation);
             }
+
+            // Dibujamos las banderas
+            var bannerColor = Color.DarkBlue;
+            var bannerScale = Matrix.CreateScale(xScale: 10f, yScale: 7f, zScale: 1f);
+            var bannerPositions = new List<Vector3>
+            {
+                new Vector3(0, -40, -200),
+                new Vector3(0, -40, -100),
+                new Vector3(0, -40, -300),
+                new Vector3(0, -40, -400),
+                new Vector3(0, -40, -680),
+            };
+            var bannerRotation = Matrix.CreateRotationX(0);
+
+            foreach (var bannerPosition in bannerPositions)
+            {
+                var translation = Matrix.CreateTranslation(bannerPosition);
+                DrawModel(bannerScale, translation, bannerRotation, BannerHigh, bannerColor, globalOffset, globalRotation);
+            }
+
+            // Dibujamos el final
+            DrawModel(Matrix.CreateScale(xScale: 1f, yScale: 1f, zScale: 1f),
+                Matrix.CreateTranslation(new Vector3(0, -40, 665)),
+                Matrix.CreateRotationY(MathHelper.Pi),
+                EndSquare,
+                Color.Red, globalOffset, globalRotation);
+
+            // Dibujamos los arboles
+            var treePossibleColors = new Color[]
+            {
+                Color.Green,
+                Color.GreenYellow,
+                Color.DarkGreen,
+                Color.DarkOliveGreen,
+                Color.DarkSeaGreen
+            };
+
+            var normalTreeScale = Matrix.CreateScale(xScale: 2f, yScale: 2f, zScale: 2f);
+            var normalTreePositions = new List<Vector3>
+            {
+                // Derecha
+                new Vector3(40, -40, -560),
+                new Vector3(40, -40, 220),
+                new Vector3(40, -40, -320),
+                new Vector3(40, -40, -80),
+                new Vector3(40, -40, 280),
+                new Vector3(40, -40, -440),
+                new Vector3(40, -40, -20),
+
+                // Izquierda
+                new Vector3(-40f, -40f, -560f),
+                new Vector3(-40f, -40f, 220f),
+                new Vector3(-40f, -40f, -320f),
+                new Vector3(-40f, -40f, -80f),
+                new Vector3(-40f, -40f, 280f),
+                new Vector3(-40f, -40f, -440f),
+                new Vector3(-40f, -40f, -20f),
+                new Vector3(-40f, -40f, -180f),
+
+                // Parte sin rampas (random)
+                new Vector3(-14.6f, -40f, 125.7f),
+                new Vector3(37.4f, -40f, 185.8f),
+                new Vector3(-9.3f, -40f, 240.9f),
+                new Vector3(21.1f, -40f, 155.3f),
+                new Vector3(-3.7f, -40f, 45.6f)
+            };
+            var normalTreeRotation = Matrix.CreateRotationX(0);
+
+            foreach (var treePosition in normalTreePositions)
+            {
+                var treeColor = treePossibleColors[Random.Next(treePossibleColors.Length)];
+                var translation = Matrix.CreateTranslation(treePosition);
+                DrawModel(normalTreeScale, translation, normalTreeRotation, NormalTree, treeColor, globalOffset, globalRotation);
+            }
+
+            var tallTreeScale = Matrix.CreateScale(xScale: 2f, yScale: 2f, zScale: 2f);
+            var tallTreePositions = new List<Vector3>
+            {
+                // Derecha
+                new Vector3(40, -40, -260),
+                new Vector3(40, -40, -500),
+                new Vector3(40, -40, 100),
+                new Vector3(40, -40, -620),
+                new Vector3(40, -40, -140),
+                new Vector3(40, -40, -380),
+                new Vector3(40, -40, 160),
+                new Vector3(40, -40, 40),
+                new Vector3(40, -40, -670),
+
+                // Izquierda
+                new Vector3(-40f, -40f, -260f),
+                new Vector3(-40f, -40f, -500f),
+                new Vector3(-40f, -40f, 100f),
+                new Vector3(-40f, -40f, -620f),
+                new Vector3(-40f, -40f, -140f),
+                new Vector3(-40f, -40f, -380f),
+                new Vector3(-40f, -40f, 160f),
+                new Vector3(-40f, -40f, 40f),
+
+                // Parte sin rampas (random)
+                new Vector3(-12.8f, -40f, 56.3f),
+                new Vector3(24.9f, -40f, 95.2f),
+                new Vector3(8.1f, -40f, 145.6f),
+                new Vector3(-35.4f, -40f, 120.4f),
+                new Vector3(29.6f, -40f, 200.8f),
+                new Vector3(16.3f, -40f, 215.5f),
+                new Vector3(33.7f, -40f, 170.2f),
+                new Vector3(-27.2f, -40f, 205.3f),
+                new Vector3(3.0f, -40f, 160.1f),
+                new Vector3(12.5f, -40f, 230.4f),
+                new Vector3(-5.9f, -40f, 100.7f),
+                new Vector3(20.2f, -40f, 130.6f),
+                new Vector3(-31.3f, -40f, 190.2f),
+                new Vector3(6.8f, -40f, 250.1f),
+                new Vector3(11.7f, -40f, 70.3f)
+            };
+            var tallTreeRotation = Matrix.CreateRotationX(0);
+
+            foreach (var tallTreePosition in tallTreePositions)
+            {
+                var treeColor = treePossibleColors[Random.Next(treePossibleColors.Length)];
+                var translation = Matrix.CreateTranslation(tallTreePosition);
+                DrawModel(tallTreeScale, translation, tallTreeRotation, TallTree, treeColor, globalOffset, globalRotation);
+            }
+
+            // Dibujamos las rocas
+            var rockPossibleColors = new Color[]
+            {
+                Color.Gray,
+                Color.DarkGray,
+                Color.DimGray,
+                Color.DarkSlateGray
+            };
+
+            var rockPossibleScales = new Matrix[]
+            {
+                Matrix.CreateScale(xScale: 1.1f, yScale: 1f, zScale: 1f),
+                Matrix.CreateScale(xScale: 1.0f, yScale: 1f, zScale: 1f),
+                Matrix.CreateScale(xScale: 1.2f, yScale: 1f, zScale: 1f),
+                Matrix.CreateScale(xScale: 0.9f, yScale: 1f, zScale: 1f),
+                Matrix.CreateScale(xScale: 1.0f, yScale: 1f, zScale: 0.9f),
+                Matrix.CreateScale(xScale: 1.1f, yScale: 1f, zScale: 1.2f),
+                Matrix.CreateScale(xScale: 0.8f, yScale: 1f, zScale: 1.0f),
+                Matrix.CreateScale(xScale: 1.0f, yScale: 1f, zScale: 1.05f),
+                Matrix.CreateScale(xScale: 1.15f, yScale: 1f, zScale: 1f),
+                Matrix.CreateScale(xScale: 1.0f, yScale: 1f, zScale: 1.1f)
+            };
+
+            var normalRockPositions = new List<Vector3>
+            {
+                // Derecha
+                new Vector3(27.6f, -40, -695),
+                new Vector3(35.2f, -40, -670),
+                new Vector3(45.1f, -40, -660),
+                new Vector3(28.3f, -40, -640),
+                new Vector3(37.4f, -40, -620),
+                new Vector3(42.3f, -40, -600),
+                new Vector3(30.1f, -40, -580),
+                new Vector3(46.7f, -40, -560),
+                new Vector3(29.5f, -40, -550),
+                new Vector3(38.2f, -40, -520),
+                new Vector3(44.5f, -40, -500),
+                new Vector3(26.9f, -40, -480),
+                new Vector3(41.0f, -40, -460),
+                new Vector3(34.6f, -40, -440),
+                new Vector3(47.0f, -40, -420),
+                new Vector3(32.8f, -40, -400),
+                new Vector3(39.5f, -40, -380),
+                new Vector3(36.4f, -40, -360),
+                new Vector3(27.2f, -40, -340),
+                new Vector3(43.8f, -40, -310),
+                new Vector3(33.9f, -40, -280),
+                new Vector3(46.3f, -40, -250),
+                new Vector3(31.3f, -40, -230),
+                new Vector3(36.0f, -40, -210),
+                new Vector3(28.9f, -40, -180),
+                new Vector3(40.7f, -40, -150),
+                new Vector3(47.2f, -40, -120),
+                new Vector3(31.7f, -40, -90),
+                new Vector3(42.1f, -40, -60),
+                new Vector3(29.3f, -40, -30),
+                new Vector3(44.1f, -40, 0),
+                new Vector3(37.9f, -40, 40),
+                new Vector3(32.6f, -40, 70),
+                new Vector3(43.4f, -40, 100),
+                new Vector3(30.2f, -40, 140),
+                new Vector3(45.6f, -40, 170),
+                new Vector3(33.8f, -40, 200),
+                new Vector3(39.2f, -40, 230),
+                new Vector3(25.7f, -40, 260),
+                new Vector3(47.0f, -40, 280),
+
+                // Izquierda
+                new Vector3(-25.5f, -40f, -695f),
+                new Vector3(-30.3f, -40f, -670f),
+                new Vector3(-35.0f, -40f, -660f),
+                new Vector3(-26.9f, -40f, -640f),
+                new Vector3(-28.4f, -40f, -620f),
+                new Vector3(-37.2f, -40f, -600f),
+                new Vector3(-29.7f, -40f, -580f),
+                new Vector3(-33.1f, -40f, -560f),
+                new Vector3(-38.4f, -40f, -550f),
+                new Vector3(-32.1f, -40f, -520f),
+                new Vector3(-26.8f, -40f, -500f),
+                new Vector3(-30.2f, -40f, -480f),
+                new Vector3(-34.5f, -40f, -460f),
+                new Vector3(-31.8f, -40f, -440f),
+                new Vector3(-29.3f, -40f, -420f),
+                new Vector3(-38.0f, -40f, -400f),
+                new Vector3(-27.7f, -40f, -380f),
+                new Vector3(-33.0f, -40f, -360f),
+                new Vector3(-37.3f, -40f, -340f),
+                new Vector3(-32.2f, -40f, -310f),
+                new Vector3(-34.8f, -40f, -280f),
+                new Vector3(-39.5f, -40f, -250f),
+                new Vector3(-28.1f, -40f, -230f),
+                new Vector3(-31.6f, -40f, -210f),
+                new Vector3(-35.9f, -40f, -180f),
+                new Vector3(-29.4f, -40f, -150f),
+                new Vector3(-32.3f, -40f, -120f),
+                new Vector3(-34.0f, -40f, -90f),
+                new Vector3(-38.6f, -40f, -60f),
+                new Vector3(-26.7f, -40f, -30f),
+                new Vector3(-36.3f, -40f, 0f),
+                new Vector3(-27.9f, -40f, 40f),
+                new Vector3(-29.5f, -40f, 70f),
+                new Vector3(-35.7f, -40f, 100f),
+                new Vector3(-28.0f, -40f, 140f),
+                new Vector3(-39.8f, -40f, 170f),
+                new Vector3(-30.9f, -40f, 200f),
+                new Vector3(-32.0f, -40f, 230f),
+                new Vector3(-31.4f, -40f, 260f),
+                new Vector3(-26.0f, -40f, 280f),
+
+                // Parte sin rampas (random)
+                new Vector3(-38.2f, -40f, 45.7f),
+                new Vector3(25.6f, -40f, 60.1f),
+                new Vector3(10.3f, -40f, 120.4f),
+                new Vector3(33.7f, -40f, 110.9f),
+                new Vector3(-29.4f, -40f, 95.2f),
+                new Vector3(-18.1f, -40f, 210.3f),
+                new Vector3(39.8f, -40f, 178.5f),
+                new Vector3(-4.9f, -40f, 245.6f),
+                new Vector3(19.5f, -40f, 170.7f),
+                new Vector3(12.6f, -40f, 250.1f),
+                new Vector3(-25.3f, -40f, 185.4f),
+                new Vector3(-10.8f, -40f, 150.2f),
+                new Vector3(35.4f, -40f, 222.1f),
+                new Vector3(-32.5f, -40f, 129.6f),
+                new Vector3(2.2f, -40f, 204.8f),
+                new Vector3(6.1f, -40f, 280f),
+                new Vector3(20.8f, -40f, 230.9f),
+                new Vector3(38.1f, -40f, 140.3f),
+                new Vector3(-15.6f, -40f, 160.1f),
+                new Vector3(28.4f, -40f, 80.7f),
+                new Vector3(0.7f, -40f, 50.6f),
+                new Vector3(-27.9f, -40f, 230.2f),
+                new Vector3(33.1f, -40f, 120.3f),
+                new Vector3(-1.4f, -40f, 95.4f),
+                new Vector3(37.2f, -40f, 190.4f),
+                new Vector3(5.0f, -40f, 115.2f),
+                new Vector3(-36.9f, -40f, 120.5f),
+                new Vector3(29.7f, -40f, 170.3f),
+                new Vector3(-8.3f, -40f, 140.9f),
+                new Vector3(1.9f, -40f, 135.6f),
+                new Vector3(-19.2f, -40f, 245.9f),
+                new Vector3(4.3f, -40f, 180.7f),
+                new Vector3(-2.5f, -40f, 200.8f),
+                new Vector3(16.0f, -40f, 220.1f),
+                new Vector3(36.8f, -40f, 110.6f),
+                new Vector3(-5.6f, -40f, 70.3f),
+                new Vector3(3.2f, -40f, 120.6f),
+                new Vector3(22.3f, -40f, 180.2f),
+                new Vector3(-13.9f, -40f, 190.1f),
+                new Vector3(31.2f, -40f, 100.5f),
+                new Vector3(15.4f, -40f, 120.2f)
+            };
+            var normalRockRotation = Matrix.CreateRotationX(0);
+
+            foreach (var normalRockPosition in normalRockPositions)
+            {
+                var rockColor = rockPossibleColors[Random.Next(rockPossibleColors.Length)];
+                var rockScale = rockPossibleScales[Random.Next(rockPossibleScales.Length)];
+                var translation = Matrix.CreateTranslation(normalRockPosition);
+                DrawModel(rockScale, translation, normalRockRotation, Support, rockColor, globalOffset, globalRotation);
+            }
+
+
         }
+
 
         private void DrawLevel4()
         {
@@ -980,7 +1226,7 @@ namespace TGC.MonoGame.TP
             foreach (var rampDownPosition in rampDownPositions)
             {
                 var translation = Matrix.CreateTranslation(rampDownPosition);
-                DrawLevel6Element(rampDownScale, translation, rampDownRotation, SlantLongD, rampDownColor);
+                DrawModel(rampDownScale, translation, rampDownRotation, SlantLongD, rampDownColor, globalOffset, globalRotation);
             }
 
             // Dibujamos los "pisos"
@@ -995,7 +1241,7 @@ namespace TGC.MonoGame.TP
             foreach (var floorPosition in floorPositions)
             {
                 var translation = Matrix.CreateTranslation(floorPosition);
-                DrawLevel6Element(floorScale, translation, floorRotation, ModelBox, floorColor);
+                DrawModel(floorScale, translation, floorRotation, ModelBox, floorColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las rectas
@@ -1017,7 +1263,7 @@ namespace TGC.MonoGame.TP
             foreach (var straightPosition in straightPositions)
             {
                 var translation = Matrix.CreateTranslation(straightPosition);
-                DrawLevel6Element(straightScale, translation, straightRotation, Straight, straightColor);
+                DrawModel(straightScale, translation, straightRotation, Straight, straightColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las divisiones
@@ -1032,7 +1278,7 @@ namespace TGC.MonoGame.TP
             foreach (var splitPosition in splitPositions)
             {
                 var translation = Matrix.CreateTranslation(splitPosition);
-                DrawLevel6Element(splitScale, translation, splitRotation, SplitDouble, splitColor);
+                DrawModel(splitScale, translation, splitRotation, SplitDouble, splitColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las conjunciones
@@ -1047,7 +1293,7 @@ namespace TGC.MonoGame.TP
             foreach (var conjuctionPosition in conjuctionPositions)
             {
                 var translation = Matrix.CreateTranslation(conjuctionPosition);
-                DrawLevel6Element(conjuctionScale, translation, conjuctionRotation, SplitDouble, conjuctionColor);
+                DrawModel(conjuctionScale, translation, conjuctionRotation, SplitDouble, conjuctionColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las rampas subi baja
@@ -1065,7 +1311,7 @@ namespace TGC.MonoGame.TP
             foreach (var upDownRampPosition in upDownRampPositions)
             {
                 var translation = Matrix.CreateTranslation(upDownRampPosition);
-                DrawLevel6Element(upDownRampScale, translation, upDownRampRotation, BumpD, upDownRampColor);
+                DrawModel(upDownRampScale, translation, upDownRampRotation, BumpD, upDownRampColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las rampas subi baja leves
@@ -1083,7 +1329,7 @@ namespace TGC.MonoGame.TP
             foreach (var slowUpDownRampPosition in slowUpDownRampPositions)
             {
                 var translation = Matrix.CreateTranslation(slowUpDownRampPosition);
-                DrawLevel6Element(slowUpDownRampScale, translation, slowUpDownRampRotation, BumpA, slowUpDownRampColor);
+                DrawModel(slowUpDownRampScale, translation, slowUpDownRampRotation, BumpA, slowUpDownRampColor, globalOffset, globalRotation);
             }
 
             // Dibujamos los tuneles
@@ -1098,7 +1344,7 @@ namespace TGC.MonoGame.TP
             foreach (var tunnelPosition in tunnelPositions)
             {
                 var translation = Matrix.CreateTranslation(tunnelPosition);
-                DrawLevel6Element(tunnelScale, translation, tunnelRotation, Tunnel, tunnelColor);
+                DrawModel(tunnelScale, translation, tunnelRotation, Tunnel, tunnelColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las banderas
@@ -1117,15 +1363,15 @@ namespace TGC.MonoGame.TP
             foreach (var bannerPosition in bannerPositions)
             {
                 var translation = Matrix.CreateTranslation(bannerPosition);
-                DrawLevel6Element(bannerScale, translation, bannerRotation, BannerHigh, bannerColor);
+                DrawModel(bannerScale, translation, bannerRotation, BannerHigh, bannerColor, globalOffset, globalRotation);
             }
 
             // Dibujamos el final
-            DrawLevel6Element(Matrix.CreateScale(xScale: 1f, yScale: 1f, zScale: 1f),
+            DrawModel(Matrix.CreateScale(xScale: 1f, yScale: 1f, zScale: 1f),
                 Matrix.CreateTranslation(new Vector3(0, -40, 665)),
                 Matrix.CreateRotationY(MathHelper.Pi),
                 EndSquare,
-                Color.Red);
+                Color.Red, globalOffset, globalRotation);
 
             // Dibujamos los arboles
             var treePossibleColors = new Color[]
@@ -1172,7 +1418,7 @@ namespace TGC.MonoGame.TP
             {
                 var treeColor = treePossibleColors[Random.Next(treePossibleColors.Length)];
                 var translation = Matrix.CreateTranslation(treePosition);
-                DrawLevel6Element(normalTreeScale, translation, normalTreeRotation, NormalTree, treeColor);
+                DrawModel(normalTreeScale, translation, normalTreeRotation, NormalTree, treeColor, globalOffset, globalRotation);
             }
 
             var tallTreeScale = Matrix.CreateScale(xScale: 2f, yScale: 2f, zScale: 2f);
@@ -1222,7 +1468,7 @@ namespace TGC.MonoGame.TP
             {
                 var treeColor = treePossibleColors[Random.Next(treePossibleColors.Length)];
                 var translation = Matrix.CreateTranslation(tallTreePosition);
-                DrawLevel6Element(tallTreeScale, translation, tallTreeRotation, TallTree, treeColor);
+                DrawModel(tallTreeScale, translation, tallTreeRotation, TallTree, treeColor, globalOffset, globalRotation);
             }
 
             // Dibujamos las rocas
@@ -1384,26 +1630,9 @@ namespace TGC.MonoGame.TP
                 var rockColor = rockPossibleColors[Random.Next(rockPossibleColors.Length)];
                 var rockScale = rockPossibleScales[Random.Next(rockPossibleScales.Length)];
                 var translation = Matrix.CreateTranslation(normalRockPosition);
-                DrawLevel6Element(rockScale, translation, normalRockRotation, Support, rockColor);
+                DrawModel(rockScale, translation, normalRockRotation, Support, rockColor, globalOffset, globalRotation);
             }
 
-            void DrawLevel6Element(Matrix scale, Matrix translation, Matrix rotation, Model model, Color color)
-            {
-                var baseModelTransforms = new Matrix[model.Bones.Count];
-                model.CopyAbsoluteBoneTransformsTo(baseModelTransforms);
-
-                var transform = scale * translation * rotation * globalOffset * globalRotation;
-
-                foreach (var mesh in model.Meshes)
-                {
-                    var relativeTransform = baseModelTransforms[mesh.ParentBone.Index];
-
-                    Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
-                    Effect.Parameters["World"].SetValue(relativeTransform * transform);
-
-                    mesh.Draw();
-                }
-            }
         }
 
         /// <summary>
@@ -1411,24 +1640,23 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         ///
-        private void DrawModel(Model model, bool rotate, float xPosition, float yPosition, float zPosition, Matrix offset, Color color)
+        private void DrawModel(Matrix scale, Matrix translation, Matrix rotation, Model model, Color color, Matrix globalOffset, Matrix globalRotation)
         {
-            var baseTransforms = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(baseTransforms);
+            var baseModelTransforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(baseModelTransforms);
+
+            var transform = scale * translation * rotation * globalOffset * globalRotation;
+
             foreach (var mesh in model.Meshes)
             {
-                var relativeTransform = baseTransforms[mesh.ParentBone.Index];
+                var relativeTransform = baseModelTransforms[mesh.ParentBone.Index];
+
                 Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
-                if (rotate)
-                {
-                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateTranslation(xPosition, yPosition, zPosition) * offset);
-                }
-                else
-                {
-                    Effect.Parameters["World"].SetValue(relativeTransform * Matrix.CreateTranslation(xPosition, yPosition, zPosition) * offset);
-                }
+                Effect.Parameters["World"].SetValue(relativeTransform * transform);
+
                 mesh.Draw();
             }
         }
     }
+
 }
