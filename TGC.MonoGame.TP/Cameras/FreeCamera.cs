@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.TP.Cameras
 {
     /// <summary>
     /// Cámara libre que se puede mover con teclado y rotar con mouse.
