@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Modelos;
+using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP
 {
@@ -50,9 +51,6 @@ namespace TGC.MonoGame.TP
         private Vector3 _marbleFrontDirection;
         private bool _onGround;
 
-
-        // Pelota ("personaje" principal)
-        private Pelota pelota { get; set; }
 
         // Niveles
         private Nivel1 Nivel1;
@@ -182,9 +180,6 @@ namespace TGC.MonoGame.TP
             }
 
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            World = Matrix.CreateRotationY(Rotation);
 
             MarbleWorld = _marbleRotation * Matrix.CreateTranslation(_marblePosition);
 
@@ -211,6 +206,7 @@ namespace TGC.MonoGame.TP
             Nivel2.Draw(GraphicsDevice, View, Projection);
             Nivel3.Draw(GraphicsDevice, View, Projection);
             Nivel4.Draw(GraphicsDevice, View, Projection);
+            DrawUtilities.DrawModel(ModelManager.Pelota, EffectManager.BasicShader, View, Projection, Matrix.CreateTranslation(_marblePosition), Matrix.CreateScale(1f), Matrix.Identity, Color.Red, Matrix.Identity, Matrix.Identity);
         }
 
         /// <summary>
@@ -221,5 +217,7 @@ namespace TGC.MonoGame.TP
             Content.Unload();
             base.UnloadContent();
         }
+
+
     }
 }

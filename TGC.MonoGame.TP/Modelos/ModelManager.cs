@@ -49,6 +49,7 @@ namespace TGC.MonoGame.TP.Modelos
         public Model SupportModel { get; private set; }
         public Model BannerHighModel { get; private set; }
         public Model BendModel { get; private set; }
+        public Model Pelota { get; set; }
 
         public void Load(ContentManager content)
         {
@@ -94,6 +95,7 @@ namespace TGC.MonoGame.TP.Modelos
             SupportModel = LoadModel(content, "supports/support_base");
             BannerHighModel = LoadModel(content, "banners/banner_high");
             BendModel = LoadModel(content, "bend/bend_medium");
+            Pelota = LoadModel(content, "marble/marble_high");
         }
 
         private Model LoadModel(ContentManager content, string path)
