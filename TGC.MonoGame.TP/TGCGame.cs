@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
-using TGC.MonoGame.TP.Escenarios;
+using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Modelos;
 
 namespace TGC.MonoGame.TP
@@ -23,7 +23,9 @@ namespace TGC.MonoGame.TP
         // Graphics device manager
         private GraphicsDeviceManager Graphics { get; }
 
+        // Managers
         private ModelManager ModelManager;
+        private EffectManager EffectManager;
 
         // Matrices de vista y proyeccion
         private Matrix View { get; set; }
@@ -35,19 +37,28 @@ namespace TGC.MonoGame.TP
         // Pelota ("personaje" principal)
         private Pelota pelota { get; set; }
 
-        // Escenario (pistas por donde se mueve la pelota)
-        private EscenarioManager EscenarioManager;
+        // Niveles
+        private Nivel1 Nivel1;
+        private Nivel2 Nivel2;
+        private Nivel3 Nivel3;
+        private Nivel4 Nivel4;
 
         public TGCGame()
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
 
-            // Maneja el load y encapsula a todos los modelos
+            // Carga y encapsula a todos los modelos
             ModelManager = new ModelManager();
 
-            // Maneja al escenario principal (pistas por donde va la pelotita)
-            EscenarioManager = new EscenarioManager(ModelManager);
+            // Carga y encapsula a todos los efectos
+            EffectManager = new EffectManager();
+
+            // Niveles
+            Nivel1 = new Nivel1(ModelManager, EffectManager);
+            Nivel2 = new Nivel2(ModelManager, EffectManager);
+            Nivel3 = new Nivel3(ModelManager, EffectManager);
+            Nivel4 = new Nivel4(ModelManager, EffectManager);
 
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
@@ -91,6 +102,7 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
+            EffectManager.Load(Content);
             ModelManager.Load(Content);
             base.LoadContent();
         }
@@ -127,7 +139,11 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            EscenarioManager.DrawAllLevels(GraphicsDevice, View, Projection);
+
+            Nivel1.Draw(GraphicsDevice, View, Projection);
+            Nivel2.Draw(GraphicsDevice, View, Projection);
+            Nivel3.Draw(GraphicsDevice, View, Projection);
+            Nivel4.Draw(GraphicsDevice, View, Projection);
         }
 
         /// <summary>

@@ -39,12 +39,17 @@ namespace TGC.MonoGame.TP.Utilidades
 
             foreach (var mesh in model.Meshes)
             {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = effect;
+                }
+
                 var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-                effect.Parameters["View"].SetValue(view);
-                effect.Parameters["Projection"].SetValue(projection);
-                effect.Parameters["World"].SetValue(meshTransform * worldTransform);
-                effect.Parameters["DiffuseColor"].SetValue(color.Value.ToVector3());
+                effect.Parameters["View"]?.SetValue(view);
+                effect.Parameters["Projection"]?.SetValue(projection);
+                effect.Parameters["World"]?.SetValue(meshTransform * worldTransform);
+                effect.Parameters["DiffuseColor"]?.SetValue(color.Value.ToVector3());
 
                 mesh.Draw();
             }

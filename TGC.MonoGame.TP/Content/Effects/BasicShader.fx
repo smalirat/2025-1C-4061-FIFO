@@ -13,38 +13,44 @@
 // Reference for HLSL - https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reference
 // HLSL Semantics - https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
 
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
+uniform float4x4 World;
+uniform float4x4 View;
+uniform float4x4 Projection;
+uniform float3 DiffuseColor;
 
-float3 DiffuseColor;
-
-float Time = 0;
-
+// Vertice
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 };
 
+// Vertice Proyectado
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
 };
 
+// Vertex Shader
+// Se aplican las transformaciones estándar: Local → Mundo → Vista → Proyeccion
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
-    // Clear the output
+    // Restablezco el output
 	VertexShaderOutput output = (VertexShaderOutput)0;
-    // Model space to World space
+	
+    // Multiplico matrices: Local → Mundo
     float4 worldPosition = mul(input.Position, World);
-    // World space to View space
+	
+	// Multiplico matrices: Mundo → Vista
     float4 viewPosition = mul(worldPosition, View);	
-	// View space to Projection space
+	
+	// Multiplico matrices: Vista → Proyeccion
     output.Position = mul(viewPosition, Projection);
 
     return output;
 }
 
+// Fragment Shader
+// Opacidad al 100% y color uniforme
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     return float4(DiffuseColor, 1.0);

@@ -6,9 +6,6 @@ namespace TGC.MonoGame.TP.Modelos
     public class ModelManager
     {
         public const string ContentFolderModels = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-
-        public Effect Effect { get; private set; }
 
         public Model BoxModel { get; private set; }
         public Model CurveModel { get; private set; }
@@ -55,8 +52,6 @@ namespace TGC.MonoGame.TP.Modelos
 
         public void Load(ContentManager content)
         {
-            Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
             BoxModel = LoadModel(content, "skybox/cube");
             CurveModel = LoadModel(content, "curves/curve");
             SlantLongAModel = LoadModel(content, "slants/slant_long_A");
@@ -103,20 +98,7 @@ namespace TGC.MonoGame.TP.Modelos
 
         private Model LoadModel(ContentManager content, string path)
         {
-            var model = content.Load<Model>(ContentFolderModels + path);
-            AssignEffect(model);
-            return model;
-        }
-
-        private void AssignEffect(Model model)
-        {
-            foreach (var mesh in model.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
+            return content.Load<Model>(ContentFolderModels + path);
         }
     }
 }
