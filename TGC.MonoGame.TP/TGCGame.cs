@@ -30,9 +30,26 @@ namespace TGC.MonoGame.TP
         // Matrices de vista y proyeccion
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private Matrix MarbleWorld { get; set; }
 
         // Camaras
         private FreeCamera FreeCamera { get; set; }
+        private TargetCamera TargetCamera { get; set; }
+        private const float CameraFollowRadius = 10f;
+        private const float CameraUpDistance = 10f;
+        private const float MarbleSpeed = 100f;
+        private const float MarbleJumpSpeed = 150f;
+        private const float Gravity = 350f;
+        private const float MarbleRotatingVelocity = 0.06f;
+        private const float Epsilon = 0.00001f;
+        private Matrix _marbleScale;
+        private Matrix _marbleRotation;
+        private Vector3 _marblePosition;
+        private Vector3 _marbleVelocity;
+        private Vector3 _marbleAcceleration;
+        private Vector3 _marbleFrontDirection;
+        private bool _onGround;
+
 
         // Pelota ("personaje" principal)
         private Pelota pelota { get; set; }
@@ -47,6 +64,7 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
+
 
             // Carga y encapsula a todos los modelos
             ModelManager = new ModelManager();
@@ -89,8 +107,27 @@ namespace TGC.MonoGame.TP
                 farPlaneDistance: 250);
 
             // Configuramos la camara
-            var screenCenter = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 300), screenCenter);
+            // var screenCenter = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            //FreeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 300), screenCenter);
+
+
+            // Configuramos las camara
+            _onGround = true;
+            _marbleFrontDirection = Vector3.Forward; //ojo esto
+            _marbleVelocity = Vector3.Zero;
+            _marbleRotation = Matrix.Identity;
+            MarbleWorld = Matrix.Identity;
+
+            // Create the Target Camera
+            TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio);
+
+            // Set the Acceleration (which in this case won't change) to the Gravity pointing down
+            _marbleAcceleration = Vector3.Down * Gravity;
+
+            // Initialize the Velocity as zero
+            _marbleVelocity = Vector3.Zero;
+
+
 
             base.Initialize();
         }
@@ -115,19 +152,49 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+
+            // Aca deberiamos poner toda la logica de actualizacion del juego.
+            var keyboardState = Keyboard.GetState();
+
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
 
-            // Matrices
-            View = FreeCamera.View;
-            Projection = FreeCamera.Projection;
+            //Movimiento Camara
 
-            // Actualizo posicion de camara segun inputs (teclado / mouse)
-            FreeCamera.Update(gameTime);
+
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            Vector3 movement = Vector3.Zero;
+
+            if (keyboardState.IsKeyDown(Keys.W)) movement.Z -= 1;
+            if (keyboardState.IsKeyDown(Keys.S)) movement.Z += 1;
+            if (keyboardState.IsKeyDown(Keys.A)) movement.X -= 1;
+            if (keyboardState.IsKeyDown(Keys.D)) movement.X += 1;
+
+            if (movement != Vector3.Zero)
+            {
+                movement.Normalize();
+                _marblePosition += movement * MarbleSpeed * deltaTime;
+            }
+
+            // Basado en el tiempo que paso se va generando una rotacion.
+            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            World = Matrix.CreateRotationY(Rotation);
+
+            MarbleWorld = _marbleRotation * Matrix.CreateTranslation(_marblePosition);
+
+            // Actualizar la cámara
+            TargetCamera.Update(gameTime, MarbleWorld);
+            //FreeCamera.Update(gameTime);
+            View = TargetCamera.View;
+            Projection = TargetCamera.Projection;
+
+
 
             base.Update(gameTime);
         }
