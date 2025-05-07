@@ -3,6 +3,7 @@ using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Modelos.Primitivas;
 using TGC.MonoGame.TP.Utilidades;
@@ -57,7 +58,7 @@ public class Pelota
         BodyHandle = simulation.Bodies.Add(bodyDescription);
     }
 
-    public void Update(KeyboardState keyboardState, float deltaTime)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
         var bodyRef = simulation.Bodies.GetBodyReference(BodyHandle);
         bodyRef.Awake = true; // La pelota siempre esta activa en el mundo física
@@ -68,25 +69,25 @@ public class Pelota
 
         if (keyboardState.IsKeyDown(Keys.W))
         {
-            direccion += new BepuVector3(0, 0, -1);
+            direccion += camera.ForwardXZ.ToBepuVector3();
             offset = new BepuVector3(0, 0, -radius); // Aplico impulso en el borde frontal
         }
 
         if (keyboardState.IsKeyDown(Keys.S))
         {
-            direccion += new BepuVector3(0, 0, 1);
+            direccion -= camera.ForwardXZ.ToBepuVector3();
             offset = new BepuVector3(0, 0, radius); // Aplico impulso en el borde trasero
         }
 
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            direccion += new BepuVector3(-1, 0, 0);
+            direccion += camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(-radius, 0, 0); // Aplico impulso en el borde izquierdo
         }
 
         if (keyboardState.IsKeyDown(Keys.D))
         {
-            direccion += new BepuVector3(1, 0, 0);
+            direccion -= camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(radius, 0, 0); // Aplico impulso en el borde derecho
         }
 
