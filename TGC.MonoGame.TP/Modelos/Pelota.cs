@@ -1,71 +1,121 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using BepuPhysics;
+using BepuPhysics.Collidables;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Efectos;
+using TGC.MonoGame.TP.Modelos.Primitivas;
+using TGC.MonoGame.TP.Utilidades;
+using BepuVector3 = System.Numerics.Vector3;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
-namespace TGC.MonoGame.TP.Modelos
+namespace TGC.MonoGame.TP.Modelos;
+
+public class Pelota
 {
-    class Pelota
+    private readonly EffectManager effectManager;
+    private readonly Simulation simulation;
+
+    public BodyHandle BodyHandle;
+    private readonly SpherePrimitive SpherePrimitive;
+
+    public XnaMatrix World { get; private set; }
+
+    public XnaVector3 Position => World.Translation.ToBepuVector3();
+
+    private readonly float mass;
+    private readonly float diameter;
+    private readonly float radius;
+
+    // Impulso fijo al tocar una tecla
+    private const float ImpulsoFijo = 300f;
+
+    public Pelota(EffectManager effectManager, Simulation simulation, GraphicsDevice graphicsDevice, XnaVector3 initialPosition, float diameter = 6f, float mass = 1f)
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
+        this.effectManager = effectManager;
+        this.simulation = simulation;
+        this.mass = mass;
+        this.diameter = diameter;
+        this.radius = this.diameter / 2f;
 
-        private Model Model { get; set; }
-        private Effect Effect { get; set; }
-        private float rotationSpeed = 0.8f;
-        private float Rotacion { get; set; }
-        private float speed = 50f;
-        private Vector3 Posicion { get; set; } = Vector3.Zero;
-        
-        public Pelota(ContentManager content)
+        SpherePrimitive = new SpherePrimitive(graphicsDevice, diameter);
+        World = XnaMatrix.CreateTranslation(initialPosition);
+
+        var sphereShape = new Sphere(radius); // Bounding volume
+        var shapeIndex = simulation.Shapes.Add(sphereShape);
+
+        var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.1f);
+
+        var bodyDescription = BodyDescription.CreateDynamic(
+            initialPosition.ToBepuVector3(),
+            inertia: sphereShape.ComputeInertia(mass),
+            collidableDescription,
+            new BodyActivityDescription(sleepThreshold: 0.1f)
+        );
+
+        BodyHandle = simulation.Bodies.Add(bodyDescription);
+    }
+
+    public void Update(KeyboardState keyboardState, float deltaTime)
+    {
+        var bodyRef = simulation.Bodies.GetBodyReference(BodyHandle);
+        bodyRef.Awake = true; // La pelota siempre esta activa en el mundo física
+
+        // Movimiento de la pelota
+        var direccion = BepuVector3.Zero;
+        var offset = BepuVector3.Zero;
+
+        if (keyboardState.IsKeyDown(Keys.W))
         {
-            Model = content.Load<Model>(ContentFolder3D + "marble/marble_high");
-            Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            foreach (var mesh in Model.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = Effect;
-            }
-            
+            direccion += new BepuVector3(0, 0, -1);
+            offset = new BepuVector3(0, 0, -radius); // Aplico impulso en el borde frontal
         }
 
-        public void Update(GameTime gameTime, KeyboardState keyboardState)
+        if (keyboardState.IsKeyDown(Keys.S))
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (keyboardState.IsKeyDown(Keys.J))
-                Rotacion += rotationSpeed * deltaTime;
-            if (keyboardState.IsKeyDown(Keys.L))
-                Rotacion -= rotationSpeed * deltaTime;
-
-            var forward = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(Rotacion));
-
-            if (keyboardState.IsKeyDown(Keys.I))
-                Posicion -= forward * speed * deltaTime;
-            if (keyboardState.IsKeyDown(Keys.K))
-                Posicion += forward * speed * deltaTime;
+            direccion += new BepuVector3(0, 0, 1);
+            offset = new BepuVector3(0, 0, radius); // Aplico impulso en el borde trasero
         }
 
-        public void Draw(Matrix world, Matrix view, Matrix projection)
-        {            
-            Matrix matrizPelotita = Matrix.CreateRotationY(Rotacion) * Matrix.CreateTranslation(Posicion);
-            Matrix origen = Matrix.Identity;
-
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
-
-            var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
-            Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-
-            foreach (var mesh in Model.Meshes)
-            {
-
-                var relativeTransform = modelMeshesBaseTransforms[mesh.ParentBone.Index];
-                Effect.Parameters["World"].SetValue(relativeTransform * matrizPelotita * origen * Matrix.CreateTranslation(8,-16,72));
-                mesh.Draw();
-            }
+        if (keyboardState.IsKeyDown(Keys.A))
+        {
+            direccion += new BepuVector3(-1, 0, 0);
+            offset = new BepuVector3(-radius, 0, 0); // Aplico impulso en el borde izquierdo
         }
+
+        if (keyboardState.IsKeyDown(Keys.D))
+        {
+            direccion += new BepuVector3(1, 0, 0);
+            offset = new BepuVector3(radius, 0, 0); // Aplico impulso en el borde derecho
+        }
+
+        // Si se oprimio una tecla
+        if (direccion != BepuVector3.Zero)
+        {
+            // A mayor masa menor impulso, mas cuesta mover la pelota
+            var impulso = direccion * ImpulsoFijo * deltaTime / mass;
+
+            // Aplico el impulso en algun borde de la pelota
+            var puntoDeAplicacion = bodyRef.Pose.Position + offset;
+
+            bodyRef.ApplyImpulse(impulso * deltaTime, puntoDeAplicacion);
+        }
+
+        // Actualizo matriz mundo
+        World = XnaMatrix.CreateFromQuaternion(bodyRef.Pose.Orientation.ToXnaQuaternion()) *
+                XnaMatrix.CreateTranslation(bodyRef.Pose.Position.ToXnaVector3());
+    }
+
+    public void Draw(XnaMatrix view, XnaMatrix projection)
+    {
+        var effect = this.effectManager.PelotaShader;
+
+        effect.Parameters["View"]?.SetValue(view);
+        effect.Parameters["Projection"]?.SetValue(projection);
+        effect.Parameters["World"]?.SetValue(World);
+        effect.Parameters["DiffuseColor"]?.SetValue(Color.MediumVioletRed.ToVector3());
+
+        SpherePrimitive.Draw(effect);
     }
 }
