@@ -20,6 +20,8 @@ public class TGCGame : Game
     public const string ContentFolderSpriteFonts = "SpriteFonts/";
     public const string ContentFolderTextures = "Textures/";
 
+    private PhysicsObject box;
+    private PhysicsObject sideBox;
     private GraphicsDeviceManager Graphics { get; }
 
     private Simulation Simulation;
@@ -121,7 +123,30 @@ public class TGCGame : Game
     {
         EffectManager.Load(Content);
         ModelManager.Load(Content);
+        box = new PhysicsObject(
+              ModelManager.BoxModel,
+              EffectManager,
+              Simulation,
+              GraphicsDevice,
+              position: new Vector3(495f, -40, 45f),
+              rotation: Quaternion.Identity,
+              width: 1000f,
+              length: 1000f
+          );
+
+        sideBox = new PhysicsObject(
+          ModelManager.BoxModel,
+          EffectManager,
+          Simulation,
+          GraphicsDevice,
+          position: new Vector3(20f, 0f, 45f),
+          rotation: Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.PiOver2),
+          width: 20f,
+          length: 20f
+      );
+
         base.LoadContent();
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -130,7 +155,7 @@ public class TGCGame : Game
         if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        float safeDeltaTime = Math.Max(deltaTime, 1f / 120f);
+        float safeDeltaTime = Math.Max(deltaTime, 1f / 240f);
 
         Pelota.Update(keyboardState, deltaTime, TargetCamera);
         Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
@@ -143,10 +168,24 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+
+        Matrix centro = Matrix.CreateTranslation(400f, -100, 20f);
+        Matrix escala = Matrix.CreateScale(1000f, 40f, 1000f);
+        // En el método Draw()
+        box.Draw(TargetCamera.View, TargetCamera.Projection, escala, Color.SandyBrown, centro, Matrix.Identity);
+        sideBox.Draw(
+            TargetCamera.View,
+            TargetCamera.Projection,
+            Matrix.CreateScale(10f, 2f, 10f),
+            Color.Red
+        );
+
+
         Pelota.Draw(TargetCamera.View, TargetCamera.Projection);
 
         foreach (var piso in PisosAnillo)
             piso.Draw(TargetCamera.View, TargetCamera.Projection);
+
     }
 
     protected override void UnloadContent()

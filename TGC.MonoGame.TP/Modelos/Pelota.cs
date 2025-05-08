@@ -117,6 +117,6 @@ public class Pelota
         effect.Parameters["World"]?.SetValue(World);
         effect.Parameters["DiffuseColor"]?.SetValue(Color.MediumVioletRed.ToVector3());
 
-        SpherePrimitive.Draw(effect);
+        SpherePrimitive.Draw(effect); //cambiar forma de dibujar
     }
 }
