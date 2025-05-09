@@ -16,7 +16,7 @@ public class TargetCamera
     private Vector2 lastMousePosition;
     private bool isRotating = false;
 
-    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(View.Backward.X, 0, View.Backward.Z));
+    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(View.Forward.X, 0, View.Forward.Z));
     public Vector3 RightXZ => Vector3.Normalize(new Vector3(View.Right.X, 0, View.Right.Z));
 
     public TargetCamera(float aspectRatio)
@@ -50,11 +50,11 @@ public class TargetCamera
             isRotating = false;
         }
 
-        // Crear rotación combinada con quaternions
+        // Crear rotaciÃ³n combinada con quaternions
         var rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, yaw) *
-                       Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
+                      Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
 
-        // Aplicar rotación al vector backward y escalar por la distancia
+        // Aplicar rotaciÃ³n al vector backward y escalar por la distancia
         var offset = Vector3.Transform(Vector3.Backward * distance, rotation);
 
         var cameraPosition = targetPosition + offset;

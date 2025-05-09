@@ -109,7 +109,7 @@ public class TGCGame : Game
             EffectManager,
             Simulation,
             GraphicsDevice,
-            initialPosition: new Vector3(0f, 5f, centroZ),
+            initialPosition: new Vector3(0f, 3f, centroZ),
             diameter: 6f,
             mass: 0.6f
         );

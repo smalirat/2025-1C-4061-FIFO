@@ -46,7 +46,7 @@ public class Pelota
         var sphereShape = new Sphere(radius); // Bounding volume
         var shapeIndex = simulation.Shapes.Add(sphereShape);
 
-        var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.1f);
+        var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.2f);
 
         var bodyDescription = BodyDescription.CreateDynamic(
             initialPosition.ToBepuVector3(),
@@ -81,13 +81,13 @@ public class Pelota
 
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            direccion += camera.RightXZ.ToBepuVector3();
+            direccion -= camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(-radius, 0, 0); // Aplico impulso en el borde izquierdo
         }
 
         if (keyboardState.IsKeyDown(Keys.D))
         {
-            direccion -= camera.RightXZ.ToBepuVector3();
+            direccion += camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(radius, 0, 0); // Aplico impulso en el borde derecho
         }
 
@@ -101,6 +101,15 @@ public class Pelota
             var puntoDeAplicacion = bodyRef.Pose.Position + offset;
 
             bodyRef.ApplyImpulse(impulso * deltaTime, puntoDeAplicacion);
+        }
+        else
+        {
+            // Aplico fuerza de frenado proporcional a la velocidad
+            var velocidadActual = bodyRef.Velocity.Linear;
+            var coeficienteFrenado = 0.5f;
+            var fuerzaFrenado = -velocidadActual * coeficienteFrenado * deltaTime;
+
+            bodyRef.ApplyImpulse(fuerzaFrenado, bodyRef.Pose.Position);
         }
 
         // Actualizo matriz mundo
