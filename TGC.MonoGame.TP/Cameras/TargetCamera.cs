@@ -21,7 +21,7 @@ public class TargetCamera
 
     public TargetCamera(float aspectRatio)
     {
-        Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 1000f);
+        Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 1000000f);
     }
 
     public void Update(Vector3 targetPosition)

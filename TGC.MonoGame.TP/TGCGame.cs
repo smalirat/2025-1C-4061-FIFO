@@ -10,6 +10,7 @@ using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
+using TGC.MonoGame.TP.Skybox;
 
 namespace TGC.MonoGame.TP;
 
@@ -41,6 +42,8 @@ public class TGCGame : Game
     private Pelota Pelota;
 
     private List<Piso> PisosAnillo = new();
+
+    private SimpleSkyBox SimpleSkybox { get; set; }
 
     public TGCGame()
     {
@@ -115,6 +118,7 @@ public class TGCGame : Game
         );
 
         TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio);
+        SimpleSkybox = new SimpleSkyBox();
 
         base.Initialize();
     }
@@ -145,8 +149,9 @@ public class TGCGame : Game
           length: 20f
       );
 
-        base.LoadContent();
+        SimpleSkybox.LoadContent(Content, TiposSkybox.Nieve);
 
+        base.LoadContent();
     }
 
     protected override void Update(GameTime gameTime)
@@ -168,7 +173,6 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-
         Matrix centro = Matrix.CreateTranslation(400f, -100, 20f);
         Matrix escala = Matrix.CreateScale(1000f, 40f, 1000f);
         // En el método Draw()
@@ -180,9 +184,10 @@ public class TGCGame : Game
             Color.Red
         );
 
+        SimpleSkybox.Draw(TargetCamera.View, TargetCamera.Projection, Pelota.Position, GraphicsDevice);
 
         Pelota.Draw(TargetCamera.View, TargetCamera.Projection);
-
+        
         foreach (var piso in PisosAnillo)
             piso.Draw(TargetCamera.View, TargetCamera.Projection);
 
