@@ -1,9 +1,4 @@
-﻿using BepuVector3 = System.Numerics.Vector3;
-using XnaVector3 = Microsoft.Xna.Framework.Vector3;
-using BepuQuaternion = System.Numerics.Quaternion;
-using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
-
-namespace TGC.MonoGame.TP.Utilidades;
+﻿namespace TGC.MonoGame.TP.Utilidades;
 
 public static class Converters
 {

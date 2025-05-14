@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP.Modelos
             Matrix globalOffset = Matrix.CreateTranslation(400f, 0f, 0f);
 
             // --- Straight #1 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -31,7 +31,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- CurveLarge #1 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -41,7 +41,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #2 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -50,7 +50,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- WaveA #1 ---
-            DrawUtilities.DrawModel(modelManager.WaveAModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveAModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -60,7 +60,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #3 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -69,7 +69,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- CurveLarge #2 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -78,7 +78,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- WaveB #1 ---
-            DrawUtilities.DrawModel(modelManager.WaveBModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveBModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -87,7 +87,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #4 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -96,7 +96,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- WaveC #1 ---
-            DrawUtilities.DrawModel(modelManager.WaveCModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveCModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -105,7 +105,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #5 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -114,7 +114,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- CurveLarge #3 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -124,7 +124,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #6 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -133,7 +133,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- WaveA #2 ---
-            DrawUtilities.DrawModel(modelManager.WaveAModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveAModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -143,7 +143,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #7 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -152,7 +152,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- SplitDoubleSides #1---
-            DrawUtilities.DrawModel(modelManager.SplitDoubleSidesModel,
+            DrawUtilities.DrawCustomModel(modelManager.SplitDoubleSidesModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -163,7 +163,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             // #### CAMINO A (IZQUIERDA) ####
             // --- Straight #8 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -172,7 +172,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- CurveLarge #4 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -182,7 +182,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #9 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -192,7 +192,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #10 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -202,7 +202,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- WaveA #3 ---
-            DrawUtilities.DrawModel(modelManager.WaveAModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveAModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -212,7 +212,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #11 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -222,7 +222,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- WaveA #4 ---
-            DrawUtilities.DrawModel(modelManager.WaveAModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveAModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -232,7 +232,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #12 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -242,7 +242,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #13 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -252,7 +252,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- CurveLarge #5 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -262,7 +262,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #14 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -272,7 +272,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             // #### CAMINO B (DERECHA) ####
             // --- Straight #15 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -281,7 +281,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- CurveLarge #6 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -290,7 +290,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #16 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -300,7 +300,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- WaveB #2 ---
-            DrawUtilities.DrawModel(modelManager.WaveBModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveBModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -310,7 +310,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- WaveC #2 ---
-            DrawUtilities.DrawModel(modelManager.WaveCModel,
+            DrawUtilities.DrawCustomModel(modelManager.WaveCModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -320,7 +320,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #17 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -330,7 +330,7 @@ namespace TGC.MonoGame.TP.Modelos
                globalOffset: globalOffset);
 
             // --- CurveLarge #7 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -340,7 +340,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- Straight #18 ---
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                effectManager.BasicShader,
                view,
                projection,
@@ -350,7 +350,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             // #### UNION DE CAMINOS ####
             // --- SplitDoubleSides #2 ---
-            DrawUtilities.DrawModel(modelManager.SplitDoubleSidesModel,
+            DrawUtilities.DrawCustomModel(modelManager.SplitDoubleSidesModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -360,7 +360,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalOffset: globalOffset);
 
             // --- CurveLarge #8 ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,

@@ -23,7 +23,7 @@ namespace TGC.MonoGame.TP.Modelos
             Matrix globalRotation = Matrix.CreateRotationY(MathHelper.Pi);
 
             // --- Straight #1
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -33,7 +33,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #2
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -43,7 +43,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Tunel #1
-            DrawUtilities.DrawModel(modelManager.TunnelModel,
+            DrawUtilities.DrawCustomModel(modelManager.TunnelModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -53,7 +53,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Tunel #2
-            DrawUtilities.DrawModel(modelManager.TunnelModel,
+            DrawUtilities.DrawCustomModel(modelManager.TunnelModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -63,7 +63,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #3
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -73,7 +73,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Ramp Long D
-            DrawUtilities.DrawModel(modelManager.RampLongDModel,
+            DrawUtilities.DrawCustomModel(modelManager.RampLongDModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -84,7 +84,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- CURVE LARGE  ---
-            DrawUtilities.DrawModel(modelManager.CurveLargeModel,
+            DrawUtilities.DrawCustomModel(modelManager.CurveLargeModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -94,7 +94,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #4
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -105,7 +105,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // Double Split Sides
-            DrawUtilities.DrawModel(modelManager.SplitDoubleSidesModel,
+            DrawUtilities.DrawCustomModel(modelManager.SplitDoubleSidesModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -116,7 +116,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // Bump A (derecha)
-            DrawUtilities.DrawModel(modelManager.BumpAModel,
+            DrawUtilities.DrawCustomModel(modelManager.BumpAModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -126,7 +126,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #4
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -137,7 +137,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #5
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -148,7 +148,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #6
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -159,7 +159,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Helix Large Right #1
-            DrawUtilities.DrawModel(modelManager.HelixLargeRightModel,
+            DrawUtilities.DrawCustomModel(modelManager.HelixLargeRightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -170,7 +170,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Helix Large Right #2
-            DrawUtilities.DrawModel(modelManager.HelixLargeRightModel,
+            DrawUtilities.DrawCustomModel(modelManager.HelixLargeRightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -181,7 +181,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #6
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -192,7 +192,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #7
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -203,7 +203,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- Straight #8
-            DrawUtilities.DrawModel(modelManager.StraightModel,
+            DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -214,7 +214,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- SLANT LONG C  ---
-            DrawUtilities.DrawModel(modelManager.SlantLongCModel,
+            DrawUtilities.DrawCustomModel(modelManager.SlantLongCModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -224,7 +224,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- SLANT LONG C #2  ---
-            DrawUtilities.DrawModel(modelManager.SlantLongCModel,
+            DrawUtilities.DrawCustomModel(modelManager.SlantLongCModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -234,7 +234,7 @@ namespace TGC.MonoGame.TP.Modelos
                 globalRotation: globalRotation);
 
             // --- SLANT LONG C #3  ---
-            DrawUtilities.DrawModel(modelManager.SlantLongCModel,
+            DrawUtilities.DrawCustomModel(modelManager.SlantLongCModel,
                 effectManager.BasicShader,
                 view,
                 projection,

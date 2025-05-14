@@ -37,7 +37,7 @@ namespace TGC.MonoGame.TP.Modelos
                 // Matrices locales
                 Matrix translation = Matrix.CreateTranslation(0f, yBasePosition, zBasePosition);
 
-                DrawUtilities.DrawModel(modelManager.FunnelModel,
+                DrawUtilities.DrawCustomModel(modelManager.FunnelModel,
                     effectManager.BasicShader,
                     view,
                     projection,

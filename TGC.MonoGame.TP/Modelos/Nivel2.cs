@@ -92,7 +92,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var rampDownPosition in rampDownPositions)
             {
-                DrawUtilities.DrawModel(modelManager.SlantLongDModel,
+                DrawUtilities.DrawCustomModel(modelManager.SlantLongDModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -106,7 +106,7 @@ namespace TGC.MonoGame.TP.Modelos
             // Dibujo el "piso"
             var floorY = -40f;
 
-            DrawUtilities.DrawModel(modelManager.BoxModel,
+            DrawUtilities.DrawCustomModel(modelManager.BoxModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -131,7 +131,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var straightPosition in straightPositions)
             {
-                DrawUtilities.DrawModel(modelManager.StraightModel,
+                DrawUtilities.DrawCustomModel(modelManager.StraightModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -150,7 +150,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var splitPosition in splitPositions)
             {
-                DrawUtilities.DrawModel(modelManager.SplitDoubleModel,
+                DrawUtilities.DrawCustomModel(modelManager.SplitDoubleModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -170,7 +170,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var conjuctionPosition in conjuctionPositions)
             {
-                DrawUtilities.DrawModel(modelManager.SplitDoubleModel,
+                DrawUtilities.DrawCustomModel(modelManager.SplitDoubleModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -192,7 +192,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var upDownRampPosition in upDownRampPositions)
             {
-                DrawUtilities.DrawModel(modelManager.BumpDModel,
+                DrawUtilities.DrawCustomModel(modelManager.BumpDModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -213,7 +213,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var slowUpDownRampPosition in slowUpDownRampPositions)
             {
-                DrawUtilities.DrawModel(modelManager.BumpAModel,
+                DrawUtilities.DrawCustomModel(modelManager.BumpAModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -231,7 +231,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var tunnelPosition in tunnelPositions)
             {
-                DrawUtilities.DrawModel(modelManager.TunnelModel,
+                DrawUtilities.DrawCustomModel(modelManager.TunnelModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -254,7 +254,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var bannerPosition in bannerPositions)
             {
-                DrawUtilities.DrawModel(modelManager.BannerHighModel,
+                DrawUtilities.DrawCustomModel(modelManager.BannerHighModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -266,7 +266,7 @@ namespace TGC.MonoGame.TP.Modelos
             }
 
             // Dibujamos el final
-            DrawUtilities.DrawModel(modelManager.EndSquareModel,
+            DrawUtilities.DrawCustomModel(modelManager.EndSquareModel,
                 effectManager.BasicShader,
                 view,
                 projection,
@@ -311,7 +311,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var normalTreePosition in normalTreePositions)
             {
-                DrawUtilities.DrawModel(modelManager.NormalTreeModel,
+                DrawUtilities.DrawCustomModel(modelManager.NormalTreeModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -365,7 +365,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var tallTreePosition in tallTreePositions)
             {
-                DrawUtilities.DrawModel(modelManager.TallTreeModel,
+                DrawUtilities.DrawCustomModel(modelManager.TallTreeModel,
                     effectManager.BasicShader,
                     view,
                     projection,
@@ -509,7 +509,7 @@ namespace TGC.MonoGame.TP.Modelos
 
             foreach (var rockPosition in rockPositions)
             {
-                DrawUtilities.DrawModel(modelManager.SupportModel,
+                DrawUtilities.DrawCustomModel(modelManager.SupportModel,
                     effectManager.BasicShader,
                     view,
                     projection,

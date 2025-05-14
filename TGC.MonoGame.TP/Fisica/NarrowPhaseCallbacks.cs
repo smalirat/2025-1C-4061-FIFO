@@ -6,42 +6,25 @@ using System.Runtime.CompilerServices;
 
 namespace TGC.MonoGame.TP.Fisica;
 
-public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
+public class NarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
-    private SpringSettings ContactSpringiness { get; set; }
-    private float MaximumRecoveryVelocity { get; set; }
-    private float FrictionCoefficient { get; set; }
+    private readonly CollidableProperty<MaterialProperties> materialProperties;
+    private SpringSettings ContactSpringiness = new(30, 1);
+    private float MaximumRecoveryVelocity = 2f;
 
-    public NarrowPhaseCallbacks(SpringSettings contactSpringiness) : this(contactSpringiness, 2f, 1f)
+    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> materialProperties)
     {
-    }
-
-    public NarrowPhaseCallbacks(SpringSettings contactSpringiness, float maximumRecoveryVelocity,
-        float frictionCoefficient)
-    {
-        ContactSpringiness = contactSpringiness;
-        MaximumRecoveryVelocity = maximumRecoveryVelocity;
-        FrictionCoefficient = frictionCoefficient;
+        this.materialProperties = materialProperties;
     }
 
     public void Initialize(Simulation simulation)
     {
-        //Use a default if the springiness value wasn't initialized... at least until struct field initializers are supported outside of previews.
-        if (ContactSpringiness.AngularFrequency == 0 && ContactSpringiness.TwiceDampingRatio == 0)
-        {
-            ContactSpringiness = new SpringSettings(30, 1);
-            MaximumRecoveryVelocity = 2f;
-            FrictionCoefficient = 1f;
-        }
+        // Nada que hacer por ahora
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b,
-        ref float speculativeMargin)
+    public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b, ref float speculativeMargin)
     {
-        //While the engine won't even try creating pairs between statics at all, it will ask about kinematic-kinematic pairs.
-        //Those pairs cannot emit constraints since both involved bodies have infinite inertia. Since most of the demos don't need
-        //to collect information about kinematic-kinematic pairs, we'll require that at least one of the bodies needs to be dynamic.
         return a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic;
     }
 
@@ -52,12 +35,23 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold,
-        out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
+    public bool ConfigureContactManifold<TManifold>(
+        int workerIndex, CollidablePair pair, ref TManifold manifold,
+        out PairMaterialProperties pairMaterial)
+        where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = FrictionCoefficient;
-        pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity;
+        materialProperties.TryGetProperty(pair.A, out var materialA);
+        materialProperties.TryGetProperty(pair.B, out var materialB);
+
+        // Promedio de fricción
+        pairMaterial.FrictionCoefficient = 0.5f * (materialA.Friction + materialB.Friction);
+
+        // Rebote simulado con MaximumRecoveryVelocity escalado por "restitución"
+        var restitution = 0.5f * (materialA.Restitution + materialB.Restitution);
+        pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity * restitution;
+
         pairMaterial.SpringSettings = ContactSpringiness;
+
         return true;
     }
 
@@ -70,6 +64,6 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public void Dispose()
     {
-        //Something to be dispose.
+        // Nada por ahora
     }
 }

@@ -5,7 +5,8 @@ namespace TGC.MonoGame.TP.Utilidades;
 
 public static class DrawUtilities
 {
-    public static void DrawModel(
+    // Dibuja un modelo custom (NO primitivas)
+    public static void DrawCustomModel(
         Model model,
         Effect effect,
         Matrix view,

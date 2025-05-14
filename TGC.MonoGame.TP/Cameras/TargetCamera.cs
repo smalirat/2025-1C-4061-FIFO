@@ -5,7 +5,9 @@ namespace TGC.MonoGame.TP.Cameras;
 
 public class TargetCamera
 {
-    // Matrices de camara (se aplicara a todos los objetos)
+    // Matrices de la camara
+    public Matrix World { get; private set; }
+
     public Matrix Projection { get; private set; }
 
     public Matrix View { get; private set; }
@@ -13,11 +15,11 @@ public class TargetCamera
     // Distancia de la camara al objetivo
     private float CameraTargetDistance;
 
-    // Direccion hacia adelante de la vista actual (ignorando componente Y)
-    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(View.Backward.X, 0, View.Backward.Z));
+    // Direccion hacia adelante de la camara (ignorando componente Y)
+    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(World.Backward.X, 0, World.Backward.Z));
 
-    // Direccion hacia la derecha de la vista actual (ignorando componente Y)
-    public Vector3 RightXZ => Vector3.Normalize(new Vector3(View.Right.X, 0, View.Right.Z));
+    // Direccion hacia la derecha de la camara (ignorando componente Y)
+    public Vector3 RightXZ => Vector3.Normalize(new Vector3(World.Right.X, 0, World.Right.Z));
 
     // Sensibilidad de la rotacion al input del mouse
     private float MouseSensitivity;
@@ -30,10 +32,13 @@ public class TargetCamera
 
     // Rotacion actual de la camara
     // Usamos quaterniones para evitar el gimbal lock
-    private Quaternion Rotation = Quaternion.Identity;
+    public Quaternion Rotation = Quaternion.Identity;
 
     // Posicion del objetivo de la camara
     private Vector3 TargetPosition;
+
+    // Offset para la posicion final de la camara
+    private Vector3 Offset;
 
     public TargetCamera(float fov, float aspectRatio, float nearPlaneDistance, float farPlaneDistance, Vector3 initialTargetPosition, float cameraTargetDistance, float mouseSensitivity)
     {
@@ -41,13 +46,12 @@ public class TargetCamera
         MouseSensitivity = mouseSensitivity;
         TargetPosition = initialTargetPosition;
 
-        // Creo matriz de proyeccion
         Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
 
-        // Creo matriz de vista
         UpdateCameraView();
+        UpdateCameraWorld();
     }
-    
+
     // Actualizamos la rotacion de la camara con click derecho
     public void Update(Vector3 targetPosition)
     {
@@ -90,16 +94,22 @@ public class TargetCamera
         LastMousePosition = currentMousePosition;
 
         UpdateCameraView();
+        UpdateCameraWorld();
     }
 
     private void UpdateCameraView()
     {
         // Hacemos que la camara siempre este detras del objetivo
-        var offset = Vector3.Transform(Vector3.Backward * CameraTargetDistance, Rotation);
+        Offset = Vector3.Transform(Vector3.Backward * CameraTargetDistance, Rotation);
 
         View = Matrix.CreateLookAt(
-            cameraPosition: TargetPosition + offset,
+            cameraPosition: TargetPosition + Offset,
             cameraTarget: TargetPosition,
             cameraUpVector: Vector3.Up);
+    }
+
+    private void UpdateCameraWorld()
+    {
+        World = Matrix.Invert(View);
     }
 }
