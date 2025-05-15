@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 using System;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
@@ -20,6 +21,9 @@ public class TGCGame : Game
     private readonly PhysicsManager PhysicsManager;
 
     private TargetCamera TargetCamera { get; set; }
+    private FreeCamera FreeCamera { get; set; }
+    private bool IsGodModeEnabled = true;
+
 
     private PlayerBall PlayerBall;
     private FloorWallRamp Floor;
@@ -39,6 +43,7 @@ public class TGCGame : Game
     private Checkpoint Checkpoint;
 
     private SimpleSkyBox SimpleSkybox { get; set; }
+    private List<object> mapObjects;
 
     public TGCGame()
     {
@@ -59,6 +64,159 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         SimpleSkybox = new SimpleSkyBox();
+
+        mapObjects = new List<object>();
+
+        // Pisos conectados en horizontal (eje X)
+        for (int i = 0; i <= 4; i++)
+        {
+            var floor = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position: new XnaVector3(150f + i * 150, 0f, 0f),
+                rotation: XnaQuaternion.Identity,
+                width: 150f,
+                length: 90f,
+                color: Color.SandyBrown);
+            mapObjects.Add(floor);
+        }
+
+
+        for (int i = 0; i <= 1; i++)
+        {
+            var floor = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position: new XnaVector3(780, 0f, 120f + i * 150),
+                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
+                width: 150f,
+                length: 90f,
+                color: Color.IndianRed);
+            mapObjects.Add(floor);
+        }
+
+        for (int i = 1; i <= 2; i++)
+        {
+            var floor = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position: new XnaVector3(780, 0f, 360f + i * 150f),
+                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
+                width: 150f,
+                length: 90f,
+                color: Color.IndianRed);
+            mapObjects.Add(floor);
+        }
+
+        for (int i = 0; i <= 1; i++)
+        {
+            var floor = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position: new XnaVector3(900 + i * 150, 0f, 690),
+                XnaQuaternion.Identity,
+                width: 150f,
+                length: 90f,
+                color: Color.BlueViolet);
+            mapObjects.Add(floor);
+        }
+
+        for (int i = 0; i <= 2; i++)
+        {
+            var rampFloor = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position: new XnaVector3(1162f + i * 72.5f, 15f + i * 30f, 690f),
+                rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 8),
+                width: 80f,
+                length: 30f,
+                color: Color.Gray);
+
+            mapObjects.Add(rampFloor);
+        }
+
+        for (int i = 0; i <= 2; i++)
+        {
+            for (int j = 0; j <= 2; j++)
+            {
+                if (i == 1 && j == 1)
+                    continue;
+
+                var rampFloor = new FloorWallRamp(
+                    ModelManager,
+                    EffectManager,
+                    PhysicsManager,
+                    GraphicsDevice,
+                    position: new XnaVector3(1367f + i * 50, 90f, 640f + j * 50),
+                    rotation: XnaQuaternion.Identity,
+                    width: 50f,
+                    length: 50f,
+                    color: Color.Green);
+                mapObjects.Add(rampFloor);
+            }
+
+        }
+
+        for (int i = 0; i <= 2; i++)
+        {
+            for (int j = 0; j <= 2; j++)
+            {
+                var rampFloor = new FloorWallRamp(
+                    ModelManager,
+                    EffectManager,
+                    PhysicsManager,
+                    GraphicsDevice,
+                    position: new XnaVector3(1600f + i * 50, 90f, 640f + j * 50),
+                    rotation: XnaQuaternion.Identity,
+                    width: 50f,
+                    length: 50f,
+                    color: Color.MediumVioletRed);
+                mapObjects.Add(rampFloor);
+            }
+
+        }
+
+        for (int i = 0; i < 20; i++)
+        {
+            float angle = i * MathF.PI / 6f;         // 30° entre ramps
+            float radius = 40f - i * 1.5f;           // se va cerrando
+            float y = 50f - i * 2.5f;                // va bajando
+
+            var position = new XnaVector3(
+                radius * MathF.Cos(angle),
+                y,
+                radius * MathF.Sin(angle)
+            );
+
+            var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -angle + MathF.PI / 2f);
+
+            var spiralRamp = new FloorWallRamp(
+                ModelManager,
+                EffectManager,
+                PhysicsManager,
+                GraphicsDevice,
+                position,
+                rotation,
+                width: 18f,
+                length: 10f,
+                color: Color.OrangeRed);
+
+            mapObjects.Add(spiralRamp);
+
+
+        }
+
+
 
         PlayerBall = new PlayerBall(
             ModelManager,
@@ -85,7 +243,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new XnaVector3(0f, 22f, 45.5f),
+            position: new XnaVector3(45.5f, 22f, 0f), // cambió eje de Z a X
             rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
             width: 150f,
             length: 45f,
@@ -96,7 +254,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new XnaVector3(0f, 15f, -60f),
+            position: new XnaVector3(-60f, 15f, 0f),
             rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 4f),
             width: 150f,
             length: 45f,
@@ -107,7 +265,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new XnaVector3(-20f, 5f, 30f),
+            position: new XnaVector3(30f, 5f, -20f),
             rotation: XnaQuaternion.Identity,
             width: 5f,
             length: 5f,
@@ -119,7 +277,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new XnaVector3(10f, 50f, 20f),
+            position: new XnaVector3(20f, 50f, 10f),
             rotation: XnaQuaternion.Identity,
             width: 5f,
             length: 5f,
@@ -175,7 +333,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new XnaVector3(-20f, 0f, 10f),
+            position: new XnaVector3(10f, 0f, -20f),
             rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
             width: 20f,
             depth: 10f,
@@ -191,8 +349,15 @@ public class TGCGame : Game
             cameraTargetDistance: 30f,
             mouseSensitivity: 0.01f);
 
+        FreeCamera = new FreeCamera(
+            aspectRatio: GraphicsDevice.Viewport.AspectRatio,
+            position: new Vector3(1000f, 100f, 600f),
+            screenCenter: GraphicsDevice.Viewport.Bounds.Center
+        );
+
         base.Initialize();
     }
+
 
     protected override void LoadContent()
     {
@@ -211,12 +376,18 @@ public class TGCGame : Game
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        DynamicBox.Update(deltaTime, TargetCamera);
-
-        PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
+        if (IsGodModeEnabled)
+        {
+            FreeCamera.Update(gameTime);
+        }
+        else
+        {
+            DynamicBox.Update(deltaTime, TargetCamera);
+            PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
+            TargetCamera.Update(PlayerBall.Position);
+        }
 
         PhysicsManager.Update(deltaTime);
-        TargetCamera.Update(PlayerBall.Position);
 
         base.Update(gameTime);
     }
@@ -225,21 +396,23 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        SimpleSkybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
+        Matrix view = IsGodModeEnabled ? FreeCamera.View : TargetCamera.View;
+        Matrix projection = IsGodModeEnabled ? FreeCamera.Projection : TargetCamera.Projection;
 
-        Floor.Draw(TargetCamera.View, TargetCamera.Projection);
-        Wall.Draw(TargetCamera.View, TargetCamera.Projection);
-        Ramp.Draw(TargetCamera.View, TargetCamera.Projection);
 
-        StaticTree.Draw(TargetCamera.View, TargetCamera.Projection);
-        StaticStone.Draw(TargetCamera.View, TargetCamera.Projection);
-        DynamicBox.Draw(TargetCamera.View, TargetCamera.Projection);
-        StaticBox.Draw(TargetCamera.View, TargetCamera.Projection);
-        SpeedPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
-        JumpPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
-        Checkpoint.Draw(TargetCamera.View, TargetCamera.Projection);
-
-        PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
+        SimpleSkybox.Draw(view, projection, PlayerBall.Position, GraphicsDevice);
+        Floor.Draw(view, projection);
+        Wall.Draw(view, projection);
+        Ramp.Draw(view, projection);
+        StaticTree.Draw(view, projection);
+        StaticStone.Draw(view, projection);
+        DynamicBox.Draw(view, projection);
+        StaticBox.Draw(view, projection);
+        SpeedPowerUp.Draw(view, projection);
+        JumpPowerUp.Draw(view, projection);
+        Checkpoint.Draw(view, projection);
+        PlayerBall.Draw(view, projection);
+        DrawMap(view, projection);
     }
 
     protected override void UnloadContent()
@@ -247,4 +420,32 @@ public class TGCGame : Game
         Content.Unload();
         base.UnloadContent();
     }
+
+    private void DrawMap(Matrix view, Matrix projection)
+    {
+        foreach (var obj in mapObjects)
+        {
+            if (obj is FloorWallRamp floor)
+                floor.Draw(view, projection);
+            else if (obj is FloorWallRamp wall)
+                wall.Draw(view, projection);
+            else if (obj is FloorWallRamp ramp)
+                ramp.Draw(view, projection);
+            else if (obj is StaticBox staticBox)
+                staticBox.Draw(view, projection);
+            else if (obj is DynamicBox dynamicBox)
+                dynamicBox.Draw(view, projection);
+            else if (obj is StaticTree staticTree)
+                staticTree.Draw(view, projection);
+            else if (obj is StaticStone staticStone)
+                staticStone.Draw(view, projection);
+            else if (obj is JumpPowerUp jumpPowerUp)
+                jumpPowerUp.Draw(view, projection);
+            else if (obj is SpeedPowerUp speedPowerUp)
+                speedPowerUp.Draw(view, projection);
+            else if (obj is Checkpoint checkpoint)
+                checkpoint.Draw(view, projection);
+        }
+    }
+
 }

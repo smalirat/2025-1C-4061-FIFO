@@ -117,4 +117,8 @@ public class ModelManager
     {
         return new QuadPrimitive(graphicsDevice);
     }
+    public CylinderPrimitive CreateCylinder(GraphicsDevice graphicsDevice, float height, float radius, int tessellation)
+    {
+        return new CylinderPrimitive(graphicsDevice, height, radius, tessellation);
+    }
 }
