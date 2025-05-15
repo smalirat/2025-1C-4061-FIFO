@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -10,9 +9,9 @@ using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Modelos.Primitivas;
 using TGC.MonoGame.TP.Utilidades;
 
-namespace TGC.MonoGame.TP.Objetos;
+namespace TGC.MonoGame.TP.Objetos.Ball;
 
-public class Pelota
+public class PlayerBall
 {
     public XnaVector3 Position => world.Translation.ToBepuVector3();
 
@@ -25,32 +24,32 @@ public class Pelota
 
     private XnaMatrix world;
 
-    private readonly float radius;
-    private readonly float friction;
-
-    // Impulso fijo al tocar una tecla
-    private const float ImpulseForce = 1f;
+    private BallProperties ballProperties;
 
     private Color color;
 
-    public Pelota(ModelManager modelManager,
+    public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
-        float radius,
-        float mass,
-        Color color)
+        BallType ballType)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
 
-        this.radius = radius;
-        this.color = color;
+        this.ballProperties = BallPresets.Presets[ballType];
 
-        model = this.modelManager.CreateSphere(graphicsDevice, radius * 2f);
-        boundingVolume = this.physicsManager.AddDynamicSphere(radius, mass, initialPosition);
+        model = this.modelManager.CreateSphere(graphicsDevice, this.ballProperties.Radius * 2f);
+        boundingVolume = this.physicsManager.AddDynamicSphere(
+            radius: this.ballProperties.Radius,
+            mass: this.ballProperties.Mass,
+            friction: this.ballProperties.Friction,
+            dampingRatio: this.ballProperties.DampingRatio,
+            springFrequency: this.ballProperties.SpringFrequency,
+            maximumRecoveryVelocity: this.ballProperties.MaximumRecoveryVelocity,
+            initialPosition);
         world = XnaMatrix.CreateTranslation(initialPosition);
     }
 
@@ -60,7 +59,7 @@ public class Pelota
         var impulseDirection = BepuVector3.Zero;
 
         // La pelota siempre esta activa en el mundo física
-        this.physicsManager.Awake(boundingVolume);
+        physicsManager.Awake(boundingVolume);
 
         if (keyboardState.IsKeyDown(Keys.W))
         {
@@ -90,21 +89,19 @@ public class Pelota
         {
             physicsManager.ApplyImpulse(boundingVolume,
                 impulseDirection, // Ya normalizado
-                impulseOffset: Vector3.Zero, // Centro de masa
-                ImpulseForce,
+                impulseOffset: XnaVector3.Zero, // Centro de masa
+                this.ballProperties.ImpulseForce,
                 deltaTime);
         }
 
         if (keyboardState.IsKeyDown(Keys.Space))
         {
             physicsManager.ApplyImpulse(boundingVolume,
-                Vector3.Up,
-                impulseOffset: Vector3.Zero,
-                25f,
+                XnaVector3.Up,
+                impulseOffset: XnaVector3.Zero,
+                this.ballProperties.JumpForce,
                 deltaTime);
         }
-
-        Debug.WriteLine($"Velocidad Angular PELOTA {physicsManager.GetAngularVelocity(boundingVolume)}");
 
         // Actualizo matriz mundo
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
@@ -118,7 +115,7 @@ public class Pelota
         effect.Parameters["View"]?.SetValue(view);
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(world);
-        effect.Parameters["DiffuseColor"]?.SetValue(this.color.ToVector3());
+        effect.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
 
         model.Draw(effect);
     }

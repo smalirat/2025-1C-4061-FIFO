@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Modelos.Primitivas;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class Piso
+public class Floor
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -19,10 +19,10 @@ public class Piso
 
     private XnaMatrix world;
 
-    private const float Height = 0.1f;
+    private const float Height = 10f;
     private Color color;
 
-    public Piso(ModelManager modelManager, 
+    public Floor(ModelManager modelManager, 
         EffectManager effectManager, 
         PhysicsManager physicsManager, 
         GraphicsDevice graphicsDevice, 
@@ -42,7 +42,7 @@ public class Piso
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation);
 
         // Matriz de mundo
-        world = XnaMatrix.CreateScale(width / 2f, 1f, length / 2f) *
+        world = XnaMatrix.CreateScale(width / 2f, Height, length / 2f) *
                 XnaMatrix.CreateFromQuaternion(rotation) *
                 XnaMatrix.CreateTranslation(position.X, position.Y, position.Z);
     }

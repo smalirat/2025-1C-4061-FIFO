@@ -10,6 +10,7 @@ using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Objetos;
+using TGC.MonoGame.TP.Objetos.Ball;
 using TGC.MonoGame.TP.Skybox;
 
 namespace TGC.MonoGame.TP;
@@ -23,8 +24,8 @@ public class TGCGame : Game
 
     private TargetCamera TargetCamera { get; set; }
 
-    private Pelota Pelota;
-    private Piso Piso;
+    private PlayerBall PlayerBall;
+    private Floor Piso;
 
     private SimpleSkyBox SimpleSkybox { get; set; }
 
@@ -46,18 +47,16 @@ public class TGCGame : Game
 
         PhysicsManager.Initialize();
 
-        Pelota = new Pelota(
+        PlayerBall = new PlayerBall(
             ModelManager,
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
             initialPosition: new Vector3(0f, 3f, 0f),
-            radius: 3f,
-            mass: 0.6f,
-            color: Color.Cyan
+            ballType: BallType.Goma
         );
 
-        Piso = new Piso(
+        Piso = new Floor(
             ModelManager,
             EffectManager,
             PhysicsManager,
@@ -73,7 +72,7 @@ public class TGCGame : Game
             aspectRatio: GraphicsDevice.Viewport.AspectRatio,
             nearPlaneDistance: 0.1f,
             farPlaneDistance: 1000000f,
-            initialTargetPosition: Pelota.Position,
+            initialTargetPosition: PlayerBall.Position,
             cameraTargetDistance: 30f,
             mouseSensitivity: 0.01f);
 
@@ -99,9 +98,9 @@ public class TGCGame : Game
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        Pelota.Update(keyboardState, deltaTime, TargetCamera);
+        PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
         PhysicsManager.Update(deltaTime);
-        TargetCamera.Update(Pelota.Position);
+        TargetCamera.Update(PlayerBall.Position);
 
         base.Update(gameTime);
     }
@@ -110,9 +109,9 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        SimpleSkybox.Draw(TargetCamera.View, TargetCamera.Projection, Pelota.Position, GraphicsDevice);
+        SimpleSkybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
         Piso.Draw(TargetCamera.View, TargetCamera.Projection);
-        Pelota.Draw(TargetCamera.View, TargetCamera.Projection);
+        PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
     }
 
     protected override void UnloadContent()

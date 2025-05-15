@@ -1,7 +1,10 @@
-﻿namespace TGC.MonoGame.TP.Fisica;
+﻿using BepuPhysics.Constraints;
+
+namespace TGC.MonoGame.TP.Fisica;
 
 public struct MaterialProperties
 {
-    public float Friction;
-    public float Restitution;
+    public SpringSettings SpringSettings;
+    public float FrictionCoefficient;
+    public float MaximumRecoveryVelocity;
 }

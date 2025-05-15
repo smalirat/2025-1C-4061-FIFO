@@ -2,24 +2,22 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace TGC.MonoGame.TP.Fisica;
 
-public class NarrowPhaseCallbacks : INarrowPhaseCallbacks
+public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
-    private readonly CollidableProperty<MaterialProperties> materialProperties;
-    private SpringSettings ContactSpringiness = new(30, 1);
-    private float MaximumRecoveryVelocity = 2f;
+    private readonly CollidableProperty<MaterialProperties> CollidableMaterials;
 
-    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> materialProperties)
+    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> collidableMaterials)
     {
-        this.materialProperties = materialProperties;
+        this.CollidableMaterials = collidableMaterials;
     }
 
     public void Initialize(Simulation simulation)
     {
-        // Nada que hacer por ahora
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,17 +38,12 @@ public class NarrowPhaseCallbacks : INarrowPhaseCallbacks
         out PairMaterialProperties pairMaterial)
         where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        materialProperties.TryGetProperty(pair.A, out var materialA);
-        materialProperties.TryGetProperty(pair.B, out var materialB);
+        var a = CollidableMaterials[pair.A];
+        var b = CollidableMaterials[pair.B];
 
-        // Promedio de fricción
-        pairMaterial.FrictionCoefficient = 0.5f * (materialA.Friction + materialB.Friction);
-
-        // Rebote simulado con MaximumRecoveryVelocity escalado por "restitución"
-        var restitution = 0.5f * (materialA.Restitution + materialB.Restitution);
-        pairMaterial.MaximumRecoveryVelocity = MaximumRecoveryVelocity * restitution;
-
-        pairMaterial.SpringSettings = ContactSpringiness;
+        pairMaterial.FrictionCoefficient = a.FrictionCoefficient * b.FrictionCoefficient;
+        pairMaterial.MaximumRecoveryVelocity = MathF.Max(a.MaximumRecoveryVelocity, b.MaximumRecoveryVelocity);
+        pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == a.MaximumRecoveryVelocity ? a.SpringSettings : b.SpringSettings;
 
         return true;
     }
@@ -64,6 +57,5 @@ public class NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public void Dispose()
     {
-        // Nada por ahora
     }
 }
