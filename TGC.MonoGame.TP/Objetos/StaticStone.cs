@@ -14,13 +14,21 @@ public class StaticStone
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
 
+    private const float ModelHeight = 5f;
+    private const float ModelRadius = 3f;
+
     private readonly StaticHandle boundingVolume;
 
-    private float width;
-    private float height;
+    private readonly float height;
+    private readonly float radius;
+
     private Color color;
     private Quaternion rotation;
     private Vector3 position;
+
+    private float XScale => radius / ModelRadius;
+    private float YScale => height / ModelHeight;
+    private float ZScale => radius / ModelRadius;
 
     public StaticStone(ModelManager modelManager,
         EffectManager effectManager,
@@ -29,7 +37,7 @@ public class StaticStone
         Vector3 position,
         Quaternion rotation,
         float height,
-        float width,
+        float radius,
         Color color)
     {
         this.modelManager = modelManager;
@@ -37,12 +45,12 @@ public class StaticStone
         this.physicsManager = physicsManager;
 
         this.height = height;
-        this.width = width;
+        this.radius = radius;
         this.color = color;
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticCylinder(height * 2f, width * 2f, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticCylinder(height, radius, position, rotation);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -52,7 +60,7 @@ public class StaticStone
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: Matrix.CreateScale(width / 2f, height / 2f, width / 2f),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }

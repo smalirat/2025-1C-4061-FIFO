@@ -15,13 +15,21 @@ public class DynamicTree
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
 
+    private const float ModelHeight = 14.33f;
+    private const float ModelRadius = 3.95f;
+
     private readonly BodyHandle boundingVolume;
 
-    private float width;
-    private float height;
+    private readonly float height;
+    private readonly float radius;
+
     private Color color;
     private Quaternion rotation;
     private Vector3 position;
+
+    private float XScale => radius / ModelRadius;
+    private float YScale => height / ModelHeight;
+    private float ZScale => radius / ModelRadius;
 
     public DynamicTree(ModelManager modelManager,
         EffectManager effectManager,
@@ -29,7 +37,7 @@ public class DynamicTree
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float width,
+        float radius,
         float height,
         float friction,
         float mass,
@@ -39,13 +47,13 @@ public class DynamicTree
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
 
-        this.width = width;
+        this.radius = radius;
         this.height = height;
         this.color = color;
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddDynamicCylinder(height * 2f, width * 2f, mass, friction, position, rotation);
+        boundingVolume = this.physicsManager.AddDynamicCylinder(height, radius, mass, friction, position, rotation);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -55,7 +63,7 @@ public class DynamicTree
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(width / 2f, height / 2f, width / 2f),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }

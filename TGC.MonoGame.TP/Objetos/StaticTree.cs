@@ -14,13 +14,21 @@ public class StaticTree
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
 
+    private const float ModelHeight = 14.33f;
+    private const float ModelRadius = 3.95f;
+
     private readonly StaticHandle boundingVolume;
 
-    private float width;
-    private float height;
+    private readonly float height;
+    private readonly float radius;
+
     private Color color;
     private Quaternion rotation;
     private Vector3 position;
+
+    private float XScale => radius / ModelRadius;
+    private float YScale => height / ModelHeight;
+    private float ZScale => radius / ModelRadius;
 
     public StaticTree(ModelManager modelManager,
         EffectManager effectManager,
@@ -29,7 +37,7 @@ public class StaticTree
         Vector3 position,
         Quaternion rotation,
         float height,
-        float width,
+        float radius,
         Color color)
     {
         this.modelManager = modelManager;
@@ -37,12 +45,12 @@ public class StaticTree
         this.physicsManager = physicsManager;
 
         this.height = height;
-        this.width = width;
+        this.radius = radius;
         this.color = color;
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticCylinder(height * 2f, width * 2f, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticCylinder(height, radius, position, rotation);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -52,8 +60,8 @@ public class StaticTree
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: Matrix.CreateScale(width / 2f, height / 2f, width / 2f),
-            rotation: Matrix.CreateFromQuaternion(rotation), 
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
+            rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }
 }

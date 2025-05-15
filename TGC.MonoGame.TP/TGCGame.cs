@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Numerics;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -16,9 +15,9 @@ namespace TGC.MonoGame.TP;
 public class TGCGame : Game
 {
     private GraphicsDeviceManager Graphics { get; }
-    private ModelManager ModelManager;
-    private EffectManager EffectManager;
-    private PhysicsManager PhysicsManager;
+    private readonly ModelManager ModelManager;
+    private readonly EffectManager EffectManager;
+    private readonly PhysicsManager PhysicsManager;
 
     private TargetCamera TargetCamera { get; set; }
 
@@ -31,10 +30,8 @@ public class TGCGame : Game
     private DynamicBox DynamicBox;
 
     private StaticTree StaticTree;
-    private DynamicTree DynamicTree;
 
     private StaticStone StaticStone;
-    private DynamicStone DynamicStone;
 
     private JumpPowerUp JumpPowerUp;
     private SpeedPowerUp SpeedPowerUp;
@@ -131,73 +128,47 @@ public class TGCGame : Game
             mass: 1f,
             color: Color.Blue);
 
-        //StaticTree = new StaticTree(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(35f, 5f, 35f),
-        //    rotation: Quaternion.Identity,
-        //    width: 3f,
-        //    height: 5f,
-        //    color: Color.Green);
+        StaticTree = new StaticTree(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new XnaVector3(35f, 0f, 35f),
+            rotation: XnaQuaternion.Identity,
+            radius: 5f,
+            height: 20f,
+            color: Color.Green);
 
-        //DynamicTree = new DynamicTree(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(5f, 5f, 5f),
-        //    rotation: Quaternion.Identity,
-        //    width: 3f,
-        //    height: 5f,
-        //    friction: 0.5f,
-        //    mass: 1f,
-        //    color: Color.DarkGreen);
+        StaticStone = new StaticStone(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new Vector3(-25f, 0f, -25f),
+            rotation: Quaternion.Identity,
+            radius: 2f,
+            height: 4f,
+            color: Color.Gray);
 
-        //StaticStone = new StaticStone(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(-25f, 5f, -25f),
-        //    rotation: Quaternion.Identity,
-        //    width: 2f,
-        //    height: 2f,
-        //    color: Color.LightSalmon);
+        SpeedPowerUp = new SpeedPowerUp(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new Vector3(30f, 8f, -40f),
+            rotation: Quaternion.Identity,
+            radius: 3f,
+            color: Color.Turquoise);
 
-        //DynamicStone = new DynamicStone(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(35f, 5f, 10f),
-        //    rotation: Quaternion.Identity,
-        //    width: 2f,
-        //    height: 2f,
-        //    friction: 0.5f,
-        //    mass: 1f,
-        //    color: Color.LightGray);
-
-        //SpeedPowerUp = new SpeedPowerUp(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(30f, 8f, -40f),
-        //    rotation: Quaternion.Identity,
-        //    radius: 3f,
-        //    color: Color.Turquoise);
-
-        //JumpPowerUp = new JumpPowerUp(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(-40f, 8f, 30f),
-        //    rotation: Quaternion.Identity,
-        //    radius: 3f,
-        //    color: Color.Snow);
+        JumpPowerUp = new JumpPowerUp(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new Vector3(-40f, 8f, 30f),
+            rotation: Quaternion.Identity,
+            radius: 3f,
+            color: Color.Snow);
 
         Checkpoint = new Checkpoint(
             ModelManager,
@@ -241,8 +212,6 @@ public class TGCGame : Game
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         DynamicBox.Update(deltaTime, TargetCamera);
-        //DynamicTree.Update(deltaTime, TargetCamera);
-        //DynamicStone.Update(deltaTime, TargetCamera);
 
         PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
 
@@ -262,14 +231,12 @@ public class TGCGame : Game
         Wall.Draw(TargetCamera.View, TargetCamera.Projection);
         Ramp.Draw(TargetCamera.View, TargetCamera.Projection);
 
-        //DynamicTree.Draw(TargetCamera.View, TargetCamera.Projection);
-        //StaticTree.Draw(TargetCamera.View, TargetCamera.Projection);
-        //DynamicStone.Draw(TargetCamera.View, TargetCamera.Projection);
-        //StaticStone.Draw(TargetCamera.View, TargetCamera.Projection);
+        StaticTree.Draw(TargetCamera.View, TargetCamera.Projection);
+        StaticStone.Draw(TargetCamera.View, TargetCamera.Projection);
         DynamicBox.Draw(TargetCamera.View, TargetCamera.Projection);
         StaticBox.Draw(TargetCamera.View, TargetCamera.Projection);
-        //SpeedPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
-        //JumpPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+        SpeedPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+        JumpPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
         Checkpoint.Draw(TargetCamera.View, TargetCamera.Projection);
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
