@@ -86,13 +86,13 @@ public class Pelota
 
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            direccion -= camera.RightXZ.ToBepuVector3();
+            direccion += camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(-radius, 0, 0); // Aplico impulso en el borde izquierdo
         }
 
         if (keyboardState.IsKeyDown(Keys.D))
         {
-            direccion += camera.RightXZ.ToBepuVector3();
+            direccion -= camera.RightXZ.ToBepuVector3();
             offset = new BepuVector3(radius, 0, 0); // Aplico impulso en el borde derecho
         }
 

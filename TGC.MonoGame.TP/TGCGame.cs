@@ -117,7 +117,15 @@ public class TGCGame : Game
             mass: 0.6f
         );
 
-        TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio);
+        TargetCamera = new TargetCamera(
+            fov: MathF.PI / 3f,
+            aspectRatio: GraphicsDevice.Viewport.AspectRatio,
+            nearPlaneDistance: 0.1f,
+            farPlaneDistance: 1000000f,
+            initialTargetPosition: Pelota.Position,
+            cameraTargetDistance: 30f,
+            mouseSensitivity: 0.01f);
+
         SimpleSkybox = new SimpleSkyBox();
 
         base.Initialize();

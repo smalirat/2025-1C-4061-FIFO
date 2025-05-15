@@ -1,64 +1,105 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace TGC.MonoGame.TP.Cameras;
 
 public class TargetCamera
 {
+    // Matrices de camara (se aplicara a todos los objetos)
     public Matrix Projection { get; private set; }
+
     public Matrix View { get; private set; }
 
-    private float yaw = 0f;
-    private float pitch = -0.5f;
+    // Distancia de la camara al objetivo
+    private float CameraTargetDistance;
 
-    private float distance = 30f;
-    private Vector2 lastMousePosition;
-    private bool isRotating = false;
+    // Direccion hacia adelante de la vista actual (ignorando componente Y)
+    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(View.Backward.X, 0, View.Backward.Z));
 
-    public Vector3 ForwardXZ => Vector3.Normalize(new Vector3(View.Forward.X, 0, View.Forward.Z));
+    // Direccion hacia la derecha de la vista actual (ignorando componente Y)
     public Vector3 RightXZ => Vector3.Normalize(new Vector3(View.Right.X, 0, View.Right.Z));
 
-    public TargetCamera(float aspectRatio)
-    {
-        Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 1000000f);
-    }
+    // Sensibilidad de la rotacion al input del mouse
+    private float MouseSensitivity;
 
+    // Ultima posicion registrada del mouse
+    private Vector2 LastMousePosition;
+
+    // Se esta rotando la camara?
+    private bool IsRotating = false;
+
+    // Rotacion actual de la camara
+    // Usamos quaterniones para evitar el gimbal lock
+    private Quaternion Rotation = Quaternion.Identity;
+
+    // Posicion del objetivo de la camara
+    private Vector3 TargetPosition;
+
+    public TargetCamera(float fov, float aspectRatio, float nearPlaneDistance, float farPlaneDistance, Vector3 initialTargetPosition, float cameraTargetDistance, float mouseSensitivity)
+    {
+        CameraTargetDistance = cameraTargetDistance;
+        MouseSensitivity = mouseSensitivity;
+        TargetPosition = initialTargetPosition;
+
+        // Creo matriz de proyeccion
+        Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
+
+        // Creo matriz de vista
+        UpdateCameraView();
+    }
+    
+    // Actualizamos la rotacion de la camara con click derecho
     public void Update(Vector3 targetPosition)
     {
-        var mouse = Mouse.GetState();
+        TargetPosition = targetPosition;
 
+        // Obtengo input del mouse
+        var mouse = Mouse.GetState();
+        var currentMousePosition = new Vector2(mouse.X, mouse.Y);
+
+        // Si se toco el boton derecho del mouse
         if (mouse.RightButton == ButtonState.Pressed)
         {
-            if (!isRotating)
+            // Quiere decir que se esta queriendo rotar la camara
+            if (!IsRotating)
             {
-                lastMousePosition = new Vector2(mouse.X, mouse.Y);
-                isRotating = true;
+                IsRotating = true;
             }
+            else
+            {
+                // Actualizo las rotaciones segun el desplazamiento relativa del mouse
+                var deltaMousePosition = currentMousePosition - LastMousePosition;
 
-            var deltaX = mouse.X - lastMousePosition.X;
-            var deltaY = mouse.Y - lastMousePosition.Y;
+                // Rotacion horizontal
+                var yaw = Quaternion.CreateFromAxisAngle(Vector3.Up, -deltaMousePosition.X * MouseSensitivity);
 
-            yaw -= deltaX * 0.01f;
-            pitch -= deltaY * 0.01f;
-            pitch = MathHelper.Clamp(pitch, -1.4f, 1.4f);
+                // Rotacion vertical
+                // Obtenemos el eje X actual transformando Vector3.Right con la orientacion actual
+                var localRight = Vector3.Transform(Vector3.Right, Rotation);
+                var pitch = Quaternion.CreateFromAxisAngle(localRight, -deltaMousePosition.Y * MouseSensitivity);
 
-            lastMousePosition = new Vector2(mouse.X, mouse.Y);
+                // Actualizamos la rotacion final de la camara
+                Rotation = Quaternion.Normalize(pitch * yaw * Rotation);
+            }
         }
         else
         {
-            isRotating = false;
+            IsRotating = false;
         }
 
-        // Crear rotación combinada con quaternions
-        var rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, yaw) *
-                      Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
+        LastMousePosition = currentMousePosition;
 
-        // Aplicar rotación al vector backward y escalar por la distancia
-        var offset = Vector3.Transform(Vector3.Backward * distance, rotation);
+        UpdateCameraView();
+    }
 
-        var cameraPosition = targetPosition + offset;
+    private void UpdateCameraView()
+    {
+        // Hacemos que la camara siempre este detras del objetivo
+        var offset = Vector3.Transform(Vector3.Backward * CameraTargetDistance, Rotation);
 
-        View = Matrix.CreateLookAt(cameraPosition, targetPosition, Vector3.Up);
+        View = Matrix.CreateLookAt(
+            cameraPosition: TargetPosition + offset,
+            cameraTarget: TargetPosition,
+            cameraUpVector: Vector3.Up);
     }
 }
