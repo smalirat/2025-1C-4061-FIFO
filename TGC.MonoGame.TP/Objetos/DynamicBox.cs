@@ -15,14 +15,23 @@ public class DynamicBox
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
 
+    private const float ModelHeight = 2f;
+    private const float ModelWidth = 2f;
+    private const float ModelLength = 2f;
+
     private readonly BodyHandle boundingVolume;
 
-    private float width;
-    private float height;
-    private float length;
+    private readonly float width;
+    private readonly float height;
+    private readonly float length;
+
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
+
+    private float XScale => width / ModelWidth;
+    private float YScale => height / ModelHeight;
+    private float ZScale => length / ModelLength;
 
     public DynamicBox(ModelManager modelManager,
         EffectManager effectManager,
@@ -58,7 +67,7 @@ public class DynamicBox
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(width / 2f, height / 2f, length / 2f),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }

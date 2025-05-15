@@ -68,7 +68,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            initialPosition: new XnaVector3(0f, 80f, 0f),
+            initialPosition: new XnaVector3(0f, 50f, 0f),
             ballType: BallType.Goma
         );
 
@@ -105,31 +105,31 @@ public class TGCGame : Game
             length: 45f,
             color: Color.RosyBrown);
 
-        //StaticBox = new StaticBox(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(-20f, 7f, 30f),
-        //    rotation: Quaternion.Identity,
-        //    width: 7f,
-        //    length: 7f,
-        //    height: 3f,
-        //    color: Color.Purple);
+        StaticBox = new StaticBox(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new XnaVector3(-20f, 5f, 30f),
+            rotation: XnaQuaternion.Identity,
+            width: 5f,
+            length: 5f,
+            height: 10f,
+            color: Color.Purple);
 
-        //DynamicBox = new DynamicBox(
-        //    ModelManager,
-        //    EffectManager,
-        //    PhysicsManager,
-        //    GraphicsDevice,
-        //    position: new Vector3(10f, 20f, 20f),
-        //    rotation: Quaternion.Identity,
-        //    width: 10f,
-        //    length: 10f,
-        //    height: 5f,
-        //    friction: 0.5f,
-        //    mass: 1f,
-        //    color: Color.Blue);
+        DynamicBox = new DynamicBox(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new XnaVector3(10f, 50f, 20f),
+            rotation: XnaQuaternion.Identity,
+            width: 5f,
+            length: 5f,
+            height: 5f,
+            friction: 0.5f,
+            mass: 1f,
+            color: Color.Blue);
 
         //StaticTree = new StaticTree(
         //    ModelManager,
@@ -240,7 +240,7 @@ public class TGCGame : Game
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        //DynamicBox.Update(deltaTime, TargetCamera);
+        DynamicBox.Update(deltaTime, TargetCamera);
         //DynamicTree.Update(deltaTime, TargetCamera);
         //DynamicStone.Update(deltaTime, TargetCamera);
 
@@ -266,8 +266,8 @@ public class TGCGame : Game
         //StaticTree.Draw(TargetCamera.View, TargetCamera.Projection);
         //DynamicStone.Draw(TargetCamera.View, TargetCamera.Projection);
         //StaticStone.Draw(TargetCamera.View, TargetCamera.Projection);
-        //DynamicBox.Draw(TargetCamera.View, TargetCamera.Projection);
-        //StaticBox.Draw(TargetCamera.View, TargetCamera.Projection);
+        DynamicBox.Draw(TargetCamera.View, TargetCamera.Projection);
+        StaticBox.Draw(TargetCamera.View, TargetCamera.Projection);
         //SpeedPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
         //JumpPowerUp.Draw(TargetCamera.View, TargetCamera.Projection);
         Checkpoint.Draw(TargetCamera.View, TargetCamera.Projection);
