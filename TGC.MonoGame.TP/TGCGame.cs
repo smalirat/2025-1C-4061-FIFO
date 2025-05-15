@@ -10,6 +10,7 @@ using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Objetos;
 using TGC.MonoGame.TP.Objetos.Ball;
 using TGC.MonoGame.TP.Skybox;
+using TGC.MonoGame.TP.Modelos.Primitivas;
 
 namespace TGC.MonoGame.TP;
 
@@ -29,20 +30,16 @@ public class TGCGame : Game
     private FloorWallRamp Floor;
     private FloorWallRamp Wall;
     private FloorWallRamp Ramp;
-
     private StaticBox StaticBox;
     private DynamicBox DynamicBox;
-
     private StaticTree StaticTree;
-
     private StaticStone StaticStone;
-
     private JumpPowerUp JumpPowerUp;
     private SpeedPowerUp SpeedPowerUp;
-
     private Checkpoint Checkpoint;
-
     private SimpleSkyBox SimpleSkybox { get; set; }
+    private StaticCylinder StaticCylinder;
+
     private List<object> mapObjects;
 
     public TGCGame()
@@ -216,6 +213,18 @@ public class TGCGame : Game
 
         }
 
+
+        StaticCylinder = new StaticCylinder(
+                    EffectManager,
+                    PhysicsManager,
+                    GraphicsDevice,
+                    position: new XnaVector3(0f, 50f, 0f),
+                    rotation: XnaQuaternion.Identity,
+                    height: 150f,
+                    radius: 90f,
+                    color: Color.Brown
+                    );
+        mapObjects.Add(StaticCylinder);
 
 
         PlayerBall = new PlayerBall(
@@ -445,6 +454,9 @@ public class TGCGame : Game
                 speedPowerUp.Draw(view, projection);
             else if (obj is Checkpoint checkpoint)
                 checkpoint.Draw(view, projection);
+            else if (obj is StaticCylinder staticCylinder)
+                staticCylinder.Draw(view, projection);
+
         }
     }
 
