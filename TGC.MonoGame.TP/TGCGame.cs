@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Numerics;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -23,6 +24,8 @@ public class TGCGame : Game
 
     private PlayerBall PlayerBall;
     private FloorWallRamp Floor;
+    private FloorWallRamp Wall;
+    private FloorWallRamp Ramp;
 
     private StaticBox StaticBox;
     private DynamicBox DynamicBox;
@@ -65,7 +68,7 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            initialPosition: new Vector3(0f, 80f, 0f),
+            initialPosition: new XnaVector3(0f, 80f, 0f),
             ballType: BallType.Goma
         );
 
@@ -74,11 +77,33 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new Vector3(0f, 0f, 0f),
-            rotation: Quaternion.Identity,
-            width: 100f,
-            length: 100f,
+            position: new XnaVector3(0f, 0f, 0f),
+            rotation: XnaQuaternion.Identity,
+            width: 150f,
+            length: 90f,
             color: Color.Brown);
+
+        Wall = new FloorWallRamp(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new XnaVector3(0f, 22f, 45.5f),
+            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
+            width: 150f,
+            length: 45f,
+            color: Color.SaddleBrown);
+
+        Ramp = new FloorWallRamp(
+            ModelManager,
+            EffectManager,
+            PhysicsManager,
+            GraphicsDevice,
+            position: new XnaVector3(0f, 15f, -60f),
+            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 4f),
+            width: 150f,
+            length: 45f,
+            color: Color.RosyBrown);
 
         //StaticBox = new StaticBox(
         //    ModelManager,
@@ -179,11 +204,11 @@ public class TGCGame : Game
             EffectManager,
             PhysicsManager,
             GraphicsDevice,
-            position: new Vector3(-20f, 4f, 30f),
-            rotation: Quaternion.Identity,
-            width: 30f,
-            length: 10f,
-            height: 50f,
+            position: new XnaVector3(-20f, 0f, 10f),
+            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
+            width: 20f,
+            depth: 10f,
+            height: 20f,
             color: Color.Wheat);
 
         TargetCamera = new TargetCamera(
@@ -234,6 +259,8 @@ public class TGCGame : Game
         SimpleSkybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
 
         Floor.Draw(TargetCamera.View, TargetCamera.Projection);
+        Wall.Draw(TargetCamera.View, TargetCamera.Projection);
+        Ramp.Draw(TargetCamera.View, TargetCamera.Projection);
 
         //DynamicTree.Draw(TargetCamera.View, TargetCamera.Projection);
         //StaticTree.Draw(TargetCamera.View, TargetCamera.Projection);

@@ -14,15 +14,23 @@ public class FloorWallRamp
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
 
+    private const float ModelHeight = 2f;
+    private const float ModelWidth = 2f;
+    private const float ModelLength = 2f;
+
     private readonly StaticHandle boundingVolume;
 
-    private const float Height = 10f;
+    private readonly float width;
+    private const float Height = 1.25f;
+    private readonly float length;
 
-    private float width;
-    private float length;
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
+
+    private float XScale => width / ModelWidth;
+    private float YScale => Height / ModelHeight;
+    private float ZScale => length / ModelLength;
 
     public FloorWallRamp(ModelManager modelManager, 
         EffectManager effectManager, 
@@ -54,7 +62,7 @@ public class FloorWallRamp
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(width / 2f, Height / 2f, length / 2f),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }

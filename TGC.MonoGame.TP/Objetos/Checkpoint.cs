@@ -24,16 +24,23 @@ public class Checkpoint
 
     private readonly float width;
     private readonly float height;
-    private readonly float length;
+    private readonly float depth;
+
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
 
-    // Escala real aplicada al modelo
-    private float xScale => width / ModelWidth;
+    private float XScale => width / ModelWidth;
+    private float YScale => height / ModelHeight;
+    private float ZScale => depth / ModelLength;
 
-    private float yScale => height / ModelHeight;
-    private float zScale => length / ModelLength;
+    private float PostHeight => height;
+    private float PostWidth => 0.3f * XScale;
+    private float PostDepth => depth;
+
+    private float CrossbarHeight => 0.3f * YScale;
+    private float CrossbarWidth => width;
+    private float CrossbarDepth => depth;
 
     public Checkpoint(ModelManager modelManager,
         EffectManager effectManager,
@@ -42,7 +49,7 @@ public class Checkpoint
         XnaVector3 position,
         XnaQuaternion rotation,
         float width,
-        float length,
+        float depth,
         float height,
         Color color)
     {
@@ -52,33 +59,24 @@ public class Checkpoint
 
         this.width = width;
         this.height = height;
-        this.length = length;
+        this.depth = depth;
         this.color = color;
         this.rotation = rotation;
         this.position = position;
 
-        // Separación entre los postes: la mitad del ancho escalado
-        var halfWidth = (ModelWidth / 2f) * xScale; // = 4.625 * xScale
-        var postHeight = height;
-        var postWidth = 0.3f * xScale; // Grosor visual estimado del poste
-        var postDepth = length;
+        var halfWidth = (ModelWidth / 2f) * XScale;
 
-        // Altura del travesaño: muy fina (como un poste acostado)
-        var crossbarHeight = 0.3f * yScale;
-        var crossbarWidth = width;
-        var crossbarDepth = length;
+        var offsetX = Vector3.Transform(Vector3.Right, rotation) * halfWidth * 0.8f;
+        var offsetY = Vector3.Transform(Vector3.Up, rotation) * (PostHeight / 2f);
+        var offsetTop = Vector3.Transform(Vector3.Up, rotation) * (PostHeight - CrossbarHeight / 2f);
 
-        // Poste izquierdo (desplazado en -X)
-        var posLeft = position + Vector3.Left * halfWidth * 0.8f + Vector3.Up * (postHeight / 2f);
-        boundingVolume1 = physicsManager.AddStaticBox(postWidth, postHeight, postDepth, posLeft, rotation);
+        var posLeft = position - offsetX + offsetY;
+        var posRight = position + offsetX + offsetY;
+        var posTop = position + offsetTop;
 
-        // Poste derecho (en +X)
-        var posRight = position + Vector3.Right * halfWidth * 0.8f + Vector3.Up * (postHeight / 2f);
-        boundingVolume2 = physicsManager.AddStaticBox(postWidth, postHeight, postDepth, posRight, rotation);
-
-        // Travesaño horizontal (arriba del centro)
-        var posTop = position + Vector3.Up * (postHeight - crossbarHeight / 2f);
-        boundingVolume3 = physicsManager.AddStaticBox(crossbarWidth, crossbarHeight, crossbarDepth, posTop, rotation);
+        boundingVolume1 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posLeft, rotation);
+        boundingVolume2 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posRight, rotation);
+        boundingVolume3 = physicsManager.AddStaticBox(CrossbarWidth, CrossbarHeight, CrossbarDepth, posTop, rotation);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -88,7 +86,7 @@ public class Checkpoint
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(xScale, yScale, zScale),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }
