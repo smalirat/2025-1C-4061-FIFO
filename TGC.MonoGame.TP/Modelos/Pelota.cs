@@ -3,13 +3,16 @@ using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Modelos.Primitivas;
 using TGC.MonoGame.TP.Utilidades;
+using TGC.MonoGame.TP.PowerUps;
 using BepuVector3 = System.Numerics.Vector3;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using System.Linq;
 
 namespace TGC.MonoGame.TP.Modelos;
 
@@ -28,6 +31,8 @@ public class Pelota
     private readonly float mass;
     private readonly float diameter;
     private readonly float radius;
+
+    private List<PowerUp> _powerUps = new(); //aca estaran todos los powerUps
 
     // Impulso fijo al tocar una tecla
     private const float ImpulsoFijo = 300f;
@@ -127,5 +132,61 @@ public class Pelota
         effect.Parameters["DiffuseColor"]?.SetValue(Color.MediumVioletRed.ToVector3());
 
         SpherePrimitive.Draw(effect); //cambiar forma de dibujar
+    }
+
+    //se agrega los power ups cuando se choca con un powerUP
+    public void agregarPowerUp(PowerUp powerUp)
+    {
+        this._powerUps.Add(powerUp);
+    }
+
+    //eliminar los powerUps que ya estan vencidos
+    private void quitarPowerUpVencidos()
+    {
+        this._powerUps.RemoveAll(p => p.NoVigente);
+    } 
+
+    //obtencion del valor a modificar para la velocidad
+    private int VelocidadAumentadaPorXCuanto(double tiempoActual)
+    {
+        int velPorX = 1;//el neutro de la multiplicacion
+        
+        var aumentos = this._powerUps.OfType<Velocidad>().ToList();
+
+        foreach( Velocidad vel in aumentos)
+        {
+            if(vel.estaVigente(tiempoActual))
+            {
+                velPorX *= vel.getMultiplicador(); // este puede ser x2, x3, ....
+            }
+            else
+            {
+                vel.NoVigente = true; // lo seteamos como que ya esta vencido para sacarlo de la lista
+            }
+        }
+
+        return velPorX; 
+    }
+
+    //obtencion del valor a modificar para el salto
+    private float distanciaExtraDeSalto(double tiempoActual)
+    {
+        float aumento = 0;
+
+        var aumentos = this._powerUps.OfType<Elevacion>().ToList();
+
+        foreach (Elevacion elev in aumentos)
+        {
+            if (elev.estaVigente(tiempoActual))
+            {
+                aumento += elev.getElevacionExtra(); // este puede ser +50, +200, +350, ....
+            }
+            else
+            {
+                elev.NoVigente = true; // lo seteamos como que ya esta vencido para sacarlo de la lista
+            }
+        }
+
+        return aumento;
     }
 }
