@@ -50,7 +50,9 @@ public class ModelManager
     public Model SupportModel { get; private set; }
     public Model BannerHighModel { get; private set; }
     public Model BendModel { get; private set; }
-    public Model Pelota { get; set; }
+    public Model Marble { get; set; }
+    public Model TargetA { get; set; }
+    public Model TargetB { get; set; }
 
     public void Load(ContentManager content)
     {
@@ -96,7 +98,9 @@ public class ModelManager
         SupportModel = LoadModel(content, "supports/support_base");
         BannerHighModel = LoadModel(content, "banners/banner_high");
         BendModel = LoadModel(content, "bend/bend_medium");
-        Pelota = LoadModel(content, "marble/marble_high");
+        Marble = LoadModel(content, "marble/marble_high");
+        TargetA = LoadModel(content, "powerUps/targetA");
+        TargetB = LoadModel(content, "powerUps/targetB");
     }
 
     private Model LoadModel(ContentManager content, string path)

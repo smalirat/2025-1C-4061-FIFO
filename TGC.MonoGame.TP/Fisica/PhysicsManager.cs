@@ -95,10 +95,12 @@ namespace TGC.MonoGame.TP.Fisica
             var cylinderShape = new Cylinder(length, radius);
             var shapeIndex = Simulation.Shapes.Add(cylinderShape);
 
+            var rotationFix = Quaternion.CreateFromAxisAngle(Vector3.Up, MathF.PI / 2f); // gira 90° en X
+
             var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.2f);
 
             var bodyDescription = BodyDescription.CreateDynamic(
-                new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
+                new RigidPose(initialPosition.ToBepuVector3(), (initialRotation * rotationFix).ToBepuQuaternion()),
                 cylinderShape.ComputeInertia(mass),
                 collidableDescription,
                 new BodyActivityDescription(0.1f));
@@ -164,9 +166,11 @@ namespace TGC.MonoGame.TP.Fisica
             var cylinderShape = new Cylinder(radius, length);
             var shapeIndex = Simulation.Shapes.Add(cylinderShape);
 
+            var rotationFix = Quaternion.CreateFromAxisAngle(Vector3.Up, MathF.PI / 2f); // gira 90° en X
+
             var staticDescription = new StaticDescription(
                 initialPosition.ToBepuVector3(),
-                initialRotation.ToBepuQuaternion(),
+                (initialRotation * rotationFix).ToBepuQuaternion(),
                 shapeIndex);
 
             var handle = Simulation.Statics.Add(staticDescription);
@@ -187,9 +191,21 @@ namespace TGC.MonoGame.TP.Fisica
             return bodyRef.Pose.Position.ToXnaVector3();
         }
 
+        public Vector3 GetPosition(StaticHandle staticHandle)
+        {
+            var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
+            return bodyRef.Pose.Position.ToXnaVector3();
+        }
+
         public Quaternion GetOrientation(BodyHandle bodyHandle)
         {
             var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+            return bodyRef.Pose.Orientation.ToXnaQuaternion();
+        }
+
+        public Quaternion GetOrientation(StaticHandle staticHandle)
+        {
+            var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
             return bodyRef.Pose.Orientation.ToXnaQuaternion();
         }
 
