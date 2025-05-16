@@ -7,6 +7,7 @@ using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Modelos.Primitivas;
+using TGC.MonoGame.TP.Texturas;
 using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos.Ball;
@@ -20,6 +21,7 @@ public class PlayerBall : IColisionable
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
+    private readonly TextureManager textureManager;
 
     private readonly BodyHandle boundingVolume;
     private readonly SpherePrimitive model;
@@ -35,6 +37,7 @@ public class PlayerBall : IColisionable
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
+        TextureManager textureManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         BallType ballType)
@@ -42,6 +45,7 @@ public class PlayerBall : IColisionable
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
+        this.textureManager = textureManager;
 
         this.ballProperties = BallPresets.Presets[ballType];
 
@@ -125,6 +129,7 @@ public class PlayerBall : IColisionable
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
+        effect.Parameters["ModelTexture"].SetValue(textureManager.RubberTexture);
 
         model.Draw(effect);
     }
@@ -132,8 +137,8 @@ public class PlayerBall : IColisionable
     public void NotifyCollition(IColisionable with)
     {
         if (with.BodyType == BodyType.FloorRamp)
-        { 
-            this.inContactWithFloorOrRamp = true; 
+        {
+            this.inContactWithFloorOrRamp = true;
         }
     }
 }

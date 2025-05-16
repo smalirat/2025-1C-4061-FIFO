@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -10,7 +10,7 @@ using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Objetos;
 using TGC.MonoGame.TP.Objetos.Ball;
 using TGC.MonoGame.TP.Skybox;
-using TGC.MonoGame.TP.Modelos.Primitivas;
+using TGC.MonoGame.TP.Texturas;
 
 namespace TGC.MonoGame.TP;
 
@@ -20,6 +20,7 @@ public class TGCGame : Game
     private readonly ModelManager ModelManager;
     private readonly EffectManager EffectManager;
     private readonly PhysicsManager PhysicsManager;
+    private readonly TextureManager TextureManager;
 
     private TargetCamera TargetCamera { get; set; }
     private FreeCamera FreeCamera { get; set; }
@@ -48,6 +49,7 @@ public class TGCGame : Game
         ModelManager = new ModelManager();
         EffectManager = new EffectManager();
         PhysicsManager = new PhysicsManager();
+        TextureManager = new TextureManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -231,9 +233,10 @@ public class TGCGame : Game
             ModelManager,
             EffectManager,
             PhysicsManager,
+            TextureManager,
             GraphicsDevice,
             initialPosition: new XnaVector3(0f, 50f, 0f),
-            ballType: BallType.Goma
+            ballType: BallType.Rubber
         );
 
         Floor = new FloorWallRamp(

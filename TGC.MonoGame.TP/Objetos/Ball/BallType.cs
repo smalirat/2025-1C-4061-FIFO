@@ -3,6 +3,6 @@
 public enum BallType
 {
     Metal,
-    Goma,
-    Piedra
+    Rubber,
+    Stone
 }
