@@ -1,6 +1,7 @@
-﻿using BepuPhysics;
+using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
@@ -8,7 +9,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class FloorWallRamp : IColisionable
+public class DynamicRamp : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -18,7 +19,7 @@ public class FloorWallRamp : IColisionable
     private const float ModelWidth = 2f;
     private const float ModelLength = 2f;
 
-    private readonly StaticHandle boundingVolume;
+    private readonly BodyHandle boundingVolume;
 
     private readonly float width;
     private const float Height = 1.25f;
@@ -32,10 +33,11 @@ public class FloorWallRamp : IColisionable
     private float YScale => Height / ModelHeight;
     private float ZScale => length / ModelLength;
 
-    public BodyType BodyType => BodyType.FloorRamp;
+    public BodyType BodyType => BodyType.Other;
 
+    public BodyHandle Handle => boundingVolume;
 
-    public FloorWallRamp(ModelManager modelManager,
+    public DynamicRamp(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
@@ -43,7 +45,9 @@ public class FloorWallRamp : IColisionable
         XnaQuaternion rotation,
         float width,
         float length,
-        Color color)
+        Color color,
+        float mass = 10f,      // por defecto 10, podés ajustar
+        float friction = 1f)   // por defecto 1
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
@@ -55,7 +59,7 @@ public class FloorWallRamp : IColisionable
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
+        boundingVolume = this.physicsManager.AddDynamicBox(width, Height, length, mass, friction, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -70,8 +74,15 @@ public class FloorWallRamp : IColisionable
             color: color);
     }
 
+    public void Update(float deltaTime, TargetCamera camera)
+    {
+        // Sincronizar la posición y rotación con la física
+        position = physicsManager.GetPosition(boundingVolume);
+        rotation = physicsManager.GetOrientation(boundingVolume);
+    }
+
     public void NotifyCollition(IColisionable with)
     {
-
+        // Opcional: lógica de colisiones
     }
 }

@@ -71,6 +71,8 @@ public class StaticBox : IColisionable
             color: color);
     }
 
+
+
     public void NotifyCollition(IColisionable with)
     {
 

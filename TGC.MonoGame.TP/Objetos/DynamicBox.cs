@@ -34,6 +34,8 @@ public class DynamicBox : IColisionable
     private float ZScale => length / ModelLength;
 
     public BodyType BodyType => BodyType.Other;
+    public BodyHandle Handle => boundingVolume;
+
 
     public DynamicBox(ModelManager modelManager,
         EffectManager effectManager,

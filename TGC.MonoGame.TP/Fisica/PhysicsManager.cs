@@ -255,5 +255,19 @@ namespace TGC.MonoGame.TP.Fisica
 
             bodyRef.ApplyImpulse(impulse, bodyRef.Pose.Position + impulseOffset.ToBepuVector3());
         }
+
+        public void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)
+        {
+            var body = Simulation.Bodies.GetBodyReference(bodyHandle);
+            body.Pose.Position = newPosition.ToBepuVector3();
+            body.Velocity.Linear = BepuVector3.Zero; // Opcional: para que no siga moviéndose por inercia
+        }
+        public void SetRotation(BodyHandle bodyHandle, XnaQuaternion newRotation)
+        {
+            var body = Simulation.Bodies.GetBodyReference(bodyHandle);
+            body.Pose.Orientation = newRotation.ToBepuQuaternion();
+            body.Velocity.Angular = BepuVector3.Zero; // Opcional: detiene rotaciones residuales
+        }
+
     }
 }
