@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class Checkpoint
+public class Checkpoint : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -42,6 +42,8 @@ public class Checkpoint
     private float CrossbarWidth => width;
     private float CrossbarDepth => depth;
 
+    public BodyType BodyType => BodyType.Checkpoint;
+
     public Checkpoint(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -74,9 +76,9 @@ public class Checkpoint
         var posRight = position + offsetX + offsetY;
         var posTop = position + offsetTop;
 
-        boundingVolume1 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posLeft, rotation);
-        boundingVolume2 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posRight, rotation);
-        boundingVolume3 = physicsManager.AddStaticBox(CrossbarWidth, CrossbarHeight, CrossbarDepth, posTop, rotation);
+        boundingVolume1 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posLeft, rotation, this);
+        boundingVolume2 = physicsManager.AddStaticBox(PostWidth, PostHeight, PostDepth, posRight, rotation, this);
+        boundingVolume3 = physicsManager.AddStaticBox(CrossbarWidth, CrossbarHeight, CrossbarDepth, posTop, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -89,5 +91,10 @@ public class Checkpoint
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

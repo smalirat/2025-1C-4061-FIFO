@@ -11,9 +11,11 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos.Ball;
 
-public class PlayerBall
+public class PlayerBall : IColisionable
 {
     public XnaVector3 Position => world.Translation.ToBepuVector3();
+
+    public BodyType BodyType => BodyType.PlayerBall;
 
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -27,6 +29,8 @@ public class PlayerBall
     private BallProperties ballProperties;
 
     private Color color;
+
+    private bool inContactWithFloorOrRamp;
 
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
@@ -49,8 +53,11 @@ public class PlayerBall
             dampingRatio: this.ballProperties.DampingRatio,
             springFrequency: this.ballProperties.SpringFrequency,
             maximumRecoveryVelocity: this.ballProperties.MaximumRecoveryVelocity,
-            initialPosition);
+            initialPosition: initialPosition,
+            this);
         world = XnaMatrix.CreateTranslation(initialPosition);
+
+        this.inContactWithFloorOrRamp = false;
     }
 
     public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
@@ -94,7 +101,7 @@ public class PlayerBall
                 deltaTime);
         }
 
-        if (keyboardState.IsKeyDown(Keys.Space))
+        if (keyboardState.IsKeyDown(Keys.Space) && this.inContactWithFloorOrRamp)
         {
             physicsManager.ApplyImpulse(boundingVolume,
                 XnaVector3.Up,
@@ -106,6 +113,8 @@ public class PlayerBall
         // Actualizo matriz mundo
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+
+        this.inContactWithFloorOrRamp = false;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -118,5 +127,13 @@ public class PlayerBall
         effect.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
 
         model.Draw(effect);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+        if (with.BodyType == BodyType.FloorRamp)
+        { 
+            this.inContactWithFloorOrRamp = true; 
+        }
     }
 }

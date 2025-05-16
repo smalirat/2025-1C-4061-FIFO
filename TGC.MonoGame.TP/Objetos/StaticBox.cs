@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class StaticBox
+public class StaticBox : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -32,6 +32,8 @@ public class StaticBox
     private float YScale => height / ModelHeight;
     private float ZScale => length / ModelLength;
 
+    public BodyType BodyType => BodyType.Other;
+
     public StaticBox(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -54,7 +56,7 @@ public class StaticBox
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width, height, length, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticBox(width, height, length, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -67,5 +69,10 @@ public class StaticBox
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

@@ -9,7 +9,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class DynamicTree
+public class DynamicTree : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -30,6 +30,8 @@ public class DynamicTree
     private float XScale => radius / ModelRadius;
     private float YScale => height / ModelHeight;
     private float ZScale => radius / ModelRadius;
+
+    public BodyType BodyType => BodyType.Other;
 
     public DynamicTree(ModelManager modelManager,
         EffectManager effectManager,
@@ -53,7 +55,7 @@ public class DynamicTree
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddDynamicCylinder(height, radius, mass, friction, position, rotation);
+        boundingVolume = this.physicsManager.AddDynamicCylinder(height, radius, mass, friction, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -73,5 +75,10 @@ public class DynamicTree
         // Actualizo matriz mundo
         position = physicsManager.GetPosition(boundingVolume);
         rotation = physicsManager.GetOrientation(boundingVolume);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

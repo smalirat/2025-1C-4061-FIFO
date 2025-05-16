@@ -1,8 +1,8 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
-using BepuPhysics.Constraints;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace TGC.MonoGame.TP.Fisica;
@@ -10,10 +10,12 @@ namespace TGC.MonoGame.TP.Fisica;
 public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
     private readonly CollidableProperty<MaterialProperties> CollidableMaterials;
+    private readonly Dictionary<CollidableReference, IColisionable> CollidableReferences;
 
-    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> collidableMaterials)
+    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> collidableMaterials, Dictionary<CollidableReference, IColisionable> collidableReferences)
     {
         this.CollidableMaterials = collidableMaterials;
+        this.CollidableReferences = collidableReferences;
     }
 
     public void Initialize(Simulation simulation)
@@ -34,16 +36,25 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ConfigureContactManifold<TManifold>(
-        int workerIndex, CollidablePair pair, ref TManifold manifold,
+        int workerIndex, CollidablePair collidablePair, ref TManifold manifold,
         out PairMaterialProperties pairMaterial)
         where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        var a = CollidableMaterials[pair.A];
-        var b = CollidableMaterials[pair.B];
+        var collidableMaterialA = CollidableMaterials[collidablePair.A];
+        var collidableMaterialB = CollidableMaterials[collidablePair.B];
 
-        pairMaterial.FrictionCoefficient = a.FrictionCoefficient * b.FrictionCoefficient;
-        pairMaterial.MaximumRecoveryVelocity = MathF.Max(a.MaximumRecoveryVelocity, b.MaximumRecoveryVelocity);
-        pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == a.MaximumRecoveryVelocity ? a.SpringSettings : b.SpringSettings;
+        pairMaterial.FrictionCoefficient = collidableMaterialA.FrictionCoefficient * collidableMaterialB.FrictionCoefficient;
+        pairMaterial.MaximumRecoveryVelocity = MathF.Max(collidableMaterialA.MaximumRecoveryVelocity, collidableMaterialB.MaximumRecoveryVelocity);
+        pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == collidableMaterialA.MaximumRecoveryVelocity ? collidableMaterialA.SpringSettings : collidableMaterialB.SpringSettings;
+
+        if (manifold.Count > 0)
+        {
+            if (CollidableReferences.TryGetValue(collidablePair.A, out var collidableReferenceA) && CollidableReferences.TryGetValue(collidablePair.B, out var collidableReferenceB))
+            {
+                collidableReferenceA.NotifyCollition(collidableReferenceB);
+                collidableReferenceB.NotifyCollition(collidableReferenceA);
+            }
+        }
 
         return true;
     }

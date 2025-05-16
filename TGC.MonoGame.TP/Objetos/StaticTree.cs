@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class StaticTree
+public class StaticTree : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -30,6 +30,8 @@ public class StaticTree
     private float YScale => height / ModelHeight;
     private float ZScale => radius / ModelRadius;
 
+    public BodyType BodyType => BodyType.Other;
+
     public StaticTree(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -50,7 +52,7 @@ public class StaticTree
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticCylinder(height, radius, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticCylinder(height, radius, position, rotation, this);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -63,5 +65,10 @@ public class StaticTree
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

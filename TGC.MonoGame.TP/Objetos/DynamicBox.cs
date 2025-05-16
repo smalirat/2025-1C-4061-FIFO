@@ -9,7 +9,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class DynamicBox
+public class DynamicBox : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -32,6 +32,8 @@ public class DynamicBox
     private float XScale => width / ModelWidth;
     private float YScale => height / ModelHeight;
     private float ZScale => length / ModelLength;
+
+    public BodyType BodyType => BodyType.Other;
 
     public DynamicBox(ModelManager modelManager,
         EffectManager effectManager,
@@ -57,7 +59,7 @@ public class DynamicBox
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddDynamicBox(width, height, length, mass, friction, position, rotation);
+        boundingVolume = this.physicsManager.AddDynamicBox(width, height, length, mass, friction, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -77,5 +79,10 @@ public class DynamicBox
         // Actualizo matriz mundo
         position = physicsManager.GetPosition(boundingVolume);
         rotation = physicsManager.GetOrientation(boundingVolume);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

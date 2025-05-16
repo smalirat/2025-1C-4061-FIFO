@@ -9,7 +9,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class DynamicStone
+public class DynamicStone : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -22,6 +22,8 @@ public class DynamicStone
     private Color color;
     private Quaternion rotation;
     private Vector3 position;
+
+    public BodyType BodyType => BodyType.Other;
 
     public DynamicStone(ModelManager modelManager,
         EffectManager effectManager,
@@ -45,7 +47,7 @@ public class DynamicStone
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddDynamicCylinder(height * 2f, width * 2f, mass, friction, position, rotation);
+        boundingVolume = this.physicsManager.AddDynamicCylinder(height * 2f, width * 2f, mass, friction, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -65,5 +67,10 @@ public class DynamicStone
         // Actualizo matriz mundo
         position = physicsManager.GetPosition(boundingVolume);
         rotation = physicsManager.GetOrientation(boundingVolume);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

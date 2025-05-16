@@ -4,6 +4,7 @@ using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Fisica
@@ -15,6 +16,7 @@ namespace TGC.MonoGame.TP.Fisica
         public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
 
         private CollidableProperty<MaterialProperties> MaterialProperties;
+        public Dictionary<CollidableReference, IColisionable> CollidableReferences = new();
 
         public void Initialize()
         {
@@ -24,12 +26,15 @@ namespace TGC.MonoGame.TP.Fisica
             ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
 
             MaterialProperties = new CollidableProperty<MaterialProperties>();
-            var callbacks = new NarrowPhaseCallbacks(MaterialProperties);
 
             Simulation = Simulation.Create(
                 BufferPool,
-                callbacks,
-                new PoseIntegratorCallbacks(new BepuVector3(0, -60, 0)),
+                new NarrowPhaseCallbacks(MaterialProperties, CollidableReferences),
+                new PoseIntegratorCallbacks(
+                    gravity: new BepuVector3(0, -10, 0),
+                    linearDamping: 0.03f, // Que tan rapido se disipa la velocidad lineal
+                    angularDamping: 0.8f // Que tan rapido se disipa la velocidad angular
+                 ),
                 new SolveDescription(8, 4));
 
             MaterialProperties.Initialize(Simulation);
@@ -41,12 +46,12 @@ namespace TGC.MonoGame.TP.Fisica
             Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
         }
 
-        public BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition)
+        public BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, IColisionable collidableReference)
         {
             var sphereShape = new Sphere(radius);
             var shapeIndex = Simulation.Shapes.Add(sphereShape);
 
-            var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.2f);
+            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
 
             var bodyDescription = BodyDescription.CreateDynamic(
                 initialPosition.ToBepuVector3(),
@@ -56,7 +61,10 @@ namespace TGC.MonoGame.TP.Fisica
 
             var handle = Simulation.Bodies.Add(bodyDescription);
 
-            MaterialProperties.Allocate(handle) = new MaterialProperties {
+            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+
+            MaterialProperties.Allocate(handle) = new MaterialProperties
+            {
                 FrictionCoefficient = friction,
                 MaximumRecoveryVelocity = maximumRecoveryVelocity,
                 SpringSettings = new SpringSettings(springFrequency, dampingRatio)
@@ -65,12 +73,12 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
-        public BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation)
+        public BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
             var boxShape = new Box(width, height, length);
             var shapeIndex = Simulation.Shapes.Add(boxShape);
 
-            var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.2f);
+            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
 
             var bodyDescription = BodyDescription.CreateDynamic(
                 new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
@@ -80,6 +88,8 @@ namespace TGC.MonoGame.TP.Fisica
 
             var handle = Simulation.Bodies.Add(bodyDescription);
 
+            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+
             MaterialProperties.Allocate(handle) = new MaterialProperties
             {
                 FrictionCoefficient = friction,
@@ -90,14 +100,14 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
-        public BodyHandle AddDynamicCylinder(float length, float radius, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation)
+        public BodyHandle AddDynamicCylinder(float length, float radius, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
             var cylinderShape = new Cylinder(length, radius);
             var shapeIndex = Simulation.Shapes.Add(cylinderShape);
 
             var rotationFix = Quaternion.CreateFromAxisAngle(Vector3.Up, MathF.PI / 2f); // gira 90° en X
 
-            var collidableDescription = new CollidableDescription(shapeIndex, maximumSpeculativeMargin: 0.2f);
+            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
 
             var bodyDescription = BodyDescription.CreateDynamic(
                 new RigidPose(initialPosition.ToBepuVector3(), (initialRotation * rotationFix).ToBepuQuaternion()),
@@ -107,6 +117,8 @@ namespace TGC.MonoGame.TP.Fisica
 
             var handle = Simulation.Bodies.Add(bodyDescription);
 
+            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+
             MaterialProperties.Allocate(handle) = new MaterialProperties
             {
                 FrictionCoefficient = friction,
@@ -117,7 +129,7 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
-        public StaticHandle AddStaticSphere(float radius, XnaVector3 initialPosition)
+        public StaticHandle AddStaticSphere(float radius, XnaVector3 initialPosition, IColisionable collidableReference)
         {
             var sphereShape = new Sphere(radius);
             var shapeIndex = Simulation.Shapes.Add(sphereShape);
@@ -125,9 +137,12 @@ namespace TGC.MonoGame.TP.Fisica
             var staticDescription = new StaticDescription(
                 initialPosition.ToBepuVector3(),
                 BepuQuaternion.Identity,
-                shapeIndex);
+                shapeIndex,
+                continuity: ContinuousDetection.Passive);
 
             var handle = Simulation.Statics.Add(staticDescription);
+
+            CollidableReferences[new CollidableReference(handle)] = collidableReference;
 
             MaterialProperties.Allocate(handle) = new MaterialProperties
             {
@@ -139,7 +154,7 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
-        public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation)
+        public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
             var boxShape = new Box(width, height, length);
             var shapeIndex = Simulation.Shapes.Add(boxShape);
@@ -147,9 +162,12 @@ namespace TGC.MonoGame.TP.Fisica
             var staticDescription = new StaticDescription(
                 initialPosition.ToBepuVector3(),
                 initialRotation.ToBepuQuaternion(),
-                shapeIndex);
+                shapeIndex,
+                continuity: ContinuousDetection.Passive);
 
             var handle = Simulation.Statics.Add(staticDescription);
+
+            CollidableReferences[new CollidableReference(handle)] = collidableReference;
 
             MaterialProperties.Allocate(handle) = new MaterialProperties
             {
@@ -161,7 +179,7 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
-        public StaticHandle AddStaticCylinder(float length, float radius, XnaVector3 initialPosition, XnaQuaternion initialRotation)
+        public StaticHandle AddStaticCylinder(float length, float radius, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
             var cylinderShape = new Cylinder(radius, length);
             var shapeIndex = Simulation.Shapes.Add(cylinderShape);
@@ -171,9 +189,12 @@ namespace TGC.MonoGame.TP.Fisica
             var staticDescription = new StaticDescription(
                 initialPosition.ToBepuVector3(),
                 (initialRotation * rotationFix).ToBepuQuaternion(),
-                shapeIndex);
+                shapeIndex,
+                continuity: ContinuousDetection.Passive);
 
             var handle = Simulation.Statics.Add(staticDescription);
+
+            CollidableReferences[new CollidableReference(handle)] = collidableReference;
 
             MaterialProperties.Allocate(handle) = new MaterialProperties
             {

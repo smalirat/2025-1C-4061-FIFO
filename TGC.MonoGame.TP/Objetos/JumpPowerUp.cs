@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class JumpPowerUp
+public class JumpPowerUp : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -20,6 +20,8 @@ public class JumpPowerUp
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
+
+    public BodyType BodyType => BodyType.JumpPowerUp;
 
     public JumpPowerUp(ModelManager modelManager,
         EffectManager effectManager,
@@ -39,7 +41,7 @@ public class JumpPowerUp
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(radius, radius, radius, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticBox(radius, radius, radius, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -52,5 +54,10 @@ public class JumpPowerUp
             scale: XnaMatrix.CreateScale(radius / 2f, radius / 2f, radius / 2f),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

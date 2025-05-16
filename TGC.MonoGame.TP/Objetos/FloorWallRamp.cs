@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class FloorWallRamp
+public class FloorWallRamp : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -32,6 +32,8 @@ public class FloorWallRamp
     private float YScale => Height / ModelHeight;
     private float ZScale => length / ModelLength;
 
+    public BodyType BodyType => BodyType.FloorRamp;
+
     public FloorWallRamp(ModelManager modelManager, 
         EffectManager effectManager, 
         PhysicsManager physicsManager, 
@@ -52,7 +54,7 @@ public class FloorWallRamp
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation);
+        boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -65,5 +67,10 @@ public class FloorWallRamp
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }

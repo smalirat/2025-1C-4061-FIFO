@@ -8,7 +8,7 @@ using TGC.MonoGame.TP.Utilidades;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class StaticCylinder
+public class StaticCylinder : IColisionable
 {
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
@@ -22,6 +22,8 @@ public class StaticCylinder
     private readonly CylinderPrimitive primitive;
 
     private readonly StaticHandle boundingVolume;
+
+    public BodyType BodyType => BodyType.Other;
 
     public StaticCylinder(
         EffectManager effectManager,
@@ -43,11 +45,16 @@ public class StaticCylinder
 
         primitive = new CylinderPrimitive(graphicsDevice, height, radius, tessellation: 32, color);
 
-        boundingVolume = physicsManager.AddStaticCylinder(radius, height, position, rotation);
+        boundingVolume = physicsManager.AddStaticCylinder(radius, height, position, rotation, this);
     }
 
     public void Draw(Matrix view, Matrix projection)
     {
         primitive.Draw(effectManager.BasicShader);
+    }
+
+    public void NotifyCollition(IColisionable with)
+    {
+
     }
 }
