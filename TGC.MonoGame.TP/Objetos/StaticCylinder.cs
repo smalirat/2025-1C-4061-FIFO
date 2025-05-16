@@ -24,6 +24,7 @@ public class StaticCylinder : IColisionable
     private readonly StaticHandle boundingVolume;
 
     public BodyType BodyType => BodyType.Other;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public StaticCylinder(
         EffectManager effectManager,

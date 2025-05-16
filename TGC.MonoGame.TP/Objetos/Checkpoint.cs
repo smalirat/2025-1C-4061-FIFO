@@ -43,6 +43,7 @@ public class Checkpoint : IColisionable
     private float CrossbarDepth => depth;
 
     public BodyType BodyType => BodyType.Checkpoint;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public Checkpoint(ModelManager modelManager,
         EffectManager effectManager,
@@ -83,7 +84,7 @@ public class Checkpoint : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.BannerHighModel,
+        DrawUtilities.DrawCustomModel(modelManager.CheckpointModel,
             effectManager.BasicShader,
             view,
             projection,

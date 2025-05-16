@@ -1,90 +1,82 @@
-﻿using System;
-using System.Reflection.Metadata;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Efectos;
+using TGC.MonoGame.TP.Modelos;
+using TGC.MonoGame.TP.Texturas;
 
+namespace TGC.MonoGame.TP.Skybox;
 
-namespace TGC.MonoGame.TP.Skybox
+public class SimpleSkyBox
 {
+    private readonly ModelManager modelManager;
+    private readonly EffectManager effectManager;
+    private readonly TextureManager textureManager;
 
-    public class SimpleSkyBox
+    private const float Size = 2500f;
+
+    private readonly RasterizerState NoCullState = new RasterizerState { CullMode = CullMode.None };
+
+    private readonly TiposSkybox TipoSkybox;
+
+    public SimpleSkyBox(ModelManager modelManager,
+        EffectManager effectManager,
+        TextureManager textureManager,
+        TiposSkybox tipoSkybox)
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderTextures = "Textures/";
+        this.modelManager = modelManager;
+        this.effectManager = effectManager;
+        this.textureManager = textureManager;
 
-        public Model Model { get; set; }
-        private TextureCube Texture { get; set; }
-        private Effect Effect { get; set; }
+        this.TipoSkybox = tipoSkybox;
+    }
 
-        private float _size = 2500f;
+    public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition, GraphicsDevice graphicsDevice)
+    {
+        TextureCube texture = null;
 
-        private readonly RasterizerState NoCullState = new RasterizerState { CullMode = CullMode.None };
-
-        public SimpleSkyBox()
+        switch (TipoSkybox)
         {
-            //_cameraTarget = Vector3.Zero;
-            //_view = Matrix.CreateLookAt(Vector3.UnitX * 20, _cameraTarget, Vector3.UnitY);
-            //_projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.1f, 100f);
+            case TiposSkybox.Pasto:
+                texture = this.textureManager.AlpsSkyBoxTexture;
+                break;
+
+            case TiposSkybox.Mar:
+                texture = this.textureManager.DarlingSkyBoxTexture;
+                break;
+
+            case TiposSkybox.Nieve:
+                texture = this.textureManager.IceSkyBoxTexture;
+                break;
+
+            case TiposSkybox.Roca:
+                texture = this.textureManager.MountainSkyBoxTexture;
+                break;
         }
 
-        public void LoadContent(ContentManager content, TiposSkybox tipoSkybox)
+        var originalState = graphicsDevice.RasterizerState;
+
+        graphicsDevice.RasterizerState = NoCullState;
+
+        foreach (var pass in this.effectManager.SkyBoxShader.CurrentTechnique.Passes)
         {
-            Model = content.Load<Model>(ContentFolder3D + "skybox/cube");
+            pass.Apply();
 
-            switch (tipoSkybox)
+            foreach (var mesh in this.modelManager.SkyBoxCubeModel.Meshes)
             {
-                case TiposSkybox.Pasto:
-                    Texture = content.Load<TextureCube>(ContentFolderTextures + "alpsSkybox");
-                    break;
-
-                case TiposSkybox.Mar:
-                    Texture = content.Load<TextureCube>(ContentFolderTextures + "darlingSkybox");
-                    break;
-
-                case TiposSkybox.Nieve:
-                    Texture = content.Load<TextureCube>(ContentFolderTextures + "iceSkybox");
-                    break;
-
-                case TiposSkybox.Roca:
-                    Texture = content.Load<TextureCube>(ContentFolderTextures + "mountainSkybox");
-                    break;
-            }
-
-            Effect = content.Load<Effect>(ContentFolderEffects + "SkyBox");
-        }
-
-        public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition, GraphicsDevice graphicsDevice)
-        {
-            var originalState = graphicsDevice.RasterizerState;
-
-            graphicsDevice.RasterizerState = NoCullState;
-
-            // Go through each pass in the effect, but we know there is only one...
-            foreach (var pass in Effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                foreach (var mesh in Model.Meshes)
+                foreach (var part in mesh.MeshParts)
                 {
-
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        part.Effect = Effect;
-                        part.Effect.Parameters["World"].SetValue(Matrix.CreateScale(_size) * Matrix.CreateTranslation(cameraPosition));
-                        part.Effect.Parameters["View"].SetValue(view);
-                        part.Effect.Parameters["Projection"].SetValue(projection);
-                        part.Effect.Parameters["SkyBoxTexture"].SetValue(Texture);
-                        part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
-                    }
-
-                    mesh.Draw();
+                    part.Effect = this.effectManager.SkyBoxShader;
+                    part.Effect.Parameters["World"].SetValue(Matrix.CreateScale(Size) * Matrix.CreateTranslation(cameraPosition));
+                    part.Effect.Parameters["View"].SetValue(view);
+                    part.Effect.Parameters["Projection"].SetValue(projection);
+                    part.Effect.Parameters["SkyBoxTexture"].SetValue(texture);
+                    part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
                 }
-            }
 
-            graphicsDevice.RasterizerState = originalState;
+                mesh.Draw();
+            }
         }
 
+        graphicsDevice.RasterizerState = originalState;
     }
 }

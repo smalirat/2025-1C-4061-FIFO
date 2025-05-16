@@ -22,6 +22,7 @@ public class SpeedPowerUp : IColisionable
     private XnaVector3 position;
 
     public BodyType BodyType => BodyType.SpeedPowerUp;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public SpeedPowerUp(ModelManager modelManager,
         EffectManager effectManager,
@@ -46,7 +47,7 @@ public class SpeedPowerUp : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.TargetA,
+        DrawUtilities.DrawCustomModel(modelManager.PowerUp1Model,
             effectManager.BasicShader,
             view,
             projection,

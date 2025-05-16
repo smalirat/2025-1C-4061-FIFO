@@ -7,5 +7,8 @@ public enum BodyType
     JumpPowerUp, 
     FloorRamp, 
     Checkpoint, 
+    Tree,
+    Box,
+    Stone,
     Other
 }

@@ -8,11 +8,18 @@ public class EffectManager
     public const string ContentFolderEffects = "Effects/";
 
     public Effect BasicShader { get; private set; }
-    public Effect PelotaShader { get; private set; }
+    public Effect BasicTextureShader { get; private set; }
+    public Effect SphereShader { get; private set; }
+    public Effect TextureTilingShader { get; private set; }
+    public Effect SkyBoxShader { get; private set; }
+
 
     public void Load(ContentManager content)
     {
         BasicShader = content.Load<Effect>(ContentFolderEffects + "BasicShader");
-        PelotaShader = content.Load<Effect>(ContentFolderEffects + "PelotaShader");
+        SphereShader = content.Load<Effect>(ContentFolderEffects + "SphereShader");
+        BasicTextureShader = content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
+        TextureTilingShader = content.Load<Effect>(ContentFolderEffects + "TextureTilingShader");
+        SkyBoxShader = content.Load<Effect>(ContentFolderEffects + "SkyBoxShader");
     }
 }

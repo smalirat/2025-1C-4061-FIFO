@@ -23,7 +23,8 @@ public class DynamicStone : IColisionable
     private Quaternion rotation;
     private Vector3 position;
 
-    public BodyType BodyType => BodyType.Other;
+    public BodyType BodyType => BodyType.Stone;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public DynamicStone(ModelManager modelManager,
         EffectManager effectManager,
@@ -52,7 +53,7 @@ public class DynamicStone : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.SupportModel,
+        DrawUtilities.DrawCustomModel(modelManager.RockModel,
             effectManager.BasicShader,
             view,
             projection,

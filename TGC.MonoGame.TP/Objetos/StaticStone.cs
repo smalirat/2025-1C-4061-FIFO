@@ -30,7 +30,8 @@ public class StaticStone : IColisionable
     private float YScale => height / ModelHeight;
     private float ZScale => radius / ModelRadius;
 
-    public BodyType BodyType => BodyType.Other;
+    public BodyType BodyType => BodyType.Stone;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public StaticStone(ModelManager modelManager,
         EffectManager effectManager,
@@ -57,7 +58,7 @@ public class StaticStone : IColisionable
 
     public void Draw(Matrix view, Matrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.SupportModel,
+        DrawUtilities.DrawCustomModel(modelManager.RockModel,
             effectManager.BasicShader,
             view,
             projection,

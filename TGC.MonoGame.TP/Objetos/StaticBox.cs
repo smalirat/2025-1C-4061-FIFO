@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
-using TGC.MonoGame.TP.Utilidades;
+using TGC.MonoGame.TP.Modelos.Primitivas;
+using TGC.MonoGame.TP.Texturas;
 
 namespace TGC.MonoGame.TP.Objetos;
 
@@ -13,62 +14,49 @@ public class StaticBox : IColisionable
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-
-    private const float ModelHeight = 2f;
-    private const float ModelWidth = 2f;
-    private const float ModelLength = 2f;
+    private readonly TextureManager textureManager;
 
     private readonly StaticHandle boundingVolume;
+    private readonly BoxPrimitive model;
 
-    private readonly float width;
-    private readonly float height;
-    private readonly float length;
+    private XnaMatrix world;
 
-    private Color color;
-    private XnaQuaternion rotation;
-    private XnaVector3 position;
-
-    private float XScale => width / ModelWidth;
-    private float YScale => height / ModelHeight;
-    private float ZScale => length / ModelLength;
-
-    public BodyType BodyType => BodyType.Other;
+    public BodyType BodyType => BodyType.Box;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public StaticBox(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
+        TextureManager textureManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
         float width,
         float length,
-        float height,
-        Color color)
+        float height)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
+        this.textureManager = textureManager;
 
-        this.width = width;
-        this.height = height;
-        this.length = length;
-        this.color = color;
-        this.rotation = rotation;
-        this.position = position;
-
+        model = this.modelManager.CreateBox(graphicsDevice, height, width, length);
         boundingVolume = this.physicsManager.AddStaticBox(width, height, length, position, rotation, this);
+
+        world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.BoxModel,
-            effectManager.BasicShader,
-            view,
-            projection,
-            translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
-            rotation: Matrix.CreateFromQuaternion(rotation),
-            color: color);
+        var effect = effectManager.BasicTextureShader;
+
+        effect.Parameters["View"]?.SetValue(view);
+        effect.Parameters["Projection"]?.SetValue(projection);
+        effect.Parameters["World"]?.SetValue(world);
+        effect.Parameters["DiffuseColor"]?.SetValue(Color.Black.ToVector3());
+        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox4Texture);
+
+        model.Draw(effect);
     }
 
     public void NotifyCollition(IColisionable with)

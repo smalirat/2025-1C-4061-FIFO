@@ -1,12 +1,10 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
-using TGC.MonoGame.TP.Modelos.Primitivas;
 using TGC.MonoGame.TP.Texturas;
 using TGC.MonoGame.TP.Utilidades;
 
@@ -18,21 +16,26 @@ public class PlayerBall : IColisionable
 
     public BodyType BodyType => BodyType.PlayerBall;
 
+    public bool CanPlayerBallJumpOnIt => false;
+
+    private const float ModelRadius = 1.00f;
+
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
 
     private readonly BodyHandle boundingVolume;
-    private readonly SpherePrimitive model;
 
     private XnaMatrix world;
 
     private BallProperties ballProperties;
 
-    private Color color;
+    private bool canJump;
 
-    private bool inContactWithFloorOrRamp;
+    private float XScale => ballProperties.Radius / ModelRadius;
+    private float YScale => ballProperties.Radius / ModelRadius;
+    private float ZScale => ballProperties.Radius / ModelRadius;
 
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
@@ -49,7 +52,6 @@ public class PlayerBall : IColisionable
 
         this.ballProperties = BallPresets.Presets[ballType];
 
-        model = this.modelManager.CreateSphere(graphicsDevice, this.ballProperties.Radius * 2f);
         boundingVolume = this.physicsManager.AddDynamicSphere(
             radius: this.ballProperties.Radius,
             mass: this.ballProperties.Mass,
@@ -61,7 +63,7 @@ public class PlayerBall : IColisionable
             this);
         world = XnaMatrix.CreateTranslation(initialPosition);
 
-        this.inContactWithFloorOrRamp = false;
+        this.canJump = false;
     }
 
     public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
@@ -105,7 +107,7 @@ public class PlayerBall : IColisionable
                 deltaTime);
         }
 
-        if (keyboardState.IsKeyDown(Keys.Space) && this.inContactWithFloorOrRamp)
+        if (keyboardState.IsKeyDown(Keys.Space) && this.canJump)
         {
             physicsManager.ApplyImpulse(boundingVolume,
                 XnaVector3.Up,
@@ -115,30 +117,39 @@ public class PlayerBall : IColisionable
         }
 
         // Actualizo matriz mundo
-        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
+        world = XnaMatrix.CreateScale(XScale, YScale, ZScale) *
+                XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
 
-        this.inContactWithFloorOrRamp = false;
+        this.canJump = false;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        var effect = effectManager.PelotaShader;
+        var model = this.modelManager.SphereModel;
+        var effect = this.effectManager.SphereShader;
 
-        effect.Parameters["View"]?.SetValue(view);
-        effect.Parameters["Projection"]?.SetValue(projection);
-        effect.Parameters["World"]?.SetValue(world);
-        effect.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
-        effect.Parameters["ModelTexture"].SetValue(textureManager.RubberTexture);
+        foreach (var mesh in model.Meshes)
+        {
+            foreach (var meshPart in mesh.MeshParts)
+            {
+                meshPart.Effect = effect;
+            }
 
-        model.Draw(effect);
+            effect.Parameters["View"]?.SetValue(view);
+            effect.Parameters["Projection"]?.SetValue(projection);
+            effect.Parameters["World"]?.SetValue(world);
+            effect.Parameters["ModelTexture"]?.SetValue(textureManager.RubberTexture);
+
+            mesh.Draw();
+        }
     }
 
     public void NotifyCollition(IColisionable with)
     {
-        if (with.BodyType == BodyType.FloorRamp)
+        if (with.CanPlayerBallJumpOnIt)
         {
-            this.inContactWithFloorOrRamp = true;
+            this.canJump = true;
         }
     }
 }

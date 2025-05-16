@@ -31,7 +31,8 @@ public class DynamicTree : IColisionable
     private float YScale => height / ModelHeight;
     private float ZScale => radius / ModelRadius;
 
-    public BodyType BodyType => BodyType.Other;
+    public BodyType BodyType => BodyType.Tree;
+    public bool CanPlayerBallJumpOnIt => false;
 
     public DynamicTree(ModelManager modelManager,
         EffectManager effectManager,

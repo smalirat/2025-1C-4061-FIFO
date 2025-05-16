@@ -16,7 +16,8 @@ public static class DrawUtilities
         Matrix? rotation = null,
         Color? color = null,
         Matrix? globalOffset = null,
-        Matrix? globalRotation = null)
+        Matrix? globalRotation = null,
+        Texture2D texture = null)
     {
         // Valores por defecto
         translation ??= Matrix.Identity;
@@ -51,6 +52,7 @@ public static class DrawUtilities
             effect.Parameters["Projection"]?.SetValue(projection);
             effect.Parameters["World"]?.SetValue(meshTransform * worldTransform);
             effect.Parameters["DiffuseColor"]?.SetValue(color.Value.ToVector3());
+            effect.Parameters["ModelTexture"]?.SetValue(texture);
 
             mesh.Draw();
         }
