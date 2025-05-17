@@ -33,7 +33,7 @@ public static class BallPresets
         [BallType.Rubber] = new BallProperties
         {
             ImpulseForce = 30f,              // Más lenta
-            JumpForce = 1000f,                // Muy saltarina
+            JumpForce = 2000f,                // Muy saltarina
             Friction = 0.3f,                  // Se desliza fácilmente
             DampingRatio = 0.2f,              // Muy elástica
             MaximumRecoveryVelocity = 6f,     // Rebota mucho

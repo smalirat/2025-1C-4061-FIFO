@@ -15,6 +15,8 @@ public class TextureManager
     public Texture2D Stones1Texture { get; private set; }
     public Texture2D Stones2Texture { get; private set; }
     public Texture2D Stones3Texture { get; private set; }
+    public Texture2D Rock1Texture { get; private set; }
+    public Texture2D Rock2Texture { get; private set; }
     public Texture2D DirtTexture { get; private set; }
     public Texture2D GroundTexture { get; private set; }
     public Texture2D GrassTexture { get; private set; }
@@ -35,6 +37,8 @@ public class TextureManager
         Stones1Texture = LoadTexture2D(content, "stones");
         Stones2Texture = LoadTexture2D(content, "adoquin");
         Stones3Texture = LoadTexture2D(content, "adoquin-2");
+        Rock1Texture = LoadTexture2D(content, "rock1");
+        Rock2Texture = LoadTexture2D(content, "rock2");
         DirtTexture = LoadTexture2D(content, "tierra");
         GroundTexture = LoadTexture2D(content, "ground");
         GrassTexture = LoadTexture2D(content, "grass");

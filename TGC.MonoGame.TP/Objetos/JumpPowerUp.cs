@@ -21,7 +21,20 @@ public class JumpPowerUp : IColisionable
     private XnaQuaternion rotation;
     private XnaVector3 position;
 
-    public BodyType BodyType => BodyType.JumpPowerUp;
+    private const float ModelHeight = 3.72f;
+    private const float ModelWidth = 0.78f;
+    private const float ModelLength = 5.66f;
+
+    private readonly float width;
+    private readonly float height;
+    private readonly float depth;
+
+    private float XScale => width / ModelWidth;
+    private float YScale => height / ModelHeight;
+    private float ZScale => depth / ModelLength;
+
+    public BodyType BodyType => BodyType.SpeedPowerUp;
+    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
     public bool CanPlayerBallJumpOnIt => false;
 
     public JumpPowerUp(ModelManager modelManager,
@@ -30,14 +43,19 @@ public class JumpPowerUp : IColisionable
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float radius,
+        float width,
+        float height,
+        float depth,
         Color color)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
 
-        this.radius = radius;
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+
         this.color = color;
         this.rotation = rotation;
         this.position = position;
@@ -47,12 +65,12 @@ public class JumpPowerUp : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.PowerUp1Model,
+        DrawUtilities.DrawCustomModel(modelManager.ArrowModel,
             effectManager.BasicShader,
             view,
             projection,
             translation: Matrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(radius / 2f, radius / 2f, radius / 2f),
+            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
     }

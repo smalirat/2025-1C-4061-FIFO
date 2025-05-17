@@ -17,7 +17,8 @@ public static class DrawUtilities
         Color? color = null,
         Matrix? globalOffset = null,
         Matrix? globalRotation = null,
-        Texture2D texture = null)
+        Texture2D texture = null,
+        float UVScaler = 1f)
     {
         // Valores por defecto
         translation ??= Matrix.Identity;
@@ -53,6 +54,7 @@ public static class DrawUtilities
             effect.Parameters["World"]?.SetValue(meshTransform * worldTransform);
             effect.Parameters["DiffuseColor"]?.SetValue(color.Value.ToVector3());
             effect.Parameters["ModelTexture"]?.SetValue(texture);
+            effect.Parameters["UVScale"]?.SetValue(UVScaler);
 
             mesh.Draw();
         }

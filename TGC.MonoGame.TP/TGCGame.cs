@@ -16,38 +16,26 @@ namespace TGC.MonoGame.TP;
 
 public class TGCGame : Game
 {
-    private GraphicsDeviceManager Graphics { get; }
+    private readonly GraphicsDeviceManager Graphics;
     private readonly ModelManager ModelManager;
     private readonly EffectManager EffectManager;
     private readonly PhysicsManager PhysicsManager;
     private readonly TextureManager TextureManager;
-    private TargetCamera TargetCamera { get; set; }
-    private FreeCamera FreeCamera { get; set; }
-    private bool IsGodModeEnabled = true;
+
+    private TargetCamera TargetCamera;
     private PlayerBall PlayerBall;
-    private FloorWallRamp Floor;
-    private FloorWallRamp Wall;
-    private FloorWallRamp Ramp;
-    private StaticBox StaticBox;
-    private DynamicBox DynamicBox;
-    private StaticTree StaticTree;
-    private StaticStone StaticStone;
-    private JumpPowerUp JumpPowerUp;
-    private SpeedPowerUp SpeedPowerUp;
-    private Checkpoint Checkpoint;
-    private SimpleSkyBox SimpleSkybox { get; set; }
-    private StaticCylinder StaticCylinder;
 
-    private List<object> mapObjects;
-    private List<DynamicBox> movingBoxes = new List<DynamicBox>();
-    private List<XnaVector3> boxStartPositions = new List<XnaVector3>();
-    private List<DynamicRamp> movingRamps = new List<DynamicRamp>();
-    private List<DynamicBox> cajasParaEmpujar = new List<DynamicBox>();
-    private List<XnaVector3> rampStartPositions = new List<XnaVector3>();
-    private float tiempoTotal;
+    private List<FloorWallRamp> FloorWallRamps = new();
 
+    private SimpleSkyBox Skybox;
 
+    private List<DynamicBox> DynamicBoxes = new();
+    private List<StaticBox> StaticBoxes = new();
 
+    private Random random;
+
+    private List<SpeedPowerUp> SpeedPowerUps = new();
+    private List<JumpPowerUp> JumpPowerUps = new();
 
     public TGCGame()
     {
@@ -58,6 +46,8 @@ public class TGCGame : Game
         TextureManager = new TextureManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+
+        random = new Random(2);
     }
 
     protected override void Initialize()
@@ -68,744 +58,21 @@ public class TGCGame : Game
 
         PhysicsManager.Initialize();
 
-        SimpleSkybox = new SimpleSkyBox();
+        Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 50f, 0f), BallType.Rubber);
 
-        mapObjects = new List<object>();
+        InitializeLevel1();
 
-        // Tanda 1 Pisos
-        for (int i = 0; i <= 4; i++)
-        {
-            var floor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(150f + i * 150, 0f, 0f),
-                rotation: XnaQuaternion.Identity,
-                width: 150f,
-                length: 90f,
-                color: Color.SandyBrown);
-            mapObjects.Add(floor);
-        }
-
-        //Sus paredes
-
-        for (int i = 0; i <= 3; i++)
-        {
-            var rightWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(150f + i * 150, 5f, 45f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(150f + i * 150, 5f, -45f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-        }
-
-
-
-        float boxWidth = 7f;
-        float boxLength = 7f;
-        float boxHeight = 7f;
-
-        for (int i = 0; i <= 4; i++)
-        {
-            float floorX = 150f + i * 150;
-            var floor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(floorX, 0f, 0f),
-                rotation: XnaQuaternion.Identity,
-                width: 150f,
-                length: 90f,
-                color: Color.SandyBrown);
-
-            mapObjects.Add(floor);
-
-            // Generamos cajas
-            for (int j = 0; j < 5; j++)
-            {
-                // fórmula que parece aleatoria pero no lo es
-                float offsetX = (float)(Math.Sin((i + 1) * (j + 3)) * 50);
-                float offsetZ = (float)(Math.Cos((i + 2) * (j + 5)) * 40);
-
-                float posX = floorX + offsetX;
-                float posY = boxHeight / 2f;
-                float posZ = offsetZ;
-
-                var box = new DynamicBox(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(posX, posY, posZ),
-                    rotation: XnaQuaternion.Identity,
-                    width: boxWidth,
-                    length: boxLength,
-                    height: boxHeight,
-                    friction: 0.7f,
-                    mass: 10f,
-                    color: Color.Purple);
-
-                mapObjects.Add(box);
-                movingBoxes.Add(box);
-                boxStartPositions.Add(new XnaVector3(posX, posY, posZ));
-            }
-        }
-
-
-
-        //Primera "Curva"
-
-        var curve1leftWall = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(825, 5f, 0f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-            width: 90f,
-            length: 10f,
-            color: Color.SeaGreen);
-        mapObjects.Add(curve1leftWall);
-
-        var curve1leftWall2 = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(750, 5f, -45f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-            width: 150f,
-            length: 10f,
-            color: Color.SeaGreen);
-        mapObjects.Add(curve1leftWall2);
-
-        var curve1rightWall = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(705, 5f, 45f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-            width: 60f,
-            length: 10f,
-            color: Color.SeaGreen);
-        mapObjects.Add(curve1rightWall);
-
-
-        // Tanda 2 Pisos
-
-        for (int i = 0; i <= 1; i++)
-        {
-            var floor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(780, 0f, 120f + i * 150),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
-                width: 150f,
-                length: 90f,
-                color: Color.IndianRed);
-            mapObjects.Add(floor);
-        }
-
-        //Rampas que se mueven
-
-        for (int i = 0; i <= 16; i++)
-        {
-            var ramp = new DynamicRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(820f - 5f * i, -1f, 340f),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
-                    width: 10f,
-                    length: 80f,
-                    color: Color.Gray);
-            mapObjects.Add(ramp);
-            movingRamps.Add(ramp);
-            rampStartPositions.Add(new XnaVector3(820 - 5f * i, -1f, 340f));
-        }
-
-        //Sus paredes
-
-        for (int i = 0; i <= 1; i++)
-        {
-            var rightWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(735, 5f, 120f + i * 150),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(825, 5f, 120f + i * 150),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-        }
-
-        // Tanda 3 Pisos
-
-        for (int i = 1; i <= 2; i++)
-        {
-            var floor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(780, 0f, 360f + i * 150f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
-                width: 150f,
-                length: 90f,
-                color: Color.IndianRed);
-            mapObjects.Add(floor);
-        }
-
-        for (int i = 0; i <= 1; i++)
-        {
-            var rightWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(735, 5f, 120f + 390f + i * 150f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-            if (i == 1)
-                continue;
-
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(825, 5f, 120f + 390f + i * 150f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-        }
-
-
-        //Tanda 4 de pisos
-
-        for (int i = 0; i <= 1; i++)
-        {
-            var floor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(900 + i * 150, 0f, 690),
-                XnaQuaternion.Identity,
-                width: 150f,
-                length: 90f,
-                color: Color.BlueViolet);
-            mapObjects.Add(floor);
-        }
-
-        //Sus paredes
-
-        for (int i = 0; i <= 1; i++)
-        {
-            var rightWall = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(900 + i * 150, 5f, 735),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                    width: 150f,
-                    length: 10f,
-                    color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(900 + i * 150, 5f, 645f),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                width: 150f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-
-        }
-
-        for (int i = 0; i <= 2; i++)
-        {
-            var rampFloor = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(1162f + i * 72.5f, 15f + i * 30f, 690f),
-                rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 8),
-                width: 80f,
-                length: 30f,
-                color: Color.Gray);
-
-            mapObjects.Add(rampFloor);
-        }
-
-        //Tanda 5 de pisos
-
-        for (int i = 0; i <= 2; i++)
-        {
-            for (int j = 0; j <= 2; j++)
-            {
-                if (i == 1 && j == 1)
-                    continue;
-
-                var rampFloor = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1369f + i * 50, 90f, 640f + j * 50),
-                    rotation: XnaQuaternion.Identity,
-                    width: 50f,
-                    length: 50f,
-                    color: Color.Green);
-                mapObjects.Add(rampFloor);
-            }
-
-        }
-
-        // cajas a empujar
-        var random = new Random();
-
-        int boxCount = 10;
-        for (int k = 0; k < boxCount; k++)
-        {
-            float x = 1369f + random.Next(0, 3) * 50f + (float)random.NextDouble() * 20f - 10f;
-            float z = 640f + random.Next(0, 3) * 50f + (float)random.NextDouble() * 20f - 10f;
-
-            // Evita el centro (1,1)
-            if (Math.Abs(x - (1369f + 1 * 50f)) < 5f && Math.Abs(z - (640f + 1 * 50f)) < 5f)
-                continue;
-
-            float y = 110f + (float)random.NextDouble() * 10f; // Altura aleatoria para que caigan
-
-            var box = new DynamicBox(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(x, y, z),
-                rotation: XnaQuaternion.Identity,
-                width: 4f,
-                length: 4f,
-                height: 4f,
-                friction: 0.7f,
-                mass: 4f,
-                color: new Color(random.Next(256), random.Next(256), random.Next(256)));
-
-            mapObjects.Add(box);
-            cajasParaEmpujar.Add(box);
-        }
-
-
-
-        //Sus paredes
-
-        for (int i = 0; i <= 2; i++)
-        {
-
-            var rightWall = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1369f + i * 50, 95f, 765f),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                    width: 50f,
-                    length: 10f,
-                    color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(1369f + i * 50, 95f, 615),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                width: 50f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-
-        }
-
-        for (int i = 0; i <= 2; i++)
-        {
-
-            var rightWall = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1494, 95f, 640f + i * 50),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                    width: 50f,
-                    length: 10f,
-                    color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-            if (i == 1)
-                continue;
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(1344f, 95f, 640f + i * 50),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 50f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-
-        }
-
-        //Tanda 6 de pisos
-
-        for (int i = 0; i <= 2; i++)
-        {
-            for (int j = 0; j <= 2; j++)
-            {
-                var rampFloor = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1600f + i * 50, 90f, 640f + j * 50),
-                    rotation: XnaQuaternion.Identity,
-                    width: 50f,
-                    length: 50f,
-                    color: Color.MediumVioletRed);
-                mapObjects.Add(rampFloor);
-            }
-
-        }
-
-        //Sus paredes
-
-        for (int i = 0; i <= 2; i++)
-        {
-
-            var rightWall = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1600f + i * 50, 95f, 765f),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                    width: 50f,
-                    length: 10f,
-                    color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(1600f + i * 50, 95f, 615),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-                width: 50f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-
-        }
-
-        for (int i = 0; i <= 2; i++)
-        {
-
-            var rightWall = new FloorWallRamp(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(1725, 95f, 640f + i * 50),
-                    XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                    width: 50f,
-                    length: 10f,
-                    color: Color.SeaGreen);
-            mapObjects.Add(rightWall);
-
-            var leftWall = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position: new XnaVector3(1575, 95f, 640f + i * 50),
-                XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f) * XnaQuaternion.CreateFromAxisAngle(XnaVector3.Backward, MathF.PI / 2f),
-                width: 50f,
-                length: 10f,
-                color: Color.SeaGreen);
-            mapObjects.Add(leftWall);
-
-        }
-
-
-
-
-        StaticCylinder = new StaticCylinder(
-                    ModelManager,
-                    EffectManager,
-                    PhysicsManager,
-                    GraphicsDevice,
-                    position: new XnaVector3(2000f, -100f, 720f),
-                    rotation: XnaQuaternion.Identity,
-                    height: 30f,
-                    radius: 15f,
-                    color: Color.Brown
-                    );
-        mapObjects.Add(StaticCylinder);
-
-
-        for (int i = 0; i < 60; i++)
-        {
-            float angle = i * MathF.PI / 6f;      // 30° entre ramps
-            float radius = 100f - i * 1.25f;      // se va cerrando
-            float y = 100f - i * 2.5f;            // va bajando
-
-            var position = new XnaVector3(
-                2000f + radius * MathF.Cos(angle),
-                y,
-                720f + radius * MathF.Sin(angle)
-            );
-
-            var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -angle + MathF.PI / 2f);
-
-            // Color dinámico: va de rojo a azul e
-            float t = i / 59f;
-            var color = Color.Lerp(Color.Red, Color.Blue, t);
-
-            var spiralRamp = new FloorWallRamp(
-                ModelManager,
-                EffectManager,
-                PhysicsManager,
-                GraphicsDevice,
-                position,
-                rotation,
-                width: 30f,
-                length: 20f,
-                color: color);
-
-            mapObjects.Add(spiralRamp);
-        }
-
-
-        var finalFloor = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(2000f, -300f, 720f),
-            rotation: XnaQuaternion.Identity,
-            width: 250f,
-            length: 250f,
-            color: Color.Black);
-        mapObjects.Add(finalFloor);
-
-
-
-        PlayerBall = new PlayerBall(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            TextureManager,
-            GraphicsDevice,
-            initialPosition: new XnaVector3(0f, 50f, 0f),
-                ballType: BallType.Rubber
-            );
-
-        Floor = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(0f, 0f, 0f),
-            rotation: XnaQuaternion.Identity,
-            width: 150f,
-            length: 90f,
-            color: Color.Brown);
-
-        Wall = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(45.5f, 22f, 0f), // cambió eje de Z a X
-            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-            width: 150f,
-            length: 45f,
-            color: Color.SaddleBrown);
-
-        Ramp = new FloorWallRamp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(-60f, 15f, 0f),
-            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 4f),
-            width: 150f,
-            length: 45f,
-            color: Color.RosyBrown);
-
-        StaticBox = new StaticBox(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(30f, 5f, -20f),
-            rotation: XnaQuaternion.Identity,
-            width: 5f,
-            length: 5f,
-            height: 10f,
-            color: Color.Purple);
-
-        DynamicBox = new DynamicBox(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(20f, 50f, 10f),
-            rotation: XnaQuaternion.Identity,
-            width: 5f,
-            length: 5f,
-            height: 5f,
-            friction: 0.5f,
-            mass: 1f,
-            color: Color.Blue);
-
-        StaticTree = new StaticTree(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(35f, 0f, 35f),
-            rotation: XnaQuaternion.Identity,
-            radius: 5f,
-            height: 20f,
-            color: Color.Green);
-
-        StaticStone = new StaticStone(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new Vector3(-25f, 0f, -25f),
-            rotation: Quaternion.Identity,
-            radius: 2f,
-            height: 4f,
-            color: Color.Gray);
-
-        SpeedPowerUp = new SpeedPowerUp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new Vector3(30f, 8f, -40f),
-            rotation: Quaternion.Identity,
-            radius: 3f,
-            color: Color.Turquoise);
-
-        JumpPowerUp = new JumpPowerUp(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new Vector3(-40f, 8f, 30f),
-            rotation: Quaternion.Identity,
-            radius: 3f,
-            color: Color.Snow);
-
-        Checkpoint = new Checkpoint(
-            ModelManager,
-            EffectManager,
-            PhysicsManager,
-            GraphicsDevice,
-            position: new XnaVector3(10f, 0f, -20f),
-            rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f),
-            width: 20f,
-            depth: 10f,
-            height: 20f,
-            color: Color.Wheat);
-
-        TargetCamera = new TargetCamera(
-            fov: MathF.PI / 3f,
-            aspectRatio: GraphicsDevice.Viewport.AspectRatio,
-            nearPlaneDistance: 0.1f,
-            farPlaneDistance: 1000000f,
-            initialTargetPosition: PlayerBall.Position,
-            cameraTargetDistance: 30f,
-            mouseSensitivity: 0.01f);
-
-        FreeCamera = new FreeCamera(
-            aspectRatio: GraphicsDevice.Viewport.AspectRatio,
-            position: new Vector3(1000f, 100f, 600f),
-                screenCenter: GraphicsDevice.Viewport.Bounds.Center
-            );
+        TargetCamera = new TargetCamera(MathF.PI / 3f, GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, PlayerBall.Position, 30f, 0.01f);
 
         base.Initialize();
     }
-
 
     protected override void LoadContent()
     {
         EffectManager.Load(Content);
         ModelManager.Load(Content);
-
-        SimpleSkybox.LoadContent(Content, TiposSkybox.Nieve);
-
+        TextureManager.Load(Content);
         base.LoadContent();
     }
 
@@ -816,53 +83,13 @@ public class TGCGame : Game
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (IsGodModeEnabled)
-        {
-            FreeCamera.Update(gameTime);
-        }
-        else
-        {
-            DynamicBox.Update(deltaTime, TargetCamera);
-            PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
-            TargetCamera.Update(PlayerBall.Position);
-        }
-
-        tiempoTotal += deltaTime;
-
-        for (int i = 0; i < movingBoxes.Count; i++)
-        {
-            DynamicBox box = movingBoxes[i];
-            var startPos = boxStartPositions[i];
-
-            float offset = (float)Math.Sin(tiempoTotal * 2f + i) * 10f;
-
-            var newPosition = new XnaVector3(startPos.X, startPos.Y, startPos.Z + offset);
-
-            PhysicsManager.SetPosition(box.Handle, newPosition);
-            box.Update(deltaTime, TargetCamera);
-
-        }
-
-        for (int i = 0; i < movingRamps.Count; i++)
-        {
-            DynamicRamp ramp = movingRamps[i];
-            var startPos = rampStartPositions[i];
-
-            float angleDegrees = -Math.Abs((float)Math.Sin(tiempoTotal + i)) * 45f;
-            float angleRadians = MathHelper.ToRadians(angleDegrees);
-            var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, angleRadians);
-
-            PhysicsManager.SetPosition(ramp.Handle, startPos);
-            PhysicsManager.SetRotation(ramp.Handle, rotation);
-            ramp.Update(deltaTime, TargetCamera);
-        }
-
-        foreach (DynamicBox caja in cajasParaEmpujar)
-        {
-            caja.Update(deltaTime, TargetCamera);
-        }
+        PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
 
         PhysicsManager.Update(deltaTime);
+        TargetCamera.Update(PlayerBall.Position);
+
+        foreach (var box in DynamicBoxes)
+            box.Update(deltaTime, TargetCamera);
 
         base.Update(gameTime);
     }
@@ -871,23 +98,129 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        Matrix view = IsGodModeEnabled ? FreeCamera.View : TargetCamera.View;
-        Matrix projection = IsGodModeEnabled ? FreeCamera.Projection : TargetCamera.Projection;
+        Skybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
 
+        foreach (var item in FloorWallRamps)
+            item.Draw(TargetCamera.View, TargetCamera.Projection);
 
-        SimpleSkybox.Draw(view, projection, PlayerBall.Position, GraphicsDevice);
-        Floor.Draw(view, projection);
-        Wall.Draw(view, projection);
-        Ramp.Draw(view, projection);
-        StaticTree.Draw(view, projection);
-        StaticStone.Draw(view, projection);
-        DynamicBox.Draw(view, projection);
-        StaticBox.Draw(view, projection);
-        SpeedPowerUp.Draw(view, projection);
-        JumpPowerUp.Draw(view, projection);
-        Checkpoint.Draw(view, projection);
-        PlayerBall.Draw(view, projection);
-        DrawMap(view, projection);
+        foreach (var box in DynamicBoxes)
+            box.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        foreach (var staticBox in StaticBoxes)
+            staticBox.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        foreach (var powerUp in SpeedPowerUps)
+            powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        foreach (var powerUp in JumpPowerUps)
+            powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
+    }
+
+    private void InitializeLevel1()
+    {
+        // Pisos
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, 0f, 0f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, 0f, 150f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, -23.5f, 296f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 10f), 150f, 150f, true, RampWallTextureType.Dirt));
+
+        // Paredes
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, 75f, -75f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-75f, 75f, 0f), Quaternion.CreateFromAxisAngle(Vector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(75f, 75f, 0f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+
+        // Cajas dinamicas en piramide
+        float boxSize = 5f;
+        float spacing = 5f;
+        Vector3 baseCenter = new Vector3(0f, 5f, 180f);
+
+        for (int i = -3; i <= 3; i++)
+            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+                baseCenter + new Vector3(i * spacing, 0f, 0f), Quaternion.Identity, boxSize, 1f, 1f));
+        for (int i = -2; i <= 2; i++)
+            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+                baseCenter + new Vector3(i * spacing, spacing, 0f), Quaternion.Identity, boxSize, 1f, 1f));
+        for (int i = -1; i <= 1; i++)
+            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+                baseCenter + new Vector3(i * spacing, 2 * spacing, 0f), Quaternion.Identity, boxSize, 1f, 1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            baseCenter + new Vector3(0f, 3 * spacing, 0f), Quaternion.Identity, boxSize, 1f, 1f));
+
+        // PowerUps
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(40f, 3f, 180f), Quaternion.Identity, 3f, 3f, 1f, Color.Yellow));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-40f, 3f, 160f), Quaternion.Identity, 3f, 3f, 1f, Color.Yellow));
+
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-40f, 3f, 180f), Quaternion.Identity, 3f, 1f, 3f, Color.Red));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(40f, 3f, 160f), Quaternion.Identity, 3f, 1f, 3f, Color.Red));
+
+        // Cajas estáticas
+        List<(Vector3 pos, Quaternion rot, float size)> cajas = new();
+        for (var i = 0; i < 30; i++)
+        {
+            int tipo = random.Next(4);
+            float[] sizes = new float[] { 3f, 6f, 9f };
+
+            float floorZ = random.Next(2) == 0 ? 0f : 150f;
+            float x = (float)(random.NextDouble() * 140f - 70f);
+            float z = (float)(random.NextDouble() * 140f - 70f + floorZ);
+
+            Quaternion rot = Quaternion.CreateFromAxisAngle(Vector3.Up, (float)random.NextDouble());
+
+            if (tipo == 0)
+            {
+                float size = sizes[random.Next(sizes.Length)];
+                cajas.Add((new Vector3(x, size / 2f + 0.75f, z), rot, size));
+            }
+            else if (tipo == 1)
+            {
+                float baseSize = 9f;
+                float middleSize = 6f;
+                float topSize = 3f;
+                var basePos = new Vector3(x, baseSize / 2f + 0.75f, z);
+                var middlePos = basePos + new Vector3((baseSize + middleSize) / 2f + 0.01f, 0f, 0f);
+                middlePos.Y = middleSize / 2f + 0.75f;
+                var topPos = basePos + new Vector3((baseSize + topSize) / 2f + 0.01f, middleSize / 2f + 0.01f, 0f);
+                cajas.Add((basePos, rot, baseSize));
+                cajas.Add((middlePos, rot, middleSize));
+                cajas.Add((topPos, rot, topSize));
+            }
+            else if (tipo == 2)
+            {
+                float size = sizes[random.Next(sizes.Length)];
+                var leftPos = new Vector3(x, size / 2f + 0.75f, z);
+                var rightPos = leftPos + new Vector3(size * 2f, 0f, 0f);
+                cajas.Add((leftPos, rot, size));
+                cajas.Add((rightPos, rot, size));
+            }
+            else
+            {
+                float size = sizes[random.Next(sizes.Length)];
+                var bottomPos = new Vector3(x, size / 2f + 0.75f, z);
+                var topPos = new Vector3(x, size + size / 2f + 0.75f, z);
+                cajas.Add((bottomPos, rot, size));
+                cajas.Add((topPos, rot, size));
+            }
+        }
+
+        foreach (var (pos, rot, size) in cajas)
+        {
+            StaticBoxes.Add(new StaticBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, pos, rot, size));
+        }
     }
 
     protected override void UnloadContent()
@@ -895,37 +228,4 @@ public class TGCGame : Game
         Content.Unload();
         base.UnloadContent();
     }
-
-    private void DrawMap(Matrix view, Matrix projection)
-    {
-        foreach (var obj in mapObjects)
-        {
-            if (obj is FloorWallRamp floor)
-                floor.Draw(view, projection);
-            else if (obj is FloorWallRamp wall)
-                wall.Draw(view, projection);
-            else if (obj is FloorWallRamp ramp)
-                ramp.Draw(view, projection);
-            else if (obj is StaticBox staticBox)
-                staticBox.Draw(view, projection);
-            else if (obj is DynamicBox dynamicBox)
-                dynamicBox.Draw(view, projection);
-            else if (obj is StaticTree staticTree)
-                staticTree.Draw(view, projection);
-            else if (obj is StaticStone staticStone)
-                staticStone.Draw(view, projection);
-            else if (obj is JumpPowerUp jumpPowerUp)
-                jumpPowerUp.Draw(view, projection);
-            else if (obj is SpeedPowerUp speedPowerUp)
-                speedPowerUp.Draw(view, projection);
-            else if (obj is Checkpoint checkpoint)
-                checkpoint.Draw(view, projection);
-            else if (obj is StaticCylinder staticCylinder)
-                staticCylinder.Draw(view, projection);
-            else if (obj is DynamicRamp dynamicRamp)
-                dynamicRamp.Draw(view, projection);
-
-        }
-    }
-
 }

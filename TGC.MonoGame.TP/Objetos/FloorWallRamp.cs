@@ -23,6 +23,8 @@ public class FloorWallRamp : IColisionable
 
     private XnaMatrix world;
 
+    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
+
     public BodyType BodyType => BodyType.FloorRamp;
 
     public bool CanPlayerBallJumpOnIt { get; private set; }
@@ -52,7 +54,7 @@ public class FloorWallRamp : IColisionable
         model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
 
-        world = XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume)) * XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume));
+        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -65,18 +67,23 @@ public class FloorWallRamp : IColisionable
             case RampWallTextureType.Dirt:
                 texture = textureManager.DirtTexture;
                 break;
+
             case RampWallTextureType.Stones1:
                 texture = textureManager.Stones1Texture;
                 break;
+
             case RampWallTextureType.Stones2:
                 texture = textureManager.Stones1Texture;
                 break;
+
             case RampWallTextureType.Stones3:
                 texture = textureManager.Stones1Texture;
                 break;
+
             case RampWallTextureType.Grass:
                 texture = textureManager.GrassTexture;
                 break;
+
             case RampWallTextureType.Ground:
                 texture = textureManager.GroundTexture;
                 break;

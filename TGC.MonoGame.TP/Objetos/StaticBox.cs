@@ -31,19 +31,17 @@ public class StaticBox : IColisionable
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float width,
-        float length,
-        float height)
+        float sideLength)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
 
-        model = this.modelManager.CreateBox(graphicsDevice, height, width, length);
-        boundingVolume = this.physicsManager.AddStaticBox(width, height, length, position, rotation, this);
+        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        boundingVolume = this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
 
-        world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
+        world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -55,6 +53,7 @@ public class StaticBox : IColisionable
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["DiffuseColor"]?.SetValue(Color.Black.ToVector3());
         effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox4Texture);
+        effect.Parameters["UVScale"].SetValue(1f);
 
         model.Draw(effect);
     }

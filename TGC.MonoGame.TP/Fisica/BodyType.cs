@@ -6,9 +6,8 @@ public enum BodyType
     SpeedPowerUp, 
     JumpPowerUp, 
     FloorRamp, 
-    Checkpoint, 
-    Tree,
+    Checkpoint,
     Box,
-    Stone,
+    OilBarrel,
     Other
 }

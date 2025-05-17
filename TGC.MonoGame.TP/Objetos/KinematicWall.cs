@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -10,7 +11,7 @@ using TGC.MonoGame.TP.Texturas;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class DynamicBox : IColisionable
+public class KinematicWall : IColisionable
 {
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
@@ -22,31 +23,39 @@ public class DynamicBox : IColisionable
 
     private XnaMatrix world;
 
-    public BodyType BodyType => BodyType.Box;
+    public BodyType BodyType => BodyType.FloorRamp;
 
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
-    public bool CanPlayerBallJumpOnIt => false;
+    private float tiempo;
 
-    public DynamicBox(ModelManager modelManager,
+    public bool CanPlayerBallJumpOnIt { get; private set; }
+
+    private const float Height = 1.25f;
+
+    public KinematicWall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
-        XnaQuaternion rotation,
-        float sideLength,
+        float width,
+        float length,
+        float mass,
         float friction,
-        float mass)
+        bool canPlayerBallJumpOnIt)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
 
-        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
-        boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, position, rotation, this);
+        this.CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
 
-        world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
+        var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f);
+
+        model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
+        boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, rotation, this);
+
+        world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -65,6 +74,15 @@ public class DynamicBox : IColisionable
 
     public void Update(float deltaTime, TargetCamera camera)
     {
+        physicsManager.Awake(boundingVolume);
+
+        tiempo += deltaTime;
+        float x = MathF.Sin(tiempo) * 10f;
+
+        var previousPosition = physicsManager.GetPosition(boundingVolume);
+
+        physicsManager.SetPosition(boundingVolume, new BepuVector3(x, previousPosition.Y, previousPosition.Z));
+
         // Actualizo matriz mundo
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));

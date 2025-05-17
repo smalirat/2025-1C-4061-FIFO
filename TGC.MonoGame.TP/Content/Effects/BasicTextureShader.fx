@@ -11,6 +11,7 @@
 uniform float4x4 World;
 uniform float4x4 View;
 uniform float4x4 Projection;
+uniform float UVScale;
 
 // Textura
 texture ModelTexture;
@@ -19,8 +20,8 @@ sampler2D textureSampler = sampler_state
     Texture = (ModelTexture);
     MagFilter = Linear;
     MinFilter = Linear;
-    AddressU = Clamp;
-    AddressV = Clamp;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 // Entrada al vertex shader
@@ -63,7 +64,7 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 // Fragment Shader
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    return tex2D(textureSampler, input.TextureCoordinate);
+    return tex2D(textureSampler, input.TextureCoordinate * UVScale);
 }
 
 technique BasicColorDrawing

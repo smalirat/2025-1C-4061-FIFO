@@ -9,27 +9,17 @@ public class ModelManager
     public const string ContentFolderModels = "Models/";
 
     public Model SphereModel { get; private set; }
-    public Model Sphere2Model { get; private set; }
-    public Model NormalTreeModel { get; private set; }
-    public Model TallTreeModel { get; private set; }
-    public Model RockModel { get; private set; }
-    public Model CheckpointModel { get; private set; }
-    public Model MarbleModel { get; set; }
-    public Model PowerUp1Model { get; set; }
-    public Model PowerUP2Model { get; set; }
-    public Model SkyBoxCubeModel { get; set; }
+    public Model SkyBoxCubeModel { get; private set; }
+    public Model LigthingModel { get; private set; }
+    public Model ArrowModel { get; private set; }
+
 
     public void Load(ContentManager content)
     {
         SphereModel = LoadModel(content, "sphere");
-        Sphere2Model = LoadModel(content, "sphere2");
-        NormalTreeModel = LoadModel(content, "tree");
-        TallTreeModel = LoadModel(content, "tree_tall");
-        RockModel = LoadModel(content, "rock");
-        CheckpointModel = LoadModel(content, "checkpoint");
-        PowerUp1Model = LoadModel(content, "powerUp1");
-        PowerUP2Model = LoadModel(content, "powerUp2");
         SkyBoxCubeModel = LoadModel(content, "cube");
+        LigthingModel = LoadModel(content, "ligthing");
+        ArrowModel = LoadModel(content, "arrow");
     }
 
     private Model LoadModel(ContentManager content, string path)

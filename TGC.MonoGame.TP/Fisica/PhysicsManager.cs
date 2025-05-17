@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Utilidades;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TGC.MonoGame.TP.Fisica
 {
@@ -102,7 +103,7 @@ namespace TGC.MonoGame.TP.Fisica
 
         public BodyHandle AddDynamicCylinder(float length, float radius, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
-            var cylinderShape = new Cylinder(length, radius);
+            var cylinderShape = new Cylinder(radius, length);
             var shapeIndex = Simulation.Shapes.Add(cylinderShape);
 
             var rotationFix = Quaternion.CreateFromAxisAngle(Vector3.Up, MathF.PI / 2f); // gira 90° en X
@@ -206,6 +207,32 @@ namespace TGC.MonoGame.TP.Fisica
             return handle;
         }
 
+        public BodyHandle AddKinematicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+        {
+            var boxShape = new Box(width, height, length);
+            var shapeIndex = Simulation.Shapes.Add(boxShape);
+
+            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
+
+            var bodyDescription = BodyDescription.CreateKinematic(
+                new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
+                collidableDescription,
+                new BodyActivityDescription(0.1f));
+
+            var handle = Simulation.Bodies.Add(bodyDescription);
+
+            CollidableReferences[new CollidableReference(CollidableMobility.Kinematic, handle)] = collidableReference;
+
+            MaterialProperties.Allocate(handle) = new MaterialProperties
+            {
+                FrictionCoefficient = friction,
+                MaximumRecoveryVelocity = 1f, // Default
+                SpringSettings = new SpringSettings(30, 1) // Default
+            };
+
+            return handle;
+        }
+
         public Vector3 GetPosition(BodyHandle bodyHandle)
         {
             var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
@@ -260,14 +287,7 @@ namespace TGC.MonoGame.TP.Fisica
         {
             var body = Simulation.Bodies.GetBodyReference(bodyHandle);
             body.Pose.Position = newPosition.ToBepuVector3();
-            body.Velocity.Linear = BepuVector3.Zero; // Opcional: para que no siga moviéndose por inercia
+            body.Velocity.Linear = BepuVector3.Zero;
         }
-        public void SetRotation(BodyHandle bodyHandle, XnaQuaternion newRotation)
-        {
-            var body = Simulation.Bodies.GetBodyReference(bodyHandle);
-            body.Pose.Orientation = newRotation.ToBepuQuaternion();
-            body.Velocity.Angular = BepuVector3.Zero; // Opcional: detiene rotaciones residuales
-        }
-
     }
 }
