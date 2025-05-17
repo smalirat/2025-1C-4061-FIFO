@@ -107,6 +107,16 @@ public class TGCGame : Game
         {
             kinematicFloor.Update(deltaTime, TargetCamera);
         }
+
+        foreach (var jumpPowerUp in JumpPowerUps)
+        {
+            jumpPowerUp.Update(deltaTime);
+        }
+
+        foreach (var speedPowerUp in SpeedPowerUps)
+        {
+            speedPowerUp.Update(deltaTime);
+        }
     }
 
     protected override void Draw(GameTime gameTime)

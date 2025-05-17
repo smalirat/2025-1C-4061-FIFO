@@ -1,6 +1,8 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
@@ -77,6 +79,12 @@ public class JumpPowerUp : IColisionable
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: Matrix.CreateFromQuaternion(rotation),
             color: color);
+    }
+
+    public void Update(float deltaTime)
+    {
+        var incrementalRotation = Quaternion.CreateFromAxisAngle(Vector3.Up, deltaTime * 0.5f);
+        rotation = Quaternion.Normalize(incrementalRotation * rotation);
     }
 
     public void NotifyCollition(IColisionable with)

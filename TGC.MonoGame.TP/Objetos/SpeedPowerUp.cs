@@ -69,6 +69,12 @@ public class SpeedPowerUp : IColisionable
         boundingVolume = this.physicsManager.AddStaticBox(radius, radius, radius, position, rotation, this);
     }
 
+    public void Update(float deltaTime)
+    {
+        var incrementalRotation = Quaternion.CreateFromAxisAngle(Vector3.Up, deltaTime * 0.8f);
+        rotation = Quaternion.Normalize(incrementalRotation * rotation);
+    }
+
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
         DrawUtilities.DrawCustomModel(modelManager.LigthingModel,
