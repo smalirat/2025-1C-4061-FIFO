@@ -9,5 +9,6 @@ public enum BodyType
     Checkpoint,
     Box,
     OilBarrel,
-    Other
+    Other,
+    Camera
 }

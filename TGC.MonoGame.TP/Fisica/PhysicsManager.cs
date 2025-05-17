@@ -293,5 +293,13 @@ namespace TGC.MonoGame.TP.Fisica
         {
             Simulation.Bodies.Remove(bodyHandle);
         }
+
+        public CollidableReference RayCast(XnaVector3 origin, XnaVector3 direction, float maxDistance)
+        {
+            var closestRayHitHandler = new ClosestRayHitHandler();
+            Simulation.RayCast(origin.ToBepuVector3(), direction.ToBepuVector3(), maxDistance, ref closestRayHitHandler);
+
+            return closestRayHitHandler.HitCollidable;
+        }
     }
 }

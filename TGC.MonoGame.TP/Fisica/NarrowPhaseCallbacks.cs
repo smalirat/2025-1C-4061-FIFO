@@ -56,6 +56,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
                 if (collidableReferenceA.BodyType == BodyType.Checkpoint || collidableReferenceB.BodyType == BodyType.Checkpoint ||
                     collidableReferenceA.BodyType == BodyType.SpeedPowerUp || collidableReferenceB.BodyType == BodyType.SpeedPowerUp ||
+                    collidableReferenceA.BodyType == BodyType.Camera || collidableReferenceB.BodyType == BodyType.Camera ||
                     collidableReferenceA.BodyType == BodyType.JumpPowerUp || collidableReferenceB.BodyType == BodyType.JumpPowerUp)
                 {
                     return false;
