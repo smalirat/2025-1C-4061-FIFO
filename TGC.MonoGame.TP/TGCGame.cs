@@ -190,10 +190,10 @@ public class TGCGame : Game
 
         // PowerUps
         SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(40f, 3f, 180f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Yellow));
+            new Vector3(40f, 2f, 180f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Yellow));
 
         JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(-40f, 3f, 180f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.5f, Color.Red));
+            new Vector3(-40f, 2f, 180f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.5f, Color.Red));
 
 
         // Cajas estáticas
