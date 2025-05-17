@@ -8,38 +8,38 @@ public static class BallPresets
     {
         [BallType.Stone] = new BallProperties
         {
-            ImpulseForce = 0.5f,              // Lenta
-            JumpForce = 0.2f,                 // Apenas salta
-            Friction = 0.9f,                  // Mucha fricción
-            DampingRatio = 1f,                // Se amortigua mucho (sin rebote)
-            MaximumRecoveryVelocity = 0f,     // No rebota
-            SpringFrequency = 35f,            // Contacto duro
-            Mass = 10f,                       // Pesada
-            Radius = 3f                       // Grande
+            ImpulseForce = 60f,
+            JumpForce = 30000f,
+            Friction = 0.05f,
+            DampingRatio = 0.2f,
+            MaximumRecoveryVelocity = 6f,
+            SpringFrequency = 20f,
+            Mass = 6f,
+            Radius = 3f
         },
 
         [BallType.Metal] = new BallProperties
         {
-            ImpulseForce = 1.2f,              // Aceleración fuerte
-            JumpForce = 0.8f,                 // Puede saltar un poco
-            Friction = 0.4f,                  // Se desliza
-            DampingRatio = 0.9f,              // Rebote leve
-            MaximumRecoveryVelocity = 1.2f,   // Rebote controlado
-            SpringFrequency = 30f,           
-            Mass = 7f,                        // No tan pesada
-            Radius = 1f                       // Chica
+            ImpulseForce = 30f,
+            JumpForce = 2000f,
+            Friction = 0.05f,
+            DampingRatio = 0.2f,
+            MaximumRecoveryVelocity = 6f,
+            SpringFrequency = 20f,
+            Mass = 2f,
+            Radius = 1f
         },
 
         [BallType.Rubber] = new BallProperties
         {
-            ImpulseForce = 30f,              // Más lenta
-            JumpForce = 2000f,                // Muy saltarina
-            Friction = 0.3f,                  // Se desliza fácilmente
-            DampingRatio = 0.2f,              // Muy elástica
-            MaximumRecoveryVelocity = 6f,     // Rebota mucho
+            ImpulseForce = 30f,
+            JumpForce = 2000f,
+            Friction = 0.8f,
+            DampingRatio = 0.2f,
+            MaximumRecoveryVelocity = 6f,
             SpringFrequency = 20f,
-            Mass = 2f,                        // Liviana
-            Radius = 2f                       // Mediana
+            Mass = 1.25f,
+            Radius = 2f 
         }
     };
 }

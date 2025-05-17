@@ -12,7 +12,7 @@ public class ModelManager
     public Model SkyBoxCubeModel { get; private set; }
     public Model LigthingModel { get; private set; }
     public Model ArrowModel { get; private set; }
-
+    public Model FlagModel { get; private set; }
 
     public void Load(ContentManager content)
     {
@@ -20,6 +20,7 @@ public class ModelManager
         SkyBoxCubeModel = LoadModel(content, "cube");
         LigthingModel = LoadModel(content, "ligthing");
         ArrowModel = LoadModel(content, "arrow");
+        FlagModel = LoadModel(content, "flag");
     }
 
     private Model LoadModel(ContentManager content, string path)

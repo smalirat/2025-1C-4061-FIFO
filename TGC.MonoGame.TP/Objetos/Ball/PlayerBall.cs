@@ -14,9 +14,12 @@ public class PlayerBall : IColisionable
 {
     private float inactivityTimer = 0f;
     private float changeBallTypeTimer = 0f;
+    private float canJumpTimer = 0f;
+
     private XnaVector3 respawnPosition;
     private const float InactivityThreshold = 8f;
     private const float ChangeBallTypeThreshold = 1f;
+    private const float CanJumpThreshold = 0.5f;
 
     public XnaVector3 Position => world.Translation.ToBepuVector3();
 
@@ -159,8 +162,10 @@ public class PlayerBall : IColisionable
                     deltaTime);
             }
 
-            if (keyboardState.IsKeyDown(Keys.Space) && this.canJump)
+            if (keyboardState.IsKeyDown(Keys.Space) && this.canJump && canJumpTimer >= CanJumpThreshold)
             {
+                canJumpTimer = 0f;
+
                 physicsManager.ApplyImpulse(boundingVolume,
                     XnaVector3.Up,
                     impulseOffset: XnaVector3.Zero,
@@ -180,6 +185,7 @@ public class PlayerBall : IColisionable
 
         inactivityTimer += deltaTime;
         changeBallTypeTimer += deltaTime;
+        canJumpTimer += deltaTime;
 
         if (inactivityTimer >= InactivityThreshold)
         {

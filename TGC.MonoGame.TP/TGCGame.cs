@@ -64,7 +64,7 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 50f, 0f), BallType.Rubber);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 50f, 0f), BallType.Stone);
 
         InitializeLevel1();
 
@@ -117,6 +117,11 @@ public class TGCGame : Game
         {
             speedPowerUp.Update(deltaTime);
         }
+
+        foreach (var checkpoint in Checkpoints)
+        {
+            checkpoint.Update(deltaTime);
+        }
     }
 
     protected override void Draw(GameTime gameTime)
@@ -126,19 +131,29 @@ public class TGCGame : Game
         Skybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
 
         foreach (var item in FloorWallRamps)
+        {
             item.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         foreach (var box in DynamicBoxes)
+        {
             box.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         foreach (var staticBox in StaticBoxes)
+        {
             staticBox.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         foreach (var powerUp in SpeedPowerUps)
+        {
             powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         foreach (var powerUp in JumpPowerUps)
+        {
             powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         foreach (var kinematicWall in KinematicWalls)
         {
@@ -148,6 +163,11 @@ public class TGCGame : Game
         foreach (var kinematicFloor in KinematicFloors)
         {
             kinematicFloor.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
+
+        foreach (var checkpoint in Checkpoints)
+        {
+            checkpoint.Draw(TargetCamera.View, TargetCamera.Projection);
         }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
@@ -175,9 +195,6 @@ public class TGCGame : Game
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
             new Vector3(75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
 
-        // Checkpoint
-        Checkpoints.Add(new Checkpoint(PhysicsManager, new Vector3(0f, 75f, 225f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f));
-
         // Obstaculos
         KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 13f, 225f), 40f, 20f, 1f, 1f, false, 50f));
 
@@ -204,7 +221,6 @@ public class TGCGame : Game
 
         JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
             new Vector3(-40f, 2f, 180f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.5f, Color.Red));
-
 
         // Cajas estáticas
         List<(Vector3 pos, Quaternion rot, float size)> cajas = new();

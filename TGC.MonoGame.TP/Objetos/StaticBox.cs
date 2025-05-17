@@ -22,7 +22,7 @@ public class StaticBox : IColisionable
     private XnaMatrix world;
 
     public BodyType BodyType => BodyType.Box;
-    public bool CanPlayerBallJumpOnIt => false;
+    public bool CanPlayerBallJumpOnIt => true;
 
     public StaticBox(ModelManager modelManager,
         EffectManager effectManager,
