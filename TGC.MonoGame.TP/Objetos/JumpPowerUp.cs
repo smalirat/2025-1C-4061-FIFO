@@ -16,7 +16,6 @@ public class JumpPowerUp : IColisionable
 
     private readonly StaticHandle boundingVolume;
 
-    private float radius;
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
@@ -33,8 +32,10 @@ public class JumpPowerUp : IColisionable
     private float YScale => height / ModelHeight;
     private float ZScale => depth / ModelLength;
 
-    public BodyType BodyType => BodyType.SpeedPowerUp;
+    public BodyType BodyType => BodyType.JumpPowerUp;
     public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
+
+    public float JumpMultiplier { get; private set; }
     public bool CanPlayerBallJumpOnIt => false;
 
     public JumpPowerUp(ModelManager modelManager,
@@ -46,6 +47,7 @@ public class JumpPowerUp : IColisionable
         float width,
         float height,
         float depth,
+        float jumpMultiplier,
         Color color)
     {
         this.modelManager = modelManager;
@@ -60,7 +62,9 @@ public class JumpPowerUp : IColisionable
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(radius, radius, radius, position, rotation, this);
+        this.JumpMultiplier = jumpMultiplier;
+
+        boundingVolume = this.physicsManager.AddStaticBox(width, height, depth, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)

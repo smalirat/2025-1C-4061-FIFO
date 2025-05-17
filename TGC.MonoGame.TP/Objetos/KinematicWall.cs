@@ -31,6 +31,8 @@ public class KinematicWall : IColisionable
 
     private const float Height = 1.25f;
 
+    private float movementMultiplier;
+
     public KinematicWall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -41,7 +43,8 @@ public class KinematicWall : IColisionable
         float length,
         float mass,
         float friction,
-        bool canPlayerBallJumpOnIt)
+        bool canPlayerBallJumpOnIt,
+        float movementMultiplier)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
@@ -49,6 +52,7 @@ public class KinematicWall : IColisionable
         this.textureManager = textureManager;
 
         this.CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
+        this.movementMultiplier = movementMultiplier;
 
         var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f);
 
@@ -56,6 +60,7 @@ public class KinematicWall : IColisionable
         boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, rotation, this);
 
         world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
+        this.movementMultiplier = movementMultiplier;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -66,7 +71,7 @@ public class KinematicWall : IColisionable
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["DiffuseColor"]?.SetValue(Color.Black.ToVector3());
-        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox3Texture);
+        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox2Texture);
         effect.Parameters["UVScale"].SetValue(1f);
 
         model.Draw(effect);
@@ -77,7 +82,7 @@ public class KinematicWall : IColisionable
         physicsManager.Awake(boundingVolume);
 
         tiempo += deltaTime;
-        float x = MathF.Sin(tiempo) * 10f;
+        float x = MathF.Sin(tiempo) * movementMultiplier;
 
         var previousPosition = physicsManager.GetPosition(boundingVolume);
 

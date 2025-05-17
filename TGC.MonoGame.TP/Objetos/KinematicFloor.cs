@@ -64,7 +64,7 @@ public class KinematicFloor : IColisionable
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["DiffuseColor"]?.SetValue(Color.Black.ToVector3());
-        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox3Texture);
+        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox2Texture);
         effect.Parameters["UVScale"].SetValue(1f);
 
         model.Draw(effect);

@@ -35,6 +35,9 @@ public class SpeedPowerUp : IColisionable
 
     public BodyType BodyType => BodyType.SpeedPowerUp;
     public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
+
+
+    public float SpeedMultiplier { get; private set; }
     public bool CanPlayerBallJumpOnIt => false;
 
     public SpeedPowerUp(ModelManager modelManager,
@@ -46,6 +49,7 @@ public class SpeedPowerUp : IColisionable
         float width,
         float height,
         float depth,
+        float speedMultiplier,
         Color color)
     {
         this.modelManager = modelManager;
@@ -59,6 +63,8 @@ public class SpeedPowerUp : IColisionable
         this.color = color;
         this.rotation = rotation;
         this.position = position;
+
+        SpeedMultiplier = speedMultiplier;
 
         boundingVolume = this.physicsManager.AddStaticBox(radius, radius, radius, position, rotation, this);
     }

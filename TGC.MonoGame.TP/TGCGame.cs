@@ -32,10 +32,15 @@ public class TGCGame : Game
     private List<DynamicBox> DynamicBoxes = new();
     private List<StaticBox> StaticBoxes = new();
 
+    private List<KinematicWall> KinematicWalls = new();
+    private List<KinematicFloor> KinematicFloors = new();
+
     private Random random;
 
     private List<SpeedPowerUp> SpeedPowerUps = new();
     private List<JumpPowerUp> JumpPowerUps = new();
+
+    private List<TransparentCheckpoint> Checkpoints = new();
 
     public TGCGame()
     {
@@ -89,9 +94,19 @@ public class TGCGame : Game
         TargetCamera.Update(PlayerBall.Position);
 
         foreach (var box in DynamicBoxes)
+        {
             box.Update(deltaTime, TargetCamera);
+        }
 
-        base.Update(gameTime);
+        foreach (var kinematicWall in KinematicWalls)
+        {
+            kinematicWall.Update(deltaTime, TargetCamera);
+        }
+
+        foreach (var kinematicFloor in KinematicFloors)
+        {
+            kinematicFloor.Update(deltaTime, TargetCamera);
+        }
     }
 
     protected override void Draw(GameTime gameTime)
@@ -114,6 +129,16 @@ public class TGCGame : Game
 
         foreach (var powerUp in JumpPowerUps)
             powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        foreach (var kinematicWall in KinematicWalls)
+        {
+            kinematicWall.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
+
+        foreach (var kinematicFloor in KinematicFloors)
+        {
+            kinematicFloor.Draw(TargetCamera.View, TargetCamera.Projection);
+        }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
     }
@@ -140,6 +165,12 @@ public class TGCGame : Game
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
             new Vector3(75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
 
+        // Checkpoint
+        Checkpoints.Add(new TransparentCheckpoint(PhysicsManager, new Vector3(0f, 75f, 225f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f));
+
+        // Obstaculos
+        KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 13f, 225f), 40f, 20f, 1f, 1f, false, 50f));
+
         // Cajas dinamicas en piramide
         float boxSize = 5f;
         float spacing = 5f;
@@ -159,14 +190,11 @@ public class TGCGame : Game
 
         // PowerUps
         SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(40f, 3f, 180f), Quaternion.Identity, 3f, 3f, 1f, Color.Yellow));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(-40f, 3f, 160f), Quaternion.Identity, 3f, 3f, 1f, Color.Yellow));
+            new Vector3(40f, 3f, 180f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Yellow));
 
         JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(-40f, 3f, 180f), Quaternion.Identity, 3f, 1f, 3f, Color.Red));
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(40f, 3f, 160f), Quaternion.Identity, 3f, 1f, 3f, Color.Red));
+            new Vector3(-40f, 3f, 180f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.5f, Color.Red));
+
 
         // Cajas estáticas
         List<(Vector3 pos, Quaternion rot, float size)> cajas = new();

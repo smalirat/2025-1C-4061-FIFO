@@ -53,6 +53,13 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
             {
                 collidableReferenceA.NotifyCollition(collidableReferenceB);
                 collidableReferenceB.NotifyCollition(collidableReferenceA);
+
+                if (collidableReferenceA.BodyType == BodyType.Checkpoint || collidableReferenceB.BodyType == BodyType.Checkpoint ||
+                    collidableReferenceA.BodyType == BodyType.SpeedPowerUp || collidableReferenceB.BodyType == BodyType.SpeedPowerUp ||
+                    collidableReferenceA.BodyType == BodyType.JumpPowerUp || collidableReferenceB.BodyType == BodyType.JumpPowerUp)
+                {
+                    return false;
+                }
             }
         }
 

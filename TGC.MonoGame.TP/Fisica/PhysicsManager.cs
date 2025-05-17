@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Utilidades;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TGC.MonoGame.TP.Fisica
 {
@@ -288,6 +287,11 @@ namespace TGC.MonoGame.TP.Fisica
             var body = Simulation.Bodies.GetBodyReference(bodyHandle);
             body.Pose.Position = newPosition.ToBepuVector3();
             body.Velocity.Linear = BepuVector3.Zero;
+        }
+
+        public void RemoveBoundingVolume(BodyHandle bodyHandle)
+        {
+            Simulation.Bodies.Remove(bodyHandle);
         }
     }
 }
