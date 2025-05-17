@@ -40,7 +40,7 @@ public class TGCGame : Game
     private List<SpeedPowerUp> SpeedPowerUps = new();
     private List<JumpPowerUp> JumpPowerUps = new();
 
-    private List<TransparentCheckpoint> Checkpoints = new();
+    private List<Checkpoint> Checkpoints = new();
 
     public TGCGame()
     {
@@ -166,7 +166,7 @@ public class TGCGame : Game
             new Vector3(75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
 
         // Checkpoint
-        Checkpoints.Add(new TransparentCheckpoint(PhysicsManager, new Vector3(0f, 75f, 225f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f));
+        Checkpoints.Add(new Checkpoint(PhysicsManager, new Vector3(0f, 75f, 225f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f));
 
         // Obstaculos
         KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 13f, 225f), 40f, 20f, 1f, 1f, false, 50f));

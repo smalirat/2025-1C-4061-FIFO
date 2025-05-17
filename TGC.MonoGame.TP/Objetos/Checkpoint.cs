@@ -3,7 +3,7 @@ using TGC.MonoGame.TP.Fisica;
 
 namespace TGC.MonoGame.TP.Objetos;
 
-public class TransparentCheckpoint : IColisionable
+public class Checkpoint : IColisionable
 {
     private readonly PhysicsManager physicsManager;
 
@@ -17,7 +17,7 @@ public class TransparentCheckpoint : IColisionable
 
     private const float Height = 1.25f;
 
-    public TransparentCheckpoint(PhysicsManager physicsManager,
+    public Checkpoint(PhysicsManager physicsManager,
         XnaVector3 position,
         XnaQuaternion rotation,
         float width,

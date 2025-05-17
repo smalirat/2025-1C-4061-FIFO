@@ -232,7 +232,7 @@ public class PlayerBall : IColisionable
 
         if (with.BodyType == BodyType.Checkpoint)
         {
-            var checkpoint = with as TransparentCheckpoint;
+            var checkpoint = with as Checkpoint;
             respawnPosition = checkpoint.GetPlayerBallRespawnPosition();
         }
 
