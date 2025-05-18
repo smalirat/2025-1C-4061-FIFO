@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -52,7 +53,7 @@ public class TGCGame : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        random = new Random(2);
+        random = new Random(6814);
     }
 
     protected override void Initialize()
@@ -64,9 +65,11 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 50f, 0f), BallType.Stone);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Metal);
 
         InitializeLevel1();
+        InitializeLevel2();
+        InitializeLevel3();
 
         TargetCamera = new TargetCamera(MathF.PI / 3f, GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, PlayerBall.Position, 30f, 0.01f);
 
@@ -175,11 +178,15 @@ public class TGCGame : Game
 
     private void InitializeLevel1()
     {
+        // Checkpoint
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0f, 0f, 0f), Quaternion.Identity, 1f, 1f, 1f, Color.Blue));
+
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
             new Vector3(0f, 0f, 0f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
-            new Vector3(0f, 0f, 150f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+            new Vector3(0f, -0.1f, 150f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
             new Vector3(0f, -23.5f, 296f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 10f), 150f, 150f, true, RampWallTextureType.Dirt));
 
@@ -196,7 +203,7 @@ public class TGCGame : Game
             new Vector3(75f, 75f, 150f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
 
         // Obstaculos
-        KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 13f, 225f), 40f, 20f, 1f, 1f, false, 50f));
+        KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0f, 11f, 225f), 40f, 20f, 1f, 1f, false, 50f));
 
         // Cajas dinamicas en piramide
         float boxSize = 5f;
@@ -216,58 +223,82 @@ public class TGCGame : Game
             baseCenter + new Vector3(0f, 3 * spacing, 0f), Quaternion.Identity, boxSize, 1f, 1f));
 
         // PowerUps
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(40f, 2f, 180f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Yellow));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-15f, 2f, 30f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.1f, Color.Yellow));
 
         JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new Vector3(-40f, 2f, 180f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.5f, Color.Red));
+            new Vector3(15f, 2f, 30f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.2f, Color.Orange));
+
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-15f, 2f, 70f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.3f, Color.Red));
+
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(25f, 2f, 80f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.3f, Color.Red));
+
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-47f, 2f, 92f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.2f, Color.Orange));
+
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-5f, 2f, 140f), Quaternion.CreateFromAxisAngle(Vector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.1f, Color.Yellow));
 
         // Cajas estáticas
         List<(Vector3 pos, Quaternion rot, float size)> cajas = new();
-        for (var i = 0; i < 30; i++)
+
+        float[] staticBoxSizes = { 3f, 6f, 9f };
+
+        List<Vector2> staticBoxPositions = new();
+
+        for (int i = 0; i < 30; i++)
         {
-            int tipo = random.Next(4);
-            float[] sizes = new float[] { 3f, 6f, 9f };
+            Vector2 position;
+            bool valid;
 
-            float floorZ = random.Next(2) == 0 ? 0f : 150f;
-            float x = (float)(random.NextDouble() * 140f - 70f);
-            float z = (float)(random.NextDouble() * 140f - 70f + floorZ);
-
-            Quaternion rot = Quaternion.CreateFromAxisAngle(Vector3.Up, (float)random.NextDouble());
-
-            if (tipo == 0)
+            int attempts = 0;
+            do
             {
-                float size = sizes[random.Next(sizes.Length)];
-                cajas.Add((new Vector3(x, size / 2f + 0.75f, z), rot, size));
+                float x = (float)(random.NextDouble() * 115.0 - 55.0);
+                float z = (float)(random.NextDouble() * 260.0 - 60.0);
+                position = new Vector2(x, z);
+
+                // Verificar que no esté cerca de otra posición existente
+                valid = staticBoxPositions.All(p => Vector2.Distance(p, position) >= 18f);
+                attempts++;
+
+                if (attempts > 1000)
+                {
+                    throw new Exception("No se pudieron generar suficientes posiciones únicas");
+                }
+            } while (!valid);
+
+            staticBoxPositions.Add(position);
+        }
+
+        for (int i = 0; i < staticBoxPositions.Count; i++)
+        {
+            float x = staticBoxPositions[i].X;
+            float z = staticBoxPositions[i].Y;
+
+            // Una caja sola tamaño random
+            if (i % 3 == 0)
+            {
+                float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
+                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new Vector3(x, size / 2f + 0.75f, z), Quaternion.CreateFromAxisAngle(Vector3.Up, randomAngle), size));
             }
-            else if (tipo == 1)
+            // Dos cajas del mismo tamaño apiladas
+            else if (i % 3 == 1)
             {
-                float baseSize = 9f;
-                float middleSize = 6f;
-                float topSize = 3f;
-                var basePos = new Vector3(x, baseSize / 2f + 0.75f, z);
-                var middlePos = basePos + new Vector3((baseSize + middleSize) / 2f + 0.01f, 0f, 0f);
-                middlePos.Y = middleSize / 2f + 0.75f;
-                var topPos = basePos + new Vector3((baseSize + topSize) / 2f + 0.01f, middleSize / 2f + 0.01f, 0f);
-                cajas.Add((basePos, rot, baseSize));
-                cajas.Add((middlePos, rot, middleSize));
-                cajas.Add((topPos, rot, topSize));
-            }
-            else if (tipo == 2)
-            {
-                float size = sizes[random.Next(sizes.Length)];
-                var leftPos = new Vector3(x, size / 2f + 0.75f, z);
-                var rightPos = leftPos + new Vector3(size * 2f, 0f, 0f);
-                cajas.Add((leftPos, rot, size));
-                cajas.Add((rightPos, rot, size));
+                float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
+                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new Vector3(x, size / 2f + 0.75f, z), Quaternion.CreateFromAxisAngle(Vector3.Up, randomAngle), size));
+                cajas.Add((new Vector3(x, size + size / 2f + 0.75f, z), Quaternion.CreateFromAxisAngle(Vector3.Up, randomAngle), size));
             }
             else
             {
-                float size = sizes[random.Next(sizes.Length)];
-                var bottomPos = new Vector3(x, size / 2f + 0.75f, z);
-                var topPos = new Vector3(x, size + size / 2f + 0.75f, z);
-                cajas.Add((bottomPos, rot, size));
-                cajas.Add((topPos, rot, size));
+                float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
+                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new Vector3(x, size / 2f + 0.75f, z), Quaternion.CreateFromAxisAngle(Vector3.Up, randomAngle), size));
+                cajas.Add((new Vector3(x + size + 2f, size / 2f + 0.75f, z), Quaternion.CreateFromAxisAngle(Vector3.Up, randomAngle), size));
             }
         }
 
@@ -275,6 +306,144 @@ public class TGCGame : Game
         {
             StaticBoxes.Add(new StaticBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, pos, rot, size));
         }
+    }
+
+    private void InitializeLevel2()
+    {
+        // Pisos
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, -46.5f, 442f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, -46.6f, 442f + 150f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+
+        // PowerUps
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-44f, -46.5f + 2f, 442f), Quaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0f, -46.5f + 2f, 442f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(45f, -46.5f + 2f, 442f), Quaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-44f, -46.5f + 2f, 394f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0f, -46.5f + 2f, 394f), Quaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(45f, -46.5f + 2f, 394f), Quaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(-44f, -46.5f + 2f, 515f), Quaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0f, -46.5f + 2f, 515f), Quaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
+
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(45f, -46.5f + 2f, 515f), Quaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
+
+        // Checkpoint
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0, -46.5f + 2f, 380f), Quaternion.Identity, 1f, 1f, 1f, Color.Blue));
+
+        // Obstaculos
+        for (int i = 0; i < 5; i++)
+        {
+            KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0, -46.5f + 10f, 410f + 21f * i), 20f, 20f, 1f, 1f, false, 50f - i * 4));
+        }
+
+        // Cajas dinamicas
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(-55f, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 5, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(-30f, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(-10, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 6, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(22f, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(30f, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 8, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(52f, -46.5f + 10f, 550f), Quaternion.CreateFromAxisAngle(Vector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 3, 1f, 0.1f));
+    }
+
+    private void InitializeLevel3()
+    {
+        // Pisos
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, -46.7f, 742f), Quaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+
+        // Paredes
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(0f, -46.7f + 75f, 742f + 75f), Quaternion.CreateFromAxisAngle(Vector3.Right, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-75f, -46.7f + 75f, 742f), Quaternion.CreateFromAxisAngle(Vector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(75f, -46.7f + 75f, 742f), Quaternion.CreateFromAxisAngle(Vector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));
+
+        // Subi baja
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(10f, -46.7f + 2f, 712f), Vector3.Left, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(20f, -46.7f + 22f, 712f), Vector3.Forward, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-10f, -46.7f + 42f, 712f), Vector3.Right, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-20f, -46.7f + 62f, 712f), Vector3.Backward, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(10f, -46.7f + 82f, 712f), Vector3.Left, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(20f, -46.7f + 102f, 712f), Vector3.Forward, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-10f, -46.7f + 122f, 712f), Vector3.Right, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-20f, -46.7f + 142f, 712f), Vector3.Backward, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(10f, -46.7f + 162f, 712f), Vector3.Left, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(20f, -46.7f + 182f, 712f), Vector3.Forward, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-10f, -46.7f + 222f, 712f), Vector3.Right, 15f, 15f, 1f, 0.2f, true));
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+            new Vector3(-20f, -46.7f + 242f, 712f), Vector3.Backward, 15f, 15f, 1f, 0.2f, true));
+
+        // Cajas estaticas
+        float size = 10f;
+        float spacingX = 12f;
+        float spacingY = size + 0.5f;
+        float baseFloorY = -46.5f;
+        float z = 800f;
+
+        int cantidadMaxima = 11;
+        int cantidadActual = cantidadMaxima;
+        int filaY = 0;
+
+        while (cantidadActual >= 1)
+        {
+            for (int subFila = 0; subFila < 2; subFila++) // 3 filas por nivel
+            {
+                // Centrar la fila en X
+                float totalAncho = (cantidadActual - 1) * spacingX;
+                float startX = -totalAncho / 2f;
+
+                for (int i = 0; i < cantidadActual; i++)
+                {
+                    float x = startX + i * spacingX;
+                    float y = baseFloorY + filaY * spacingY + size / 2f;
+
+                    StaticBoxes.Add(new StaticBox(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+                        new Vector3(x, y, z), Quaternion.Identity, size));
+                }
+
+                filaY++;
+            }
+
+            cantidadActual--;
+        }
+
+        // Checkpoints
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0, -46.5f + 2f, 580f), Quaternion.Identity, 1f, 1f, 1f, Color.Blue));
+
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
+            new Vector3(0f, 184f, 800f), Quaternion.Identity, 1f, 1f, 1f, Color.Blue));
     }
 
     protected override void UnloadContent()

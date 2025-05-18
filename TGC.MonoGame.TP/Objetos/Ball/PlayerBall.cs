@@ -17,7 +17,7 @@ public class PlayerBall : IColisionable
     private float canJumpTimer = 0f;
 
     private XnaVector3 respawnPosition;
-    private const float InactivityThreshold = 8f;
+    private const float InactivityThreshold = 10f;
     private const float ChangeBallTypeThreshold = 1f;
     private const float CanJumpThreshold = 0.5f;
 

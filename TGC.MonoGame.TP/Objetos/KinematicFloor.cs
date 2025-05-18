@@ -25,6 +25,8 @@ public class KinematicFloor : IColisionable
 
     public BodyType BodyType => BodyType.FloorRamp;
 
+    private XnaVector3 direction;
+
     private float tiempo;
 
     public bool CanPlayerBallJumpOnIt { get; private set; }
@@ -37,6 +39,7 @@ public class KinematicFloor : IColisionable
         TextureManager textureManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
+        XnaVector3 direction,
         float width,
         float length,
         float mass,
@@ -48,10 +51,11 @@ public class KinematicFloor : IColisionable
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
 
+        this.direction = direction;
         this.CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
 
         model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
-        boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, XnaQuaternion.Identity, this);
+        boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, Quaternion.Identity, this);
 
         world = XnaMatrix.CreateTranslation(position);
     }
@@ -74,16 +78,27 @@ public class KinematicFloor : IColisionable
     {
         physicsManager.Awake(boundingVolume);
 
-        tiempo += deltaTime;
-        float z = MathF.Sin(tiempo) * 10f;
-
         var previousPosition = physicsManager.GetPosition(boundingVolume);
 
-        physicsManager.SetPosition(boundingVolume, new BepuVector3(previousPosition.X, previousPosition.Y, z));
+        // Avanzar el tiempo
+        tiempo += deltaTime * 1f;
 
-        // Actualizo matriz mundo
-        world = XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+        // Movimiento oscilante sobre la dirección indicada
+        float offset = MathF.Sin(tiempo) * 0.2f;
+        Vector3 desplazamiento = direction * offset;
+
+        Vector3 nuevaPosicion = new Vector3(
+            previousPosition.X + desplazamiento.X,
+            previousPosition.Y + desplazamiento.Y,
+            previousPosition.Z + desplazamiento.Z
+        );
+
+        physicsManager.SetPosition(boundingVolume, new BepuVector3(nuevaPosicion.X, nuevaPosicion.Y, nuevaPosicion.Z));
+
+        // Actualizar la matriz mundo
+        world = XnaMatrix.CreateTranslation(nuevaPosicion);
     }
+
 
     public void NotifyCollition(IColisionable with)
     {
