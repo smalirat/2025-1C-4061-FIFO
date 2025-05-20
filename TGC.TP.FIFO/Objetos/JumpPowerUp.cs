@@ -64,7 +64,7 @@ public class JumpPowerUp : IColisionable
 
         JumpMultiplier = jumpMultiplier;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width, height, depth, position, rotation, this);
+        boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 2, depth * 2, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)

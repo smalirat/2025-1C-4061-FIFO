@@ -60,7 +60,7 @@ public class Checkpoint : IColisionable
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width*2, height, depth*2, position, rotation, this);
+        boundingVolume = this.physicsManager.AddStaticBox(width * 2, height, depth * 2, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -83,7 +83,6 @@ public class Checkpoint : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-
     }
 
     public XnaVector3 GetPlayerBallRespawnPosition()
