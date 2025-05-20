@@ -65,7 +65,7 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new XnaVector3(0, 50f, 0f), BallType.Metal);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new XnaVector3(0, 50f, 0f), BallType.Rubber);
 
         InitializeLevel1();
         InitializeLevel2();
@@ -407,7 +407,7 @@ public class TGCGame : Game
         // Cajas estaticas
         float size = 10f;
         float spacingX = 12f;
-        float spacingY = size + 0.5f;
+        float spacingY = size + 0.1f;
         float baseFloorY = -46.5f;
         float z = 800f;
 
@@ -443,7 +443,7 @@ public class TGCGame : Game
             new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice,
-            new XnaVector3(0f, 184f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
     }
 
     protected override void UnloadContent()
