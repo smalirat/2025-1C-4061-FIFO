@@ -12,7 +12,7 @@ using TGC.MonoGame.TP.Objetos;
 using TGC.MonoGame.TP.Objetos.Ball;
 using TGC.MonoGame.TP.Skybox;
 using TGC.MonoGame.TP.Texturas;
-
+using TGC.MonoGame.TP.Audio;
 namespace TGC.MonoGame.TP;
 
 public class TGCGame : Game
@@ -22,10 +22,9 @@ public class TGCGame : Game
     private readonly EffectManager EffectManager;
     private readonly PhysicsManager PhysicsManager;
     private readonly TextureManager TextureManager;
-
+    private readonly AudioManager AudioManager;
     private TargetCamera TargetCamera;
     private PlayerBall PlayerBall;
-
     private List<FloorWallRamp> FloorWallRamps = new();
 
     private SimpleSkyBox Skybox;
@@ -43,6 +42,13 @@ public class TGCGame : Game
 
     private List<Checkpoint> Checkpoints = new();
 
+    private SpriteFont _font;
+    private SpriteBatch _spriteBatch;
+    private float _gameTimer;
+    private bool _isGameActive;
+    private Vector2 _timerPosition;
+    private Color _timerColor;
+
     public TGCGame()
     {
         Graphics = new GraphicsDeviceManager(this);
@@ -50,8 +56,13 @@ public class TGCGame : Game
         EffectManager = new EffectManager();
         PhysicsManager = new PhysicsManager();
         TextureManager = new TextureManager();
+        AudioManager = new AudioManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+
+        _gameTimer = 0f;
+        _isGameActive = true;
+        _timerColor = Color.White;
 
         random = new Random(6814);
     }
@@ -65,7 +76,7 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Metal);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Metal);
 
         InitializeLevel1();
         InitializeLevel2();
@@ -81,7 +92,20 @@ public class TGCGame : Game
         EffectManager.Load(Content);
         ModelManager.Load(Content);
         TextureManager.Load(Content);
+        AudioManager.Load(Content);
+        AudioManager.PlayBackgroundMusic();
         base.LoadContent();
+
+        // Cargar la fuente para el timer
+        _font = Content.Load<SpriteFont>("Fonts/TimerFont");
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // Calcular la posición del timer (esquina superior derecha)
+        _timerPosition = new Vector2(
+            GraphicsDevice.Viewport.Width - 150, // 150 píxeles desde el borde derecho
+            20 // 20 píxeles desde arriba
+        );
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -124,6 +148,11 @@ public class TGCGame : Game
         foreach (var checkpoint in Checkpoints)
         {
             checkpoint.Update(deltaTime);
+        }
+
+        if (_isGameActive)
+        {
+            _gameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 
@@ -174,6 +203,19 @@ public class TGCGame : Game
         }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        // Dibujar el timer
+        _spriteBatch.Begin();
+
+        // Formatear el tiempo en minutos:segundos
+        int minutes = (int)(_gameTimer / 60);
+        int seconds = (int)(_gameTimer % 60);
+        string timerText = $"Tiempo: {minutes:00}:{seconds:00}";
+
+        _spriteBatch.DrawString(_font, timerText, _timerPosition, _timerColor);
+
+        _spriteBatch.End();
+
     }
 
     private void InitializeLevel1()
@@ -450,5 +492,17 @@ public class TGCGame : Game
     {
         Content.Unload();
         base.UnloadContent();
+    }
+
+    // Método para pausar/reanudar el timer
+    public void ToggleTimer()
+    {
+        _isGameActive = !_isGameActive;
+    }
+
+    // Método para reiniciar el timer
+    public void ResetTimer()
+    {
+        _gameTimer = 0f;
     }
 }

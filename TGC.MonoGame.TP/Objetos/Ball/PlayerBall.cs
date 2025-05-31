@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Audio;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
@@ -33,6 +34,8 @@ public class PlayerBall : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
+    private readonly AudioManager audioManager;
+
 
     private BodyHandle boundingVolume;
 
@@ -43,7 +46,7 @@ public class PlayerBall : IColisionable
     private bool canJump;
     private bool jumpMultiplierApplied;
     private bool speedMultiplierApplied;
-
+    private bool isRolling = false;
     private float speedMultiplier;
     private float jumpMultiplier;
 
@@ -51,11 +54,15 @@ public class PlayerBall : IColisionable
     private float YScale => ballProperties.Radius / ModelRadius;
     private float ZScale => ballProperties.Radius / ModelRadius;
     private BallType ballType;
+    private GraphicsDevice graphicsDevice;
+    private XnaVector3 vector3;
+    private BallType metal;
 
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
+        AudioManager audioManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         BallType ballType)
@@ -64,6 +71,8 @@ public class PlayerBall : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
+        this.audioManager = audioManager;
+
 
         this.ballType = ballType;
         this.respawnPosition = initialPosition;
@@ -86,6 +95,7 @@ public class PlayerBall : IColisionable
         this.jumpMultiplierApplied = false;
         this.speedMultiplierApplied = false;
     }
+
 
     public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
@@ -165,12 +175,33 @@ public class PlayerBall : IColisionable
             if (keyboardState.IsKeyDown(Keys.Space) && this.canJump && canJumpTimer >= CanJumpThreshold)
             {
                 canJumpTimer = 0f;
+                audioManager.PlayJumpSound(this.ballType);
 
                 physicsManager.ApplyImpulse(boundingVolume,
                     XnaVector3.Up,
                     impulseOffset: XnaVector3.Zero,
                     this.ballProperties.JumpForce,
                     deltaTime);
+            }
+        }
+
+        float currentSpeed = physicsManager.GetLinearVelocity(boundingVolume).Length();
+
+        if (currentSpeed > 0.1f && canJump)
+        {
+            if (!isRolling)
+            {
+                isRolling = true;
+                audioManager.PlayRollingSound();
+            }
+            audioManager.UpdateRollingSound(ballType, currentSpeed);
+        }
+        else
+        {
+            if (isRolling)
+            {
+                isRolling = false;
+                audioManager.StopRollingSound();
             }
         }
 

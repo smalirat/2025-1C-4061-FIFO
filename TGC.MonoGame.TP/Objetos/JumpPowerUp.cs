@@ -7,6 +7,9 @@ using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Utilidades;
+using TGC.MonoGame.TP.Audio;
+
+
 
 namespace TGC.MonoGame.TP.Objetos;
 
@@ -15,6 +18,8 @@ public class JumpPowerUp : IColisionable
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
+    private readonly AudioManager audioManager;
+
 
     private readonly StaticHandle boundingVolume;
 
@@ -89,6 +94,6 @@ public class JumpPowerUp : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-
+        audioManager.PlayJumpPowerUpSound();
     }
 }

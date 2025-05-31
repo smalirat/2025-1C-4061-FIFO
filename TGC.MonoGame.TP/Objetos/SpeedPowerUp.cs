@@ -5,6 +5,8 @@ using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Utilidades;
+using TGC.MonoGame.TP.Audio;
+
 
 namespace TGC.MonoGame.TP.Objetos;
 
@@ -13,6 +15,8 @@ public class SpeedPowerUp : IColisionable
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
+    private readonly AudioManager audioManager;
+
 
     private readonly StaticHandle boundingVolume;
 
@@ -89,6 +93,6 @@ public class SpeedPowerUp : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-
+        audioManager.PlaySpeedPowerUpSound();
     }
 }

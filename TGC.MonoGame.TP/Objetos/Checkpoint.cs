@@ -5,6 +5,8 @@ using TGC.MonoGame.TP.Efectos;
 using TGC.MonoGame.TP.Fisica;
 using TGC.MonoGame.TP.Modelos;
 using TGC.MonoGame.TP.Utilidades;
+using TGC.MonoGame.TP.Audio;
+
 
 namespace TGC.MonoGame.TP.Objetos;
 
@@ -13,6 +15,7 @@ public class Checkpoint : IColisionable
     private readonly ModelManager modelManager;
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
+    private readonly AudioManager audioManager;
 
     private readonly StaticHandle boundingVolume;
 
@@ -60,7 +63,7 @@ public class Checkpoint : IColisionable
         this.rotation = rotation;
         this.position = position;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width*2, height, depth*2, position, rotation, this);
+        boundingVolume = this.physicsManager.AddStaticBox(width * 2, height, depth * 2, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -83,7 +86,7 @@ public class Checkpoint : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-
+        audioManager.PlayCheckpointSound();
     }
 
     public XnaVector3 GetPlayerBallRespawnPosition()
