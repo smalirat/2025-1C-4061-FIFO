@@ -34,7 +34,7 @@ public class TargetCamera
     public XnaQuaternion Rotation = XnaQuaternion.Identity;
 
     // Posicion del objetivo de la camara
-    private XnaVector3 TargetPosition;
+    public XnaVector3 TargetPosition;
 
     // Offset para la posicion final de la camara
     private XnaVector3 Offset;

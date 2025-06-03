@@ -25,6 +25,8 @@ public class Checkpoint : IColisionable
     private XnaQuaternion rotation;
     private XnaVector3 position;
 
+    public int Id { get; private set; }
+
     private const float ModelHeight = 1f;
     private const float ModelWidth = 1f;
     private const float ModelLength = 1f;
@@ -42,6 +44,8 @@ public class Checkpoint : IColisionable
 
     public bool CanPlayerBallJumpOnIt => false;
 
+    private static int _lastActivatedCheckpointId = 0;
+
     public Checkpoint(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -52,7 +56,8 @@ public class Checkpoint : IColisionable
         float width,
         float height,
         float depth,
-        Color color)
+        Color color,
+        int id)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
@@ -67,6 +72,7 @@ public class Checkpoint : IColisionable
         this.color = color;
         this.rotation = rotation;
         this.position = position;
+        this.Id = id;
 
         boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 4, depth * 2, position, rotation, this);
     }
@@ -91,11 +97,23 @@ public class Checkpoint : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-        audioManager.PlayCheckpointSound();
+        if (with.BodyType == BodyType.PlayerBall)
+        {
+            if (Id > _lastActivatedCheckpointId)
+            {
+                _lastActivatedCheckpointId = Id;
+                audioManager.PlayCheckpointSound();
+            }
+        }
     }
 
     public XnaVector3 GetPlayerBallRespawnPosition()
     {
         return Position + new XnaVector3(0f, 10f, 0f);
+    }
+
+    public static int GetLastActivatedCheckpointId()
+    {
+        return _lastActivatedCheckpointId;
     }
 }

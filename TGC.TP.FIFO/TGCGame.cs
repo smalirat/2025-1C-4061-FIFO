@@ -60,6 +60,23 @@ public class TGCGame : Game
 
     private Vector2 _ballTypePosition;
 
+    private Vector2 _speedPosition;
+
+    private int _currentCheckpointId = 0;
+    private int _totalCheckpoints = 0;
+    private Vector2 _progressBarPosition;
+    private Vector2 _progressBarSize;
+    private Color _progressBarBackgroundColor = new Color(0, 0, 0, 128); // Negro semi-transparente
+    private Color _progressBarFillColor = Color.Green;
+    private Texture2D _progressBarTexture;
+
+    private Model _arrowModel;
+    private Vector3 _arrowPosition;
+    private float _arrowScale = 0.5f; // Ajusta este valor según el tamaño que necesites
+    private Matrix _arrowRotation = Matrix.Identity;
+    private float _arrowFloatOffset = 0f;
+    private const float ARROW_FLOAT_SPEED = 1f;
+    private const float ARROW_FLOAT_AMPLITUDE = 0.2f;
 
     public TGCGame()
     {
@@ -122,14 +139,40 @@ public class TGCGame : Game
             50  // Ajusta este valor según donde quieras que aparezca el timer
         );
 
-        // Cargar texturas
-        /* _powerUpIconTexture = Content.Load<Texture2D>("Textures/power_up_icon");
-         _jumpBarTexture = Content.Load<Texture2D>("Textures/jump_bar");
-         _speedBarTexture = Content.Load<Texture2D>("Textures/speed_bar");*/
+        // Cargar texturas del velocímetro
 
         // Inicializar posiciones
         _ballTypePosition = new Vector2(50, 100);
 
+        // Posición del texto de velocidad
+        _speedPosition = new Vector2(
+            GraphicsDevice.Viewport.Width - 150,
+            GraphicsDevice.Viewport.Height - 100
+        );
+
+        // Crear una textura para la barra de progreso
+        _progressBarTexture = new Texture2D(GraphicsDevice, 1, 1);
+        _progressBarTexture.SetData(new[] { Color.White });
+
+        // Configurar la posición y tamaño de la barra de progreso
+        _progressBarSize = new Vector2(200, 20);
+        _progressBarPosition = new Vector2(
+            GraphicsDevice.Viewport.Width - _progressBarSize.X - 50,
+            100
+        );
+
+        // Contar el total de checkpoints
+        _totalCheckpoints = Checkpoints.Count;
+
+        // Cargar el modelo de la flecha
+        _arrowModel = Content.Load<Model>("Models/hud/3D_Arrow");
+
+        // Calcular la posición de la flecha en la esquina inferior derecha
+        _arrowPosition = new Vector3(
+            GraphicsDevice.Viewport.Width - 100,  // 100 píxeles desde el borde derecho
+            GraphicsDevice.Viewport.Height - 100,  // 100 píxeles desde el borde inferior
+            0
+        );
     }
 
     protected override void Update(GameTime gameTime)
@@ -179,6 +222,29 @@ public class TGCGame : Game
             _gameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
+        _currentCheckpointId = Checkpoint.GetLastActivatedCheckpointId();
+
+        _arrowFloatOffset = (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds * ARROW_FLOAT_SPEED) * ARROW_FLOAT_AMPLITUDE;
+
+        if (_currentCheckpointId < _totalCheckpoints)
+        {
+            var nextCheckpoint = Checkpoints.FirstOrDefault(c => c.Id == _currentCheckpointId + 1);
+            if (nextCheckpoint != null)
+            {
+                Vector3 direction = nextCheckpoint.Position - TargetCamera.TargetPosition;
+                direction.Normalize();
+
+                // Calculamos la rotación en el plano XZ (horizontal)
+                float yaw = (float)Math.Atan2(direction.X, direction.Z);
+
+                // Calculamos la rotación en el plano YZ (vertical)
+                float pitch = (float)Math.Asin(direction.Y);
+
+                // Aplicamos ambas rotaciones
+                Matrix rotationMatrix = Matrix.CreateRotationY(yaw) * Matrix.CreateRotationX(pitch);
+                _arrowRotation = rotationMatrix;
+            }
+        }
     }
 
     protected override void Draw(GameTime gameTime)
@@ -248,7 +314,6 @@ public class TGCGame : Game
         string timerText = $"Tiempo: {minutes:00}:{seconds:00}";
         _spriteBatch.DrawString(_font, timerText, _timerPosition, _timerColor);
 
-        _spriteBatch.End();
 
         // Luego dibujamos la textura circular con el shader
         Texture2D ballTexture;
@@ -277,21 +342,80 @@ public class TGCGame : Game
         var circleShader = Content.Load<Effect>("Effects/CircleShader");
         circleShader.Parameters["ModelTexture"].SetValue(ballTexture);
 
-        _spriteBatch.Begin();
         _spriteBatch.Draw(ballTexture, destinationRect, Color.White);
+
+
+        float currentSpeedText = PlayerBall.GetCurrentSpeed();
+        string speedTextText = $"Velocidad: {currentSpeedText:F1}";
+        _spriteBatch.DrawString(_font, speedTextText, _speedPosition, Color.White);
+
+        // Dibujar la barra de progreso
+        float progress = _currentCheckpointId / (float)_totalCheckpoints;
+
+        // Dibujar el fondo de la barra
+        _spriteBatch.Draw(_progressBarTexture,
+            new Rectangle((int)_progressBarPosition.X, (int)_progressBarPosition.Y,
+                         (int)_progressBarSize.X, (int)_progressBarSize.Y),
+            _progressBarBackgroundColor);
+
+        // Dibujar el progreso
+        _spriteBatch.Draw(_progressBarTexture,
+            new Rectangle((int)_progressBarPosition.X, (int)_progressBarPosition.Y,
+                         (int)(_progressBarSize.X * progress), (int)_progressBarSize.Y),
+            _progressBarFillColor);
+
+        // Dibujar el texto del progreso
+        string progressText = $"Checkpoint: {_currentCheckpointId}/{_totalCheckpoints}";
+        _spriteBatch.DrawString(_font, progressText,
+            new Vector2(_progressBarPosition.X, _progressBarPosition.Y - 25),
+            Color.White);
+
         _spriteBatch.End();
-        // Restaurar estados
+
         GraphicsDevice.DepthStencilState = originalDepthStencilState;
         GraphicsDevice.BlendState = originalBlendState;
         GraphicsDevice.SamplerStates[0] = originalSamplerState;
         GraphicsDevice.RasterizerState = originalRasterizerState;
+
+        var checkpointPosition = Checkpoints[_currentCheckpointId].Position;
+        var toCheckpoint = checkpointPosition - TargetCamera.TargetPosition;
+        toCheckpoint.Y = 0; // ignoramos altura
+        toCheckpoint.Normalize();
+
+        // La flecha en reposo "mira" hacia adelante (-Z), así que rotamos desde -Z a toCheckpoint
+        var forward = -Vector3.UnitZ;
+        var rotationAngle = MathF.Atan2(toCheckpoint.X, toCheckpoint.Z);
+
+        // Posición relativa a la cámara en el mundo (como HUD)
+        Vector3 hudOffset =
+            TargetCamera.RightXZ * 10f -    // Derecha
+            Vector3.Up +               // Abajo
+            TargetCamera.ForwardXZ * 15f;   // Un poco atrás
+
+        Vector3 hudPosition = TargetCamera.TargetPosition + hudOffset;
+
+        Matrix worldArrow =
+            Matrix.CreateScale(_arrowScale) *
+            _arrowRotation * // Usamos la matriz de rotación completa
+            Matrix.CreateTranslation(hudPosition);
+
+        foreach (var mesh in _arrowModel.Meshes)
+        {
+            foreach (BasicEffect effect in mesh.Effects)
+            {
+                effect.World = worldArrow;
+                effect.View = TargetCamera.View;
+                effect.Projection = TargetCamera.Projection;
+            }
+            mesh.Draw();
+        }
     }
 
     private void InitializeLevel1()
     {
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 1));
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
@@ -458,7 +582,7 @@ public class TGCGame : Game
 
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 2));
 
         // Obstaculos
         for (int i = 0; i < 5; i++)
@@ -551,10 +675,10 @@ public class TGCGame : Game
 
         // Checkpoints
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 3));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 4));
     }
 
     protected override void UnloadContent()

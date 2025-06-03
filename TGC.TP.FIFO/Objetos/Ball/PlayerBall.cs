@@ -329,4 +329,9 @@ public class PlayerBall : IColisionable
         jumpMultiplierApplied = false;
         speedMultiplierApplied = false;
     }
+
+    public float GetCurrentSpeed()
+    {
+        return physicsManager.GetLinearVelocity(boundingVolume).Length();
+    }
 }
