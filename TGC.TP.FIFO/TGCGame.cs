@@ -372,6 +372,44 @@ public class TGCGame : Game
 
         _spriteBatch.End();
 
+
+        // ### MINIMAPA ###
+        int minimapSize = 150;
+        Vector2 minimapPosition = new Vector2(20, GraphicsDevice.Viewport.Height - minimapSize - 20);
+
+
+        // Dibuja el fondo del minimapa
+        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+        _spriteBatch.Draw(_progressBarTexture, new Rectangle((int)minimapPosition.X, (int)minimapPosition.Y, minimapSize, minimapSize), Color.Black * 0.7f);
+
+        
+    
+        // Checkpoints en el minimapa
+        float minX = -75f, maxX = 75f, minZ = -75f, maxZ = 900f;
+
+        foreach (var checkpoint in Checkpoints)
+        {
+            Vector3 check = checkpoint.Position;
+            float checkNormX = (check.X - minX) / (maxX - minX);
+            float checkNormZ = (check.Z - minZ) / (maxZ - minZ);
+            Vector2 checkMinimapPos = minimapPosition + new Vector2(checkNormX * minimapSize, minimapSize - checkNormZ * minimapSize);
+
+            // Si el checkpoint está activado, lo dibuja en verde, si no en amarillo
+            Color color = checkpoint.Id <= _currentCheckpointId ? Color.LimeGreen : Color.Yellow;
+
+            _spriteBatch.Draw(_progressBarTexture, new Rectangle((int)(checkMinimapPos.X - 4), (int)(checkMinimapPos.Y - 4), 8, 8), color);
+        }
+
+        // Pelota en el minimapa
+        Vector3 ballPos = PlayerBall.Position;
+        float normX = (ballPos.X - minX) / (maxX - minX);
+        float normZ = (ballPos.Z - minZ) / (maxZ - minZ);
+        Vector2 ballMinimapPos = minimapPosition + new Vector2((1 - normX) * minimapSize, minimapSize - normZ * minimapSize);        int ballDotSize = 6;
+        _spriteBatch.Draw(_progressBarTexture, new Rectangle((int)(ballMinimapPos.X - ballDotSize / 2), (int)(ballMinimapPos.Y - ballDotSize / 2), ballDotSize, ballDotSize), Color.Red);
+
+        _spriteBatch.End();
+
+
         GraphicsDevice.DepthStencilState = originalDepthStencilState;
         GraphicsDevice.BlendState = originalBlendState;
         GraphicsDevice.SamplerStates[0] = originalSamplerState;
