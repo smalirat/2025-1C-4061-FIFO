@@ -59,6 +59,8 @@ public class PlayerBall : IColisionable
     private GraphicsDevice graphicsDevice;
     private XnaVector3 vector3;
     private BallType metal;
+    public BallType BallType => ballType;
+
 
 
     public PlayerBall(ModelManager modelManager,

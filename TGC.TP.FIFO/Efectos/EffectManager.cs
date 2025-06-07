@@ -12,6 +12,7 @@ public class EffectManager
     public Effect SphereShader { get; private set; }
     public Effect TextureTilingShader { get; private set; }
     public Effect SkyBoxShader { get; private set; }
+    public Effect CircleShader { get; private set; }
 
 
     public void Load(ContentManager content)
@@ -21,5 +22,7 @@ public class EffectManager
         BasicTextureShader = content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
         TextureTilingShader = content.Load<Effect>(ContentFolderEffects + "TextureTilingShader");
         SkyBoxShader = content.Load<Effect>(ContentFolderEffects + "SkyBoxShader");
+        CircleShader = content.Load<Effect>("Effects/CircleShader");
+
     }
 }
