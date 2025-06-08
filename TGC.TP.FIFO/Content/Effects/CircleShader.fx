@@ -7,10 +7,15 @@
     #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-texture ModelTexture;
+// Obligatorio para que funcione con SpriteBatch
+float4x4 MatrixTransform;
+
+// SpriteBatch pasa automáticamente la textura con este nombre
+texture Texture;
+
 sampler2D textureSampler = sampler_state
 {
-    Texture = (ModelTexture);
+    Texture = <Texture>;
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Clamp;
@@ -32,25 +37,24 @@ struct VertexShaderOutput
 VertexShaderOutput MainVS(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    output.Position = input.Position;
+    // TRANSFORMACIÓN OBLIGATORIA PARA SPRITEBATCH
+    output.Position = mul(input.Position, MatrixTransform);
     output.TextureCoordinates = input.TextureCoordinates;
     return output;
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    // Calcular la distancia desde el centro de la textura
-    float2 center = float2(0.5, 0.5);
-    float2 pos = input.TextureCoordinates - center;
-    float dist = length(pos);
+    float2 center = float2(0.5, 0.5); // centro de la textura
+    float2 offset = input.TextureCoordinates - center;
+    float dist = length(offset);
 
-    // Si estamos fuera del círculo, hacer transparente
+    // Cortar fuera del círculo
     if (dist > 0.5)
-        return float4(0, 0, 0, 0);
+        return float4(0, 0, 0, 0); // Transparente
 
-    // Si estamos dentro, mostrar la textura
-    float4 color = tex2D(textureSampler, input.TextureCoordinates);
-    return color;
+    // Mostrar la textura dentro del círculo
+    return tex2D(textureSampler, input.TextureCoordinates);
 }
 
 technique Technique1
