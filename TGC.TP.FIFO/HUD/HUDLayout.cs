@@ -1,26 +1,26 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.TP.FIFO.Texturas;
-using TGC.TP.FIFO.Objetos.Ball;
-using TGC.TP.FIFO.Objetos;
 using System;
 using System.Collections.Generic;
 using TGC.TP.FIFO.Efectos;
+using TGC.TP.FIFO.Fuentes;
+using TGC.TP.FIFO.Objetos;
+using TGC.TP.FIFO.Objetos.Ball;
+using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
 
 namespace TGC.TP.FIFO.HUD;
 
 public class HUDLayout
 {
-    private readonly GraphicsDevice _graphicsDevice;
-    private readonly EffectManager _effectManager;
-    private readonly TextureManager _textureManager;
+    private readonly FontsManager fontsManager;
+    private readonly GraphicsDevice graphicsDevice;
+    private readonly EffectManager effectManager;
+    private readonly TextureManager textureManager;
+    private readonly SpriteBatch spriteBatch;
 
     // Componentes del HUD
-    private SpriteFont _timerFont;
-    private SpriteFont _checkpointFont;
-    private SpriteBatch _spriteBatch;
     private float _gameTimer;
     private bool _isGameActive;
     private Vector2 _timerPosition;
@@ -72,12 +72,13 @@ public class HUDLayout
     private const float CHECKPOINT_MESSAGE_DURATION = 2f; // Duración en segundos
     private int _lastCheckpointId;
 
-    public HUDLayout(GraphicsDevice graphicsDevice, EffectManager effectManager, TextureManager textureManager)
+    public HUDLayout(FontsManager fontsManager, SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, EffectManager effectManager, TextureManager textureManager)
     {
-        _graphicsDevice = graphicsDevice;
-        _effectManager = effectManager;
-        _textureManager = textureManager;
-        _spriteBatch = new SpriteBatch(graphicsDevice);
+        this.fontsManager = fontsManager;
+        this.spriteBatch = spriteBatch;
+        this.graphicsDevice = graphicsDevice;
+        this.effectManager = effectManager;
+        this.textureManager = textureManager;
 
         InitializeHUD();
     }
@@ -98,36 +99,34 @@ public class HUDLayout
 
         // Inicializar posiciones
         _timerPosition = new Vector2(
-            _graphicsDevice.Viewport.Width / 2f,
+            graphicsDevice.Viewport.Width / 2f,
             50
         );
 
         _ballTypePosition = new Vector2(50, 100);
         _speedPosition = new Vector2(
-            _graphicsDevice.Viewport.Width - 120,
-            _graphicsDevice.Viewport.Height - 80
+            graphicsDevice.Viewport.Width - 120,
+            graphicsDevice.Viewport.Height - 80
         );
 
         _progressBarSize = new Vector2(200, 20);
         _progressBarPosition = new Vector2(
-            _graphicsDevice.Viewport.Width - _progressBarSize.X - 50,
+            graphicsDevice.Viewport.Width - _progressBarSize.X - 50,
             100
         );
 
         _arrowPosition = new Vector3(
-            _graphicsDevice.Viewport.Width - 100,
-            _graphicsDevice.Viewport.Height - 100,
+            graphicsDevice.Viewport.Width - 100,
+            graphicsDevice.Viewport.Height - 100,
             0
         );
 
         // Inicializar posición del minimapa
-        _minimapPosition = new Vector2(20, _graphicsDevice.Viewport.Height - MINIMAP_SIZE - 20);
+        _minimapPosition = new Vector2(20, graphicsDevice.Viewport.Height - MINIMAP_SIZE - 20);
     }
 
     public void LoadContent(ContentManager content)
     {
-        _timerFont = content.Load<SpriteFont>("Fonts/TimerFont");
-        _checkpointFont = content.Load<SpriteFont>("Fonts/CheckpointFont");
         _ballTypeRubberTexture = content.Load<Texture2D>("Textures/Rubber");
         _ballTypeMetalTexture = content.Load<Texture2D>("Textures/harsh-metal/color");
         _ballTypeStoneTexture = content.Load<Texture2D>("Textures/marble/color");
@@ -137,7 +136,7 @@ public class HUDLayout
 
 
         // Crear textura para la barra de progreso
-        _progressBarTexture = new Texture2D(_graphicsDevice, 1, 1);
+        _progressBarTexture = new Texture2D(graphicsDevice, 1, 1);
         _progressBarTexture.SetData(new[] { Color.White });
     }
 
@@ -187,12 +186,12 @@ public class HUDLayout
     public void Draw(PlayerBall playerBall, Matrix view, Matrix projection, List<Checkpoint> checkpoints)
     {
         // Guardar el estado original
-        var originalDepthStencilState = _graphicsDevice.DepthStencilState;
-        var originalBlendState = _graphicsDevice.BlendState;
+        var originalDepthStencilState = graphicsDevice.DepthStencilState;
+        var originalBlendState = graphicsDevice.BlendState;
 
         // Configurar el estado para el HUD 2D
-        _graphicsDevice.DepthStencilState = DepthStencilState.None;
-        _graphicsDevice.BlendState = BlendState.AlphaBlend;
+        graphicsDevice.DepthStencilState = DepthStencilState.None;
+        graphicsDevice.BlendState = BlendState.AlphaBlend;
 
         // Dibujar el tipo de bola
         DrawBallType(playerBall);
@@ -216,8 +215,8 @@ public class HUDLayout
         }
 
         // Restaurar el estado original
-        _graphicsDevice.DepthStencilState = originalDepthStencilState;
-        _graphicsDevice.BlendState = originalBlendState;
+        graphicsDevice.DepthStencilState = originalDepthStencilState;
+        graphicsDevice.BlendState = originalBlendState;
 
         // Dibujar la flecha
         //DrawArrow(view, projection);
@@ -227,9 +226,9 @@ public class HUDLayout
     {
         Texture2D ballTexture = playerBall.BallType switch
         {
-            BallType.Rubber => _ballTypeRubberTexture,
+            BallType.Goma => _ballTypeRubberTexture,
             BallType.Metal => _ballTypeMetalTexture,
-            BallType.Stone => _ballTypeStoneTexture,
+            BallType.Piedra => _ballTypeStoneTexture,
             _ => _ballTypeRubberTexture
         };
 
@@ -239,26 +238,26 @@ public class HUDLayout
         Rectangle destinationRect = new Rectangle((int)texturePosition.X, (int)texturePosition.Y, circleSize, circleSize);
 
         // Dibujar el fondo del círculo
-        _spriteBatch.Begin(effect: _effectManager.BasicShader);
-        _spriteBatch.Draw(_progressBarTexture, destinationRect, new Color(0, 0, 0, 128));
-        _spriteBatch.End();
+        spriteBatch.Begin(effect: effectManager.BasicShader);
+        spriteBatch.Draw(_progressBarTexture, destinationRect, new Color(0, 0, 0, 128));
+        spriteBatch.End();
 
         // Dibujar la textura de la bola
-        _spriteBatch.Begin(effect: _effectManager.CircleShader, blendState: BlendState.AlphaBlend);
-        _spriteBatch.Draw(ballTexture, destinationRect, Color.White);
-        _spriteBatch.End();
+        spriteBatch.Begin(effect: effectManager.CircleShader, blendState: BlendState.AlphaBlend);
+        spriteBatch.Draw(ballTexture, destinationRect, Color.White);
+        spriteBatch.End();
     }
 
     private void DrawTimer()
     {
-        _spriteBatch.Begin();
+        spriteBatch.Begin();
 
         int minutes = (int)(_gameTimer / 60);
         int seconds = (int)(_gameTimer % 60);
         int milliseconds = (int)((_gameTimer * 1000) % 1000);
         string timerText = $"{minutes}:{seconds:D2}:{milliseconds:D3}";
 
-        Vector2 textSize = _timerFont.MeasureString(timerText);
+        Vector2 textSize = fontsManager.LucidaConsole14.MeasureString(timerText);
 
         Vector2 textPosition = new Vector2(
             _timerPosition.X - textSize.X / 2f,
@@ -272,44 +271,44 @@ public class HUDLayout
             (int)(textSize.Y + 30)
         );
 
-        _spriteBatch.Draw(_progressBarTexture, backgroundRect, new Color(0, 0, 0, 128));
+        spriteBatch.Draw(_progressBarTexture, backgroundRect, new Color(0, 0, 0, 128));
 
         // Dibujar el texto con escala más grande
         float scale = 2.0f; // Hacer el texto 2 veces más grande
         Vector2 origin = textSize / 2f;
-        _spriteBatch.DrawString(_timerFont, timerText, textPosition + origin, _timerColor, 0f, origin, scale, SpriteEffects.None, 0f);
-        _spriteBatch.End();
+        spriteBatch.DrawString(fontsManager.LucidaConsole14, timerText, textPosition + origin, _timerColor, 0f, origin, scale, SpriteEffects.None, 0f);
+        spriteBatch.End();
     }
 
     private void DrawSpeed(PlayerBall playerBall)
     {
-        _spriteBatch.Begin();
+        spriteBatch.Begin();
 
         /* // Dibujar el velocímetro
         float speedometerScale = 0.04f;
         Vector2 speedometerOrigin = new Vector2(_speedometerTexture.Width / 2f, _speedometerTexture.Height / 2f);
-        _spriteBatch.Draw(_speedometerTexture, _speedPosition, null, Color.White, 0f, speedometerOrigin, speedometerScale, SpriteEffects.None, 0f);
+        spriteBatch.Draw(_speedometerTexture, _speedPosition, null, Color.White, 0f, speedometerOrigin, speedometerScale, SpriteEffects.None, 0f);
 
         // Dibujar la flecha fija
         Vector2 arrowOrigin = new Vector2(_speedArrowTexture.Width / 2f, _speedArrowTexture.Height);
         Vector2 arrowPosition = _speedPosition + new Vector2(0, -2);
-        _spriteBatch.Draw(_speedArrowTexture, arrowPosition, null, Color.White, 0f, arrowOrigin, speedometerScale, SpriteEffects.None, 0f); */
+        spriteBatch.Draw(_speedArrowTexture, arrowPosition, null, Color.White, 0f, arrowOrigin, speedometerScale, SpriteEffects.None, 0f); */
 
         // Dibujar el texto de la velocidad
         string speedText = $"{playerBall.GetCurrentSpeed():F1}";
         Vector2 textPosition = _speedPosition + new Vector2(0, 15);
-        _spriteBatch.DrawString(_timerFont, speedText, textPosition, Color.White);
+        spriteBatch.DrawString(fontsManager.LucidaConsole14, speedText, textPosition, Color.White);
 
-        _spriteBatch.End();
+        spriteBatch.End();
     }
 
     private void DrawProgressBar()
     {
-        _spriteBatch.Begin();
+        spriteBatch.Begin();
         float progress = (float)_currentCheckpointId / _totalCheckpoints;
-        _spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, _progressBarBackgroundColor, 0f, Vector2.Zero, _progressBarSize, SpriteEffects.None, 0f);
-        _spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, _progressBarFillColor, 0f, Vector2.Zero, new Vector2(_progressBarSize.X * progress, _progressBarSize.Y), SpriteEffects.None, 0f);
-        _spriteBatch.End();
+        spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, _progressBarBackgroundColor, 0f, Vector2.Zero, _progressBarSize, SpriteEffects.None, 0f);
+        spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, _progressBarFillColor, 0f, Vector2.Zero, new Vector2(_progressBarSize.X * progress, _progressBarSize.Y), SpriteEffects.None, 0f);
+        spriteBatch.End();
     }
 
     private void DrawArrow(Matrix view, Matrix projection)
@@ -331,7 +330,7 @@ public class HUDLayout
 
             DrawUtilities.DrawCustomModel(
                 model: _arrowModel,
-                effect: _effectManager.BasicShader,
+                effect: effectManager.BasicShader,
                 view: view,
                 projection: projection,
                 translation: translation,
@@ -345,10 +344,10 @@ public class HUDLayout
 
     private void DrawMinimap(PlayerBall playerBall, List<Checkpoint> checkpoints)
     {
-        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
         // Dibuja el fondo del minimapa
-        _spriteBatch.Draw(_progressBarTexture,
+        spriteBatch.Draw(_progressBarTexture,
             new Rectangle((int)_minimapPosition.X, (int)_minimapPosition.Y, MINIMAP_SIZE, MINIMAP_SIZE),
             Color.Black * 0.7f);
 
@@ -363,7 +362,7 @@ public class HUDLayout
             // Si el checkpoint está activado, lo dibuja en verde, si no en amarillo
             Color color = checkpoint.Id <= _currentCheckpointId ? Color.LimeGreen : Color.Yellow;
 
-            _spriteBatch.Draw(_progressBarTexture,
+            spriteBatch.Draw(_progressBarTexture,
                 new Rectangle((int)(checkMinimapPos.X - 4), (int)(checkMinimapPos.Y - 4), 8, 8),
                 color);
         }
@@ -374,29 +373,29 @@ public class HUDLayout
         float normZ = (ballPos.Z - MIN_Z) / (MAX_Z - MIN_Z);
         Vector2 ballMinimapPos = _minimapPosition + new Vector2((1 - normX) * MINIMAP_SIZE, MINIMAP_SIZE - normZ * MINIMAP_SIZE);
         int ballDotSize = 6;
-        _spriteBatch.Draw(_progressBarTexture,
+        spriteBatch.Draw(_progressBarTexture,
             new Rectangle((int)(ballMinimapPos.X - ballDotSize / 2), (int)(ballMinimapPos.Y - ballDotSize / 2), ballDotSize, ballDotSize),
             Color.Red);
 
-        _spriteBatch.End();
+        spriteBatch.End();
     }
 
     private void DrawCheckpointMessage()
     {
-        _spriteBatch.Begin();
+        spriteBatch.Begin();
         string message = "Checkpoint!";
-        Vector2 messageSize = _checkpointFont.MeasureString(message);
+        Vector2 messageSize = fontsManager.ComicSans24.MeasureString(message);
         Vector2 messagePosition = new Vector2(
-            _graphicsDevice.Viewport.Width / 2f - messageSize.X / 2f,
-            _graphicsDevice.Viewport.Height / 3f
+            graphicsDevice.Viewport.Width / 2f - messageSize.X / 2f,
+            graphicsDevice.Viewport.Height / 3f
         );
 
         // Calcular la opacidad basada en el tiempo restante
         float opacity = 1f - (_checkpointMessageTimer / CHECKPOINT_MESSAGE_DURATION);
         Color messageColor = new Color(1f, 1f, 1f, opacity);
 
-        _spriteBatch.DrawString(_checkpointFont, message, messagePosition, messageColor);
-        _spriteBatch.End();
+        spriteBatch.DrawString(fontsManager.ComicSans24, message, messagePosition, messageColor);
+        spriteBatch.End();
     }
 
     public void ToggleTimer()

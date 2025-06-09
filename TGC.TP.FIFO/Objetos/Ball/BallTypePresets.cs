@@ -6,7 +6,7 @@ public static class BallPresets
 {
     public static readonly Dictionary<BallType, BallProperties> Presets = new()
     {
-        [BallType.Stone] = new BallProperties
+        [BallType.Piedra] = new BallProperties
         {
             ImpulseForce = 60f,
             JumpForce = 30000f,
@@ -30,7 +30,7 @@ public static class BallPresets
             Radius = 1f
         },
 
-        [BallType.Rubber] = new BallProperties
+        [BallType.Goma] = new BallProperties
         {
             ImpulseForce = 30f,
             JumpForce = 2000f,

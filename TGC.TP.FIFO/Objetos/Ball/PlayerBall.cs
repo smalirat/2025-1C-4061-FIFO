@@ -9,7 +9,6 @@ using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
 
-
 namespace TGC.TP.FIFO.Objetos.Ball;
 
 public class PlayerBall : IColisionable
@@ -37,7 +36,6 @@ public class PlayerBall : IColisionable
     private readonly TextureManager textureManager;
     private readonly AudioManager audioManager;
 
-
     private BodyHandle boundingVolume;
 
     private XnaMatrix world;
@@ -56,12 +54,7 @@ public class PlayerBall : IColisionable
     private float ZScale => ballProperties.Radius / ModelRadius;
 
     public BallType ballType;
-    private GraphicsDevice graphicsDevice;
-    private XnaVector3 vector3;
-    private BallType metal;
     public BallType BallType => ballType;
-
-
 
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
@@ -77,7 +70,6 @@ public class PlayerBall : IColisionable
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
         this.audioManager = audioManager;
-
 
         this.ballType = ballType;
         respawnPosition = initialPosition;
@@ -100,7 +92,6 @@ public class PlayerBall : IColisionable
         jumpMultiplierApplied = false;
         speedMultiplierApplied = false;
     }
-
 
     public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
@@ -236,7 +227,7 @@ public class PlayerBall : IColisionable
         var effect = effectManager.SphereShader;
         Texture2D texture = null;
 
-        if (BallType.Rubber == ballType)
+        if (BallType.Goma == ballType)
         {
             texture = textureManager.RubberTexture;
         }
@@ -299,10 +290,10 @@ public class PlayerBall : IColisionable
     {
         BallType next = ballType switch
         {
-            BallType.Metal => BallType.Rubber,
-            BallType.Rubber => BallType.Stone,
-            BallType.Stone => BallType.Metal,
-            _ => BallType.Rubber
+            BallType.Metal => BallType.Goma,
+            BallType.Goma => BallType.Piedra,
+            BallType.Piedra => BallType.Metal,
+            _ => BallType.Goma
         };
 
         ChangeBallTypeTo(next);

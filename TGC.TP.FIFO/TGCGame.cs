@@ -4,16 +4,18 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Fuentes;
+using TGC.TP.FIFO.HUD;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Skybox;
 using TGC.TP.FIFO.Texturas;
-using TGC.TP.FIFO.Audio;
-using TGC.TP.FIFO.HUD;
 
 namespace TGC.TP.FIFO;
 
@@ -25,6 +27,8 @@ public class TGCGame : Game
     private readonly PhysicsManager PhysicsManager;
     private readonly TextureManager TextureManager;
     private readonly AudioManager AudioManager;
+    private readonly FontsManager FontsManager;
+    private SpriteBatch SpriteBatch;
 
     private TargetCamera TargetCamera;
     private HUDLayout HUDLayout;
@@ -46,6 +50,8 @@ public class TGCGame : Game
 
     private List<Checkpoint> Checkpoints = new();
 
+    private GameMenu Menu;
+
     private int _currentCheckpointId = 0;
 
     public TGCGame()
@@ -56,6 +62,7 @@ public class TGCGame : Game
         PhysicsManager = new PhysicsManager();
         TextureManager = new TextureManager();
         AudioManager = new AudioManager();
+        FontsManager = new FontsManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
@@ -69,10 +76,12 @@ public class TGCGame : Game
         Graphics.ApplyChanges();
 
         PhysicsManager.Initialize();
-        HUDLayout = new HUDLayout(GraphicsDevice, EffectManager, TextureManager);
 
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
+        Menu = new GameMenu(FontsManager, SpriteBatch, Exit);
+        HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice, EffectManager, TextureManager);
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Rubber);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Goma);
 
         InitializeLevel1();
         InitializeLevel2();
@@ -89,17 +98,24 @@ public class TGCGame : Game
         ModelManager.Load(Content);
         TextureManager.Load(Content);
         AudioManager.Load(Content);
-        AudioManager.PlayBackgroundMusic();
+        FontsManager.Load(Content);
         HUDLayout.LoadContent(Content);
+
+        AudioManager.PlayBackgroundMusic();
+
         base.LoadContent();
     }
 
     protected override void Update(GameTime gameTime)
     {
         var keyboardState = Keyboard.GetState();
-        if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (GameOptions.State == GameState.Menu)
+        {
+            Menu.Update(keyboardState, deltaTime, TargetCamera);
+            return;
+        }
 
         PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
 
@@ -147,6 +163,12 @@ public class TGCGame : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        if (GameOptions.State == GameState.Menu)
+        {
+            Menu.Draw(gameTime);
+            return;
+        }
 
         Skybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
 
