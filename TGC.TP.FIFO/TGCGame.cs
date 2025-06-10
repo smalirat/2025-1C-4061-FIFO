@@ -98,7 +98,7 @@ public class TGCGame : Game
         FontsManager.Load(Content);
         HUDLayout.LoadContent(Content);
 
-        Menu = new GameMenu(FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
+        Menu = new GameMenu(ModelManager, TextureManager, PhysicsManager, EffectManager, AudioManager, GraphicsDevice, FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
 
         AudioManager.PlayBackgroundMusic();
 

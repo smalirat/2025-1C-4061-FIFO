@@ -40,9 +40,9 @@ public class BarMenuEntry : MenuEntry
         Action = (keyPressed) =>
         {
             if (keyPressed == Keys.A)
-                setValueFunc(Math.Max(Min, getValueFunc() - 1));
+                setValueFunc(Math.Max(Min, getValueFunc() - 5));
             else if (keyPressed == Keys.D)
-                setValueFunc(Math.Min(Max, getValueFunc() + 1));
+                setValueFunc(Math.Min(Max, getValueFunc() + 5));
         };
     }
 

@@ -271,7 +271,6 @@ public class PlayerBall : IColisionable
         inactivityTimer = 0f;
     }
 
-
     public float GetCurrentSpeed()
     {
         return physicsManager.GetLinearVelocity(boundingVolume).Length();
@@ -298,5 +297,12 @@ public class PlayerBall : IColisionable
         canJump = false;
         jumpMultiplierApplied = false;
         speedMultiplierApplied = false;
+    }
+
+    public void UpdatePositionAndRotation(XnaVector3 position, XnaQuaternion rotation)
+    {
+        world = XnaMatrix.CreateScale(XScale, YScale, ZScale) *
+                XnaMatrix.CreateFromQuaternion(rotation) *
+                XnaMatrix.CreateTranslation(position);
     }
 }
