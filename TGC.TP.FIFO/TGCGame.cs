@@ -227,11 +227,9 @@ public class TGCGame : Game
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f, true, RampWallTextureType.Dirt));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -0.1f, 150f), XnaQuaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -23.5f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, true, RampWallTextureType.Dirt));
 
         // Paredes
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
@@ -303,7 +301,6 @@ public class TGCGame : Game
                 float z = (float)(random.NextDouble() * 260.0 - 60.0);
                 position = new XnaVector2(x, z);
 
-                // Verificar que no esté cerca de otra posición existente
                 valid = staticBoxPositions.All(p => XnaVector2.Distance(p, position) >= 18f);
                 attempts++;
 
@@ -355,10 +352,7 @@ public class TGCGame : Game
     {
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.5f, 442f), XnaQuaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
-
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.6f, 442f + 150f), XnaQuaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, -46.5f, 442f + 74.6f*2), XnaQuaternion.Identity, 150f, 450f, true, RampWallTextureType.Dirt));
 
         // PowerUps
         SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
@@ -409,10 +403,6 @@ public class TGCGame : Game
 
     private void InitializeLevel3()
     {
-        // Pisos
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.7f, 742f), XnaQuaternion.Identity, 150f, 150f, true, RampWallTextureType.Dirt));
-
         // Paredes
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones1));

@@ -31,9 +31,9 @@ namespace TGC.TP.FIFO.Fisica
                 BufferPool,
                 new NarrowPhaseCallbacks(MaterialProperties, CollidableReferences),
                 new PoseIntegratorCallbacks(
-                    gravity: new BepuVector3(0, -10, 0),
+                    gravity: new BepuVector3(0, -15, 0),
                     linearDamping: 0.03f, // Que tan rapido se disipa la velocidad lineal
-                    angularDamping: 0.8f // Que tan rapido se disipa la velocidad angular
+                    angularDamping: 0.6f // Que tan rapido se disipa la velocidad angular
                  ),
                 new SolveDescription(8, 4));
 
@@ -274,12 +274,16 @@ namespace TGC.TP.FIFO.Fisica
             return bodyRef.Velocity.Angular.ToXnaVector3();
         }
 
-        public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, XnaVector3 impulseOffset, float impulseForce, float deltaTime)
+        public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
         {
             var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            var impulse = impulseDirection.ToBepuVector3() * impulseForce * deltaTime * bodyRef.LocalInertia.InverseMass;
 
-            bodyRef.ApplyImpulse(impulse, bodyRef.Pose.Position + impulseOffset.ToBepuVector3());
+            var direction = Vector3.Normalize(impulseDirection.ToBepuVector3());
+            var impulse = direction * impulseForce * deltaTime;
+
+            var position = bodyRef.Pose.Position;
+
+            bodyRef.ApplyLinearImpulse(impulse.ToBepuVector3());
         }
 
         public void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)

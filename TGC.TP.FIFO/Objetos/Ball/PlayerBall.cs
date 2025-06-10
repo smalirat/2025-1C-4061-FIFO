@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
@@ -42,7 +43,7 @@ public class PlayerBall : IColisionable
 
     private BallProperties ballProperties;
 
-    private bool canJump;
+    public bool canJump;
     private bool jumpMultiplierApplied;
     private bool speedMultiplierApplied;
     private bool isRolling = false;
@@ -107,15 +108,13 @@ public class PlayerBall : IColisionable
         {
             physicsManager.ApplyImpulse(boundingVolume,
                 XnaVector3.Up,
-                impulseOffset: XnaVector3.Zero,
                 ballProperties.JumpForce * jumpMultiplier,
                 deltaTime);
         }
         else if (speedMultiplierApplied)
         {
             physicsManager.ApplyImpulse(boundingVolume,
-                -camera.ForwardXZ.ToBepuVector3(), // Ya normalizado
-                impulseOffset: XnaVector3.Zero, // Centro de masa
+                -camera.ForwardXZ.ToBepuVector3(),
                 ballProperties.ImpulseForce * speedMultiplier,
                 deltaTime);
         }
@@ -148,8 +147,7 @@ public class PlayerBall : IColisionable
             if (keyPressed)
             {
                 physicsManager.ApplyImpulse(boundingVolume,
-                    impulseDirection, // Ya normalizado
-                    impulseOffset: XnaVector3.Zero, // Centro de masa
+                    impulseDirection,
                     ballProperties.ImpulseForce,
                     deltaTime);
             }
@@ -161,7 +159,6 @@ public class PlayerBall : IColisionable
 
                 physicsManager.ApplyImpulse(boundingVolume,
                     XnaVector3.Up,
-                    impulseOffset: XnaVector3.Zero,
                     ballProperties.JumpForce,
                     deltaTime);
             }

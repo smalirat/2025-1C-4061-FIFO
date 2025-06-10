@@ -7,6 +7,7 @@ using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
+using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos;

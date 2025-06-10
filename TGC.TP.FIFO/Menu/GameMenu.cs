@@ -48,7 +48,7 @@ public class GameMenu
 
     private int selectedOptionIndex = 0;
 
-    private XnaVector3 BallPosition = new XnaVector3(0f, -5f, 10f);
+    private XnaVector3 BallPosition = new XnaVector3(3000f, 2995f, 3010f);
 
     private Texture2D BackgroundMenuTexture;
 
@@ -64,9 +64,9 @@ public class GameMenu
         this.effectManager = effectManager;
 
         BackgroundMenuTexture = new Texture2D(graphicsDevice, 1, 1);
-        BackgroundMenuTexture.SetData(new[] { Color.White });
+        BackgroundMenuTexture.SetData([Color.White]);
 
-        Camera = new TargetCamera(MathF.PI / 3f, this.graphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, new XnaVector3(0, 0, 0), 30f, 0.01f);
+        Camera = new TargetCamera(MathF.PI / 3f, this.graphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, new XnaVector3(3000f, 3000f, 3000f), 30f, 0.01f);
 
         DummyPlayerBall = new PlayerBall(
             this.modelManager,
@@ -84,7 +84,7 @@ public class GameMenu
             this.textureManager,
             this.audioManager,
             this.graphicsDevice,
-            new XnaVector3(50f, -10f, -50f),
+            new XnaVector3(3050f, 2990f, 2950f),
             XnaQuaternion.Identity,
             150f,
             150f,
@@ -98,7 +98,7 @@ public class GameMenu
             this.textureManager,
             this.audioManager,
             this.graphicsDevice,
-            new XnaVector3(50f, 65f, -75f),
+            new XnaVector3(3050f, 3065f, 2925f),
             XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
             150f,
             150f,
@@ -112,157 +112,27 @@ public class GameMenu
             this.textureManager,
             this.audioManager,
             this.graphicsDevice,
-            new XnaVector3(-25f, 65f, -50f),
+            new XnaVector3(2975f, 3065f, 2950f),
             XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f),
             150f,
             150f,
             false,
             RampWallTextureType.Stones1);
 
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -3.5f, 10f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3010f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3013f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3016f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3019f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2998.5f, 3018f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2998.5f, 3015f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2998.5f, 3012f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 3000.5f, 3017f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 3000.5f, 3014f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 3002.5f, 3015.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(3020f, 2996f, 2995f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
+        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(3000f, 2996f, 2975f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
 
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -3.5f, 13f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -3.5f, 16f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -3.5f, 19f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -1.5f, 18f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -1.5f, 15f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, -1.5f, 12f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, 0.5f, 17f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, 0.5f, 14f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(-9f, 2.5f, 15.5f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f),
-            2f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(20f, -4f, -5f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f),
-            10f));
-
-        StaticBoxes.Add(new StaticBox(
-            modelManager,
-            effectManager,
-            physicsManager,
-            textureManager,
-            audioManager,
-            graphicsDevice,
-            new XnaVector3(0f, -4f, -25f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f),
-            10f));
-
-        DummyCheckpoint = new Checkpoint(
-            this.modelManager,
-            this.effectManager,
-            this.physicsManager,
-            this.graphicsDevice,
-            this.audioManager,
-            new XnaVector3(10f, -5f, -10f),
-            XnaQuaternion.Identity,
-            0.5f,
-            0.5f,
-            0.5f,
-            Color.Blue);
+        DummyCheckpoint = new Checkpoint(this.modelManager, this.effectManager, this.physicsManager, this.graphicsDevice, this.audioManager, new XnaVector3(3010f, 2995f, 2990f), XnaQuaternion.Identity, 0.5f, 0.5f, 0.5f, Color.Blue);
 
         menuEntries = new Dictionary<Tuple<MenuState, MenuState>, MenuEntry[]>
         {

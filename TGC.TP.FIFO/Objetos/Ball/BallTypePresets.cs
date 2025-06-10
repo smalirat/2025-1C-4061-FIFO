@@ -9,8 +9,8 @@ public static class BallPresets
         [BallType.Piedra] = new BallProperties
         {
             ImpulseForce = 60f,
-            JumpForce = 30000f,
-            Friction = 0.05f,
+            JumpForce =  7500f,
+            Friction = 0.4f,
             DampingRatio = 0.2f,
             MaximumRecoveryVelocity = 6f,
             SpringFrequency = 20f,
@@ -22,7 +22,7 @@ public static class BallPresets
         {
             ImpulseForce = 30f,
             JumpForce = 2000f,
-            Friction = 0.05f,
+            Friction = 0.4f,
             DampingRatio = 0.2f,
             MaximumRecoveryVelocity = 6f,
             SpringFrequency = 20f,
