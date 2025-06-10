@@ -2,9 +2,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Texturas;
@@ -17,6 +19,7 @@ public class KinematicWall : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
+    private readonly AudioManager audioManager;
 
     private readonly BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -37,6 +40,7 @@ public class KinematicWall : IColisionable
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
+        AudioManager audioManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         float width,
@@ -50,6 +54,7 @@ public class KinematicWall : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
+        this.audioManager = audioManager;
 
         CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
         this.movementMultiplier = movementMultiplier;
@@ -95,6 +100,10 @@ public class KinematicWall : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
+        if (with.BodyType == BodyType.PlayerBall)
+        {
+            audioManager.PlayWallHitSound(GameState.BallType);
+        }
     }
 
     public void Reset()

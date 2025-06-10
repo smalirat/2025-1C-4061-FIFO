@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
@@ -16,6 +17,7 @@ public class DynamicBox : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
+    private readonly AudioManager audioManager;
 
     private BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -37,6 +39,7 @@ public class DynamicBox : IColisionable
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
+        AudioManager audioManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         XnaQuaternion initialRotation,
@@ -48,6 +51,7 @@ public class DynamicBox : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
+        this.audioManager = audioManager;
 
         this.InitialPosition = initialPosition;
         this.InitialRotation = initialRotation;
@@ -84,6 +88,10 @@ public class DynamicBox : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
+        if (with.BodyType == BodyType.PlayerBall)
+        {
+            audioManager.PlayWoodBoxHitSound();
+        }
     }
 
     public void Reset()

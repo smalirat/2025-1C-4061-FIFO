@@ -195,6 +195,24 @@
 /processorParam:Quality=Best
 /build:SoundEffects/Checkpoint-Sound-Effect.wav
 
+#begin SoundEffects/choque_metal.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/choque_metal.wav
+
+#begin SoundEffects/choque_piedra.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/choque_piedra.wav
+
+#begin SoundEffects/choque_plastico.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/choque_plastico.wav
+
 #begin SoundEffects/Goma_Ball_Bounce.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -236,6 +254,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundEffects/Stone-Ball-Bounce.wav
+
+#begin SoundEffects/wood-box-hit.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/wood-box-hit.wav
 
 #begin Textures/adoquin-2.jpg
 /importer:TextureImporter

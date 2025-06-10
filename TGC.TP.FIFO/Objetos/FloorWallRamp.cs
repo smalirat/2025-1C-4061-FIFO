@@ -1,7 +1,9 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Texturas;
@@ -14,6 +16,7 @@ public class FloorWallRamp : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
+    private readonly AudioManager audioManager;
 
     private readonly StaticHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -34,6 +37,7 @@ public class FloorWallRamp : IColisionable
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
+        AudioManager audioManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
@@ -46,6 +50,7 @@ public class FloorWallRamp : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
+        this.audioManager = audioManager;
 
         RampWallTextureType = rampWallTextureType;
         CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
@@ -54,6 +59,7 @@ public class FloorWallRamp : IColisionable
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+        this.audioManager = audioManager;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -99,6 +105,10 @@ public class FloorWallRamp : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
+        if (with.BodyType == BodyType.PlayerBall && !CanPlayerBallJumpOnIt)
+        {
+            audioManager.PlayWallHitSound(GameState.BallType);
+        }
     }
 
     public void Reset()

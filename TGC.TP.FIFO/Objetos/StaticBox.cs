@@ -1,8 +1,10 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Texturas;
@@ -15,6 +17,7 @@ public class StaticBox : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
+    private readonly AudioManager audioManager;
 
     private readonly StaticHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -28,6 +31,7 @@ public class StaticBox : IColisionable
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
+        AudioManager audioManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
@@ -37,6 +41,7 @@ public class StaticBox : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
+        this.audioManager = audioManager;
 
         model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
         boundingVolume = this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
@@ -59,6 +64,10 @@ public class StaticBox : IColisionable
     }
     public void NotifyCollition(IColisionable with)
     {
+        if (with.BodyType == BodyType.PlayerBall)
+        {
+            audioManager.PlayWallHitSound(GameState.BallType);
+        }
     }
 
     public void Reset()

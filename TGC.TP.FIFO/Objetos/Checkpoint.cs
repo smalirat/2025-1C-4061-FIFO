@@ -90,7 +90,7 @@ public class Checkpoint : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-        if (with.BodyType == BodyType.PlayerBall && !Checked)
+        if (with.BodyType == BodyType.PlayerBall && !Checked && !GameState.Lost)
         {
             Checked = true;
             audioManager.PlayCheckpointSound();

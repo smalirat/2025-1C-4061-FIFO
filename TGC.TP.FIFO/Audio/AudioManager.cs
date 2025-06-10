@@ -23,10 +23,18 @@ public class AudioManager
     public SoundEffect SpeedPowerUpSound { get; private set; }
     public SoundEffect JumpPowerUpSound { get; private set; }
     public SoundEffect CheckpointSound { get; private set; }
+    public SoundEffect MetalHitSound { get; private set; }
+    public SoundEffect RubberHitSound { get; private set; }
+    public SoundEffect RockHitSound { get; private set; }
+    public SoundEffect WoodBoxHitSound { get; private set; }
     private SoundEffectInstance BallRollInstance { get; set; }
     private SoundEffectInstance SpeedPowerUpInstance { get; set; }
     private SoundEffectInstance JumpPowerUpInstance { get; set; }
     private SoundEffectInstance CheckpointInstance { get; set; }
+    public SoundEffectInstance MetalHitSoundInstance { get; set; }
+    public SoundEffectInstance RubberHitSoundInstance { get; set; }
+    public SoundEffectInstance RockHitSoundInstance { get; set; }
+    public SoundEffectInstance WoodBoxHitSoundInstance { get; set; }
 
     public void Load(ContentManager content)
     {
@@ -40,11 +48,19 @@ public class AudioManager
         SpeedPowerUpSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "Speed-Power-Up");
         JumpPowerUpSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "Jump-Power-Up");
         CheckpointSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "Checkpoint-Sound-Effect");
+        MetalHitSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "choque_metal");
+        RubberHitSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "choque_plastico");
+        RockHitSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "choque_piedra");
+        WoodBoxHitSound = content.Load<SoundEffect>(ContentFolderSoundEffects + "wood-box-hit");
 
         BallRollInstance = BallRollingSound.CreateInstance();
         SpeedPowerUpInstance = SpeedPowerUpSound.CreateInstance();
         JumpPowerUpInstance = JumpPowerUpSound.CreateInstance();
         CheckpointInstance = CheckpointSound.CreateInstance();
+        MetalHitSoundInstance = MetalHitSound.CreateInstance();
+        RubberHitSoundInstance = RubberHitSound.CreateInstance();
+        RockHitSoundInstance = RockHitSound.CreateInstance();
+        WoodBoxHitSoundInstance = WoodBoxHitSound.CreateInstance();
 
         // Configurar las instancias para que se repitan
         BallRollInstance.IsLooped = true;
@@ -76,6 +92,42 @@ public class AudioManager
             case BallType.Piedra:
                 StoneJumpSound.Play();
                 break;
+        }
+    }
+
+    public void PlayWallHitSound(BallType ballType)
+    {
+        switch (ballType)
+        {
+            case BallType.Metal:
+                if (MetalHitSoundInstance.State != SoundState.Playing)
+                {
+                    MetalHitSoundInstance.Play();
+                }
+                break;
+
+            case BallType.Goma:
+                if (RubberHitSoundInstance.State != SoundState.Playing)
+                {
+                    RubberHitSoundInstance.Play();
+                }
+                break;
+
+            case BallType.Piedra:
+                if (RockHitSoundInstance.State != SoundState.Playing)
+                {
+                    RockHitSoundInstance.Play();
+                }
+                RockHitSound.Play();
+                break;
+        }
+    }
+
+    public void PlayWoodBoxHitSound()
+    {
+        if (WoodBoxHitSoundInstance.State != SoundState.Playing)
+        {
+            WoodBoxHitSoundInstance.Play();
         }
     }
 
