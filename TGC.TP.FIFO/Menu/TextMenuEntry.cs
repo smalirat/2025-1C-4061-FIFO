@@ -26,7 +26,7 @@ public class TextMenuEntry : MenuEntry
     public void Draw(SpriteBatch spriteBatch, Color textColor, XnaVector2 screenTextPosition)
     {
         spriteBatch.Begin();
-        spriteBatch.DrawString(Font, Label, screenTextPosition, textColor);
+        spriteBatch.DrawString(Font, Label.ToUpper(), screenTextPosition, textColor);
         spriteBatch.End();
     }
 }

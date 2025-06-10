@@ -42,7 +42,7 @@ public class SelectMenuEntry<T> : MenuEntry
     public void Draw(SpriteBatch spriteBatch, Color textColor, Vector2 position)
     {
         spriteBatch.Begin();
-        spriteBatch.DrawString(Font, TextToPrint(), position, textColor);
+        spriteBatch.DrawString(Font, TextToPrint().ToUpper(), position, textColor);
         spriteBatch.End();
     }
 

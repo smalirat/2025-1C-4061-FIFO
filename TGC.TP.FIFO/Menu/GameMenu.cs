@@ -270,10 +270,10 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Nuevo juego", newGameAction, fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Opciones de bola", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions), fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole14)
+                    new TextMenuEntry("Nuevo juego", newGameAction, fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de juego", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions), fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole20)
                 }
             },
             {
@@ -288,9 +288,9 @@ public class GameMenu
                             resetBallAction.Invoke();
                             DummyPlayerBall.Reset();
                         },
-                        fontsManager.LucidaConsole14
+                        fontsManager.LucidaConsole20
                     ),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14)
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20)
                 }
             },
             {
@@ -300,17 +300,17 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20),
                 }
             },
             {
                 new Tuple<MenuState, MenuState>(MenuState.OptionsMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Seguir jugando", GameState.Resume, fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14),
-                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole14)
+                    new TextMenuEntry("Seguir jugando", GameState.Resume, fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole20)
                 }
             },
             {
@@ -320,7 +320,7 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14)
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20)
                 }
             }
         };
@@ -384,7 +384,7 @@ public class GameMenu
         var menuEntries = this.menuEntries[GetCurrentMenuState()];
 
         var startY = graphicsDevice.Viewport.Height * 0.3f;
-        var spacing = fontsManager.LucidaConsole14.LineSpacing * 2.5f;
+        var spacing = fontsManager.LucidaConsole20.LineSpacing * 2.5f;
         var centerX = graphicsDevice.Viewport.Width / 2f;
 
         for (int i = 0; i < menuEntries.Length; i++)
@@ -463,7 +463,7 @@ public class GameMenu
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             },
-            fontsManager.LucidaConsole14);
+            fontsManager.LucidaConsole20);
     }
 
     private BarMenuEntry GetBackgroundMusicVolumeMenuEntry()
@@ -478,7 +478,7 @@ public class GameMenu
                 GameState.BackgroundMusicVolume = newVolume;
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
             },
-            fontsManager.LucidaConsole14);
+            fontsManager.LucidaConsole20);
     }
 
     private BarMenuEntry GetSoundEffectsVolumeMenuEntry()
@@ -493,6 +493,6 @@ public class GameMenu
                 GameState.SoundEffectsVolume = newVolume;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             },
-            fontsManager.LucidaConsole14);
+            fontsManager.LucidaConsole20);
     }
 }

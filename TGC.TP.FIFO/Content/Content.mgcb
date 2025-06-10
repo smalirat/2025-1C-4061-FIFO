@@ -49,19 +49,33 @@
 /processorParam:DebugMode=Auto
 /build:Effects/TextureTilingShader.fx
 
-#begin Fonts/comic-sans-24.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/comic-sans-24.spritefont
-
 #begin Fonts/lucida-console-14.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/lucida-console-14.spritefont
+
+#begin Fonts/lucida-console-20.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/lucida-console-20.spritefont
+
+#begin Fonts/lucida-console-40.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/lucida-console-40.spritefont
+
+#begin Fonts/lucida-console-60.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/lucida-console-60.spritefont
 
 #begin Models/arrow.fbx
 /importer:FbxImporter

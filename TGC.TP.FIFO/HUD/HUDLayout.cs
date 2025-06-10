@@ -67,7 +67,7 @@ public class HUDLayout
         spriteBatch.Begin();
 
         string time = GameState.Cronometer.Elapsed.ToString("mm\\:ss\\.ff");
-        var font = fontsManager.LucidaConsole14;
+        var font = fontsManager.LucidaConsole40;
         Vector2 size = font.MeasureString(time);
         Vector2 pos = new Vector2(_timerPosition.X - size.X / 2f, _timerPosition.Y);
 
@@ -94,8 +94,16 @@ public class HUDLayout
             }
         }
 
-        spriteBatch.Draw(_progressBarTexture, new Rectangle((int)(pos.X - 60), (int)(pos.Y - 20), (int)(size.X + 120), (int)(size.Y + 30)), BarBackground);
-        spriteBatch.DrawString(font, time, pos + size / 2f, timerColor, 0f, size / 2f, 2f, SpriteEffects.None, 0f);
+        int paddingX = 10;
+        int paddingY = 10;
+        int rectX = (int)(pos.X - paddingX);
+        int rectY = (int)(pos.Y - paddingY);
+        int rectWidth = (int)(size.X + 2 * paddingX);
+        int rectHeight = (int)(size.Y + 2 * paddingY);
+
+        spriteBatch.Draw(_progressBarTexture, new Rectangle(rectX, rectY, rectWidth, rectHeight), BarBackground);
+
+        spriteBatch.DrawString(font, time, pos, timerColor);
 
         spriteBatch.End();
     }
@@ -110,7 +118,7 @@ public class HUDLayout
         spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, BarBackground, 0f, Vector2.Zero, _progressBarSize, SpriteEffects.None, 0f);
         spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, fillColor, 0f, Vector2.Zero, new Vector2(_progressBarSize.X * progress, _progressBarSize.Y), SpriteEffects.None, 0f);
 
-        var font = fontsManager.LucidaConsole14;
+        var font = fontsManager.LucidaConsole20;
         string resultText;
         Color resultColor;
 
@@ -151,16 +159,26 @@ public class HUDLayout
         spriteBatch.Begin();
 
         string message = GameState.Won ? "GANASTE" : "PERDISTE";
-        var font = fontsManager.LucidaConsole14;
-        Vector2 size = font.MeasureString(message) * 4f;
-        Vector2 center = new Vector2(graphicsDevice.Viewport.Width / 2f, graphicsDevice.Viewport.Height / 2f);
-        Vector2 pos = center - size / 2f;
+        var font = fontsManager.LucidaConsole60;
 
-        Rectangle backgroundRect = new Rectangle((int)pos.X - 20, (int)pos.Y - 20, (int)size.X + 40, (int)size.Y + 40);
+        Vector2 textSize = font.MeasureString(message);
+        Vector2 screenCenter = new Vector2(graphicsDevice.Viewport.Width / 2f, graphicsDevice.Viewport.Height / 2f);
+        Vector2 textOrigin = textSize / 2f;
+
+        int paddingX = 30;
+        int paddingY = 20;
+
+        Rectangle backgroundRect = new Rectangle(
+            (int)(screenCenter.X - textSize.X / 2f) - paddingX,
+            (int)(screenCenter.Y - textSize.Y / 2f) - paddingY,
+            (int)textSize.X + 2 * paddingX,
+            (int)textSize.Y + 2 * paddingY
+        );
+
         spriteBatch.Draw(_progressBarTexture, backgroundRect, MinimapBackground);
 
-        Color color = GameState.Won ? Color.Gold : Color.Red;
-        spriteBatch.DrawString(font, message, center, color, 0f, font.MeasureString(message) / 2f, 4f, SpriteEffects.None, 0f);
+        Color color = GameState.Won ? Color.LimeGreen : Color.Red;
+        spriteBatch.DrawString(font, message, screenCenter, color, 0f, textOrigin, 1f, SpriteEffects.None, 0f);
 
         spriteBatch.End();
     }

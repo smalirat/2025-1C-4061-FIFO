@@ -60,7 +60,7 @@ public class BarMenuEntry : MenuEntry
         rectTexture.SetData([Color.White]);
 
         spriteBatch.Begin();
-        spriteBatch.DrawString(Font, text, position, textColor);
+        spriteBatch.DrawString(Font, text.ToUpper(), position, textColor);
         spriteBatch.Draw(rectTexture, new Rectangle((int)barPosition.X, (int)barPosition.Y, BarWidth, BarHeight), Color.Gray);
         spriteBatch.Draw(rectTexture, new Rectangle((int)barPosition.X, (int)barPosition.Y, filledWidth, BarHeight), Color.Green);
         spriteBatch.End();

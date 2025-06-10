@@ -8,12 +8,16 @@ public class FontsManager
     public const string ContentFolderFonts = "Fonts/";
 
     public SpriteFont LucidaConsole14 { get; private set; }
-    public SpriteFont ComicSans24 { get; private set; }
+    public SpriteFont LucidaConsole20 { get; private set; }
+    public SpriteFont LucidaConsole40 { get; private set; }
+    public SpriteFont LucidaConsole60 { get; private set; }
 
     public void Load(ContentManager content)
     {
         LucidaConsole14 = LoadFont(content, "lucida-console-14");
-        ComicSans24 = LoadFont(content, "comic-sans-24");
+        LucidaConsole20 = LoadFont(content, "lucida-console-20");
+        LucidaConsole40 = LoadFont(content, "lucida-console-40");
+        LucidaConsole60 = LoadFont(content, "lucida-console-60");
     }
 
     private SpriteFont LoadFont(ContentManager content, string path)

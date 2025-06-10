@@ -22,7 +22,7 @@ public static class GameState
     public static bool Won = false;
     public static bool Lost = false;
     public static Stopwatch Cronometer = new Stopwatch();
-    public const int TotalSecondsBeforeLosing = 40;
+    public const int TotalSecondsBeforeLosing = 60 * 5;
     public const int TotalSecondsBeforeAboutToLose = 30;
 
     public static void CheckpointChecked()
