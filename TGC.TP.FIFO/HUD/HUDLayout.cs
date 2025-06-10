@@ -45,7 +45,7 @@ public class HUDLayout
         _progressBarTexture.SetData(new[] { Color.White });
     }
 
-    public void Draw(PlayerBall playerBall, Matrix view, Matrix projection, List<Checkpoint> checkpoints)
+    public void Draw(PlayerBall playerBall, List<Checkpoint> checkpoints)
     {
         var originalDepthStencilState = graphicsDevice.DepthStencilState;
         var originalBlendState = graphicsDevice.BlendState;

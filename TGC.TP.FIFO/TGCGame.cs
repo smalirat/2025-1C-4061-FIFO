@@ -167,7 +167,7 @@ public class TGCGame : Game
 
         if (!GameState.Playing)
         {
-            Menu.Draw(gameTime, GraphicsDevice.Viewport);
+            Menu.Draw(gameTime, GraphicsDevice);
             return;
         }
 
@@ -214,7 +214,7 @@ public class TGCGame : Game
         }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
-        HUDLayout.Draw(PlayerBall, TargetCamera.View, TargetCamera.Projection, Checkpoints);
+        HUDLayout.Draw(PlayerBall, Checkpoints);
 
         base.Draw(gameTime);
     }

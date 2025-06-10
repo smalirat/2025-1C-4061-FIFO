@@ -122,13 +122,19 @@ public class GameMenu
         previousKeyboardState = currentState;
     }
 
-    public void Draw(GameTime gameTime, Viewport viewport)
+    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice)
     {
+        var originalDepthStencilState = graphicsDevice.DepthStencilState;
+        var originalBlendState = graphicsDevice.BlendState;
+
+        graphicsDevice.DepthStencilState = DepthStencilState.None;
+        graphicsDevice.BlendState = BlendState.AlphaBlend;
+
         var menuEntries = this.menuEntries[GetCurrentMenuState()];
 
-        var startY = viewport.Height * 0.3f;
+        var startY = graphicsDevice.Viewport.Height * 0.3f;
         var spacing = fontsManager.LucidaConsole14.LineSpacing * 1.5f;
-        var centerX = viewport.Width / 2f;
+        var centerX = graphicsDevice.Viewport.Width / 2f;
 
         for (int i = 0; i < menuEntries.Length; i++)
         {
@@ -139,6 +145,9 @@ public class GameMenu
 
             menuEntry.Draw(spriteBatch, textColor, new XnaVector2(100, 150 + i * 40));
         }
+
+        graphicsDevice.DepthStencilState = originalDepthStencilState;
+        graphicsDevice.BlendState = originalBlendState;
     }
 
     private bool WasKeyPressed(Keys key, KeyboardState currentState)
