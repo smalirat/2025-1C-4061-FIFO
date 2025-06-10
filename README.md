@@ -1,37 +1,44 @@
-# TGC - MonoGame - TP
-
-[![.NET](https://github.com/tgc-utn/tgc-monogame-tp/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tgc-utn/tgc-monogame-tp/actions/workflows/dotnet.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/63382c4441444632b06d83dcc6dab106)](https://app.codacy.com/gh/tgc-utn/tgc-monogame-tp/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
-
-[#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)
+# 2025-1C-4061-FIFO
 
 ## Descripción
 
-Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC) en la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA).
+Repositorio del equipo "FIFO" (Grupo 2, Primer Cuatrimestre año 2025, curso K3061/4061)  para el TP de la materia Técnicas de Gráficos por Computadora de la asignatura electiva [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC) en la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA).
 
-## Configuración del entorno de desarrollo
+## Descripcion de jugabilidad
 
-Los pasos a seguir según su sistema operativo se pueden leer en el siguiente documento [install.md](https://github.com/tgc-utn/tgc-monogame-samples/blob/master/docs/install/install.md).
+El objetivo del juego es guiar una esfera a través de un entorno en tercera persona, atravesando los cuatro puntos de control antes de que transcurran cinco minutos.
 
-Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq.org) para los shaders, por lo menos por [ahora](https://github.com/MonoGame/MonoGame/issues/2167).
+### Controles
+* Click derecho: rota la cámara en tercera persona.
+* Tecla R: reinicia la bola al último checkpoint alcanzado.
+* Teclas A, W, S, D: controlan el movimiento de la bola.
+* Barra espaciadora: hace que la bola salte.
+* Tecla ESC: accede al menu del juego.
 
-Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de clonar el repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer `git lfs pull`.
+### Power Ups
+* Power-up de rayo: acelera la bola al atravesarlo. Cuanto más cálido el color, mayor la aceleración (rojo > naranja > amarillo).
+* Power-up de flecha: hace saltar a la bola al atravesarlo. Cuanto más cálido el color, mayor el salto (rojo > naranja > amarillo).
+
+### Checkpoints
+Marcados con banderas azules, los puntos de control actúan como referencias clave en el recorrido. Al atravesar uno, se guarda automáticamente la posición como punto de reaparición en caso de reinicio, y además se contabiliza como progreso hacia la victoria. Para ganar el juego, es necesario atravesar los cuatro puntos de control antes de que transcurran cinco minutos.
+
+### Otros
+* Las cajas claras son dinámicas (se pueden mover).
+* Las cajas oscuras son estáticas (no se mueven).
+* La bola de goma salta mucho.
+* La bola de metal tiene poca fricción.
+* La bola de piedra: es muy pesada.
+* En los distintos tipos de bola se perciben claramente las diferencias al jugar.
+* Autorespawn: si la bola pasa aproximadamente 10 segundos sin tocar nada, vuelve automáticamente al último checkpoint.
 
 ## Integrantes
 
-TGC, Tgcito  |  Apellido, Nombre
------------- | -------------
-| <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/main/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/main/images/trofeotp.png" height="500"> |
+Apellido, Nombre | Legajo | Foto
+------------ | ------------- | -------------
+| Lucas Agustín Máspero | 161542-7 |<img src="" height="500">  |
+| Santiago Malirat Canga | 213857-8 |<img src="" height="500">  |
+| Matias Nicolas Espinoza Bucarey | 167874-7 |<img src="" height="500"> |
 
 ## Capturas
 
-![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot2](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot3](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot4](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot5](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-
 ## Game Play
-
-[![Watch the video](https://img.youtube.com/vi/pgEwUC0jvH4/0.jpg)](https://www.youtube.com/playlist?list=PLRM4L32DjvnazuMl8wZlbpEYL5Qh63ulG)
