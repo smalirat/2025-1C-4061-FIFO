@@ -96,4 +96,8 @@ public class KinematicWall : IColisionable
     public void NotifyCollition(IColisionable with)
     {
     }
+
+    public void Reset()
+    {
+    }
 }

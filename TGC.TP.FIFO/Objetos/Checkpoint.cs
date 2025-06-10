@@ -1,14 +1,12 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Utilidades;
-using TGC.TP.FIFO.Audio;
-
-
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -21,11 +19,11 @@ public class Checkpoint : IColisionable
 
     private readonly StaticHandle boundingVolume;
 
+    public bool Checked { get; private set; } = false;
+
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
-
-    public int Id { get; private set; }
 
     private const float ModelHeight = 1f;
     private const float ModelWidth = 1f;
@@ -44,8 +42,6 @@ public class Checkpoint : IColisionable
 
     public bool CanPlayerBallJumpOnIt => false;
 
-    private static int _lastActivatedCheckpointId = 0;
-
     public Checkpoint(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -56,14 +52,12 @@ public class Checkpoint : IColisionable
         float width,
         float height,
         float depth,
-        Color color,
-        int id)
+        Color color)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.audioManager = audioManager;
-
 
         this.width = width;
         this.height = height;
@@ -72,7 +66,6 @@ public class Checkpoint : IColisionable
         this.color = color;
         this.rotation = rotation;
         this.position = position;
-        this.Id = id;
 
         boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 4, depth * 2, position, rotation, this);
     }
@@ -86,7 +79,7 @@ public class Checkpoint : IColisionable
             translation: XnaMatrix.CreateTranslation(position),
             scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
             rotation: XnaMatrix.CreateFromQuaternion(rotation),
-            color: color);
+            color: Checked ? Color.LimeGreen : color);
     }
 
     public void Update(float deltaTime)
@@ -97,13 +90,11 @@ public class Checkpoint : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
-        if (with.BodyType == BodyType.PlayerBall)
+        if (with.BodyType == BodyType.PlayerBall && !Checked)
         {
-            if (Id > _lastActivatedCheckpointId)
-            {
-                _lastActivatedCheckpointId = Id;
-                audioManager.PlayCheckpointSound();
-            }
+            Checked = true;
+            audioManager.PlayCheckpointSound();
+            GameState.CheckpointChecked();
         }
     }
 
@@ -112,8 +103,8 @@ public class Checkpoint : IColisionable
         return Position + new XnaVector3(0f, 10f, 0f);
     }
 
-    public static int GetLastActivatedCheckpointId()
+    public void Reset()
     {
-        return _lastActivatedCheckpointId;
+        Checked = false;
     }
 }

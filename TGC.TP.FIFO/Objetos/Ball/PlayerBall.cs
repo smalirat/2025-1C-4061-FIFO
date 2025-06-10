@@ -14,15 +14,14 @@ namespace TGC.TP.FIFO.Objetos.Ball;
 public class PlayerBall : IColisionable
 {
     private float inactivityTimer = 0f;
-    private float changeBallTypeTimer = 0f;
     private float canJumpTimer = 0f;
 
     private XnaVector3 respawnPosition;
     private const float InactivityThreshold = 10f;
-    private const float ChangeBallTypeThreshold = 1f;
     private const float CanJumpThreshold = 0.5f;
 
     public XnaVector3 Position => world.Translation.ToBepuVector3();
+    private XnaVector3 InitialPosition;
 
     public BodyType BodyType => BodyType.PlayerBall;
 
@@ -72,6 +71,7 @@ public class PlayerBall : IColisionable
         this.audioManager = audioManager;
 
         this.ballType = ballType;
+        InitialPosition = initialPosition;
         respawnPosition = initialPosition;
 
         ballProperties = BallPresets.Presets[ballType];
@@ -100,16 +100,6 @@ public class PlayerBall : IColisionable
 
         // La pelota siempre esta activa en el mundo física
         physicsManager.Awake(boundingVolume);
-
-        if (keyboardState.IsKeyDown(Keys.B))
-        {
-            if (changeBallTypeTimer >= ChangeBallTypeThreshold)
-            {
-                ChangeBallType();
-                changeBallTypeTimer = 0f;
-                return;
-            }
-        }
 
         if (keyboardState.IsKeyDown(Keys.R))
         {
@@ -211,7 +201,6 @@ public class PlayerBall : IColisionable
         jumpMultiplierApplied = false;
 
         inactivityTimer += deltaTime;
-        changeBallTypeTimer += deltaTime;
         canJumpTimer += deltaTime;
 
         if (inactivityTimer >= InactivityThreshold)
@@ -286,25 +275,15 @@ public class PlayerBall : IColisionable
         inactivityTimer = 0f;
     }
 
-    private void ChangeBallType()
-    {
-        BallType next = ballType switch
-        {
-            BallType.Metal => BallType.Goma,
-            BallType.Goma => BallType.Piedra,
-            BallType.Piedra => BallType.Metal,
-            _ => BallType.Goma
-        };
 
-        ChangeBallTypeTo(next);
+    public float GetCurrentSpeed()
+    {
+        return physicsManager.GetLinearVelocity(boundingVolume).Length();
     }
 
-    private void ChangeBallTypeTo(BallType newBallType)
+    public void Reset()
     {
         physicsManager.RemoveBoundingVolume(boundingVolume);
-
-        ballType = newBallType;
-        ballProperties = BallPresets.Presets[ballType];
 
         boundingVolume = physicsManager.AddDynamicSphere(
             radius: ballProperties.Radius,
@@ -313,18 +292,13 @@ public class PlayerBall : IColisionable
             dampingRatio: ballProperties.DampingRatio,
             springFrequency: ballProperties.SpringFrequency,
             maximumRecoveryVelocity: ballProperties.MaximumRecoveryVelocity,
-            initialPosition: respawnPosition,
+            initialPosition: InitialPosition,
             this);
 
-        world = XnaMatrix.CreateTranslation(respawnPosition);
+        world = XnaMatrix.CreateTranslation(InitialPosition);
 
         canJump = false;
         jumpMultiplierApplied = false;
         speedMultiplierApplied = false;
-    }
-
-    public float GetCurrentSpeed()
-    {
-        return physicsManager.GetLinearVelocity(boundingVolume).Length();
     }
 }

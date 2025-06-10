@@ -52,8 +52,6 @@ public class TGCGame : Game
 
     private GameMenu Menu;
 
-    private int _currentCheckpointId = 0;
-
     public TGCGame()
     {
         Graphics = new GraphicsDeviceManager(this);
@@ -78,8 +76,8 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         SpriteBatch = new SpriteBatch(GraphicsDevice);
-        Menu = new GameMenu(FontsManager, SpriteBatch, Exit);
-        HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice, EffectManager, TextureManager);
+        Menu = new GameMenu(FontsManager, SpriteBatch, Exit, Reset);
+        HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice);
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
         PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Goma);
 
@@ -111,11 +109,20 @@ public class TGCGame : Game
         var keyboardState = Keyboard.GetState();
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (GameOptions.State == GameState.Menu)
+        if (keyboardState.IsKeyDown(Keys.Escape))
+        {
+            GameState.Pause();
+            Menu.ChangeToOptionsMenu();
+            return;
+        }
+
+        if (!GameState.Playing)
         {
             Menu.Update(keyboardState, deltaTime, TargetCamera);
             return;
         }
+
+        GameState.CheckIfPlayerLost();
 
         PlayerBall.Update(keyboardState, deltaTime, TargetCamera);
 
@@ -151,20 +158,13 @@ public class TGCGame : Game
         {
             checkpoint.Update(deltaTime);
         }
-
-        _currentCheckpointId = Checkpoint.GetLastActivatedCheckpointId();
-
-        var nextCheckpoint = Checkpoints.FirstOrDefault(c => c.Id == _currentCheckpointId + 1);
-        Vector3 nextCheckpointPosition = nextCheckpoint?.Position ?? Vector3.Zero;
-
-        HUDLayout.Update(gameTime, _currentCheckpointId, Checkpoints.Count, nextCheckpointPosition, TargetCamera.TargetPosition);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        if (GameOptions.State == GameState.Menu)
+        if (!GameState.Playing)
         {
             Menu.Draw(gameTime);
             return;
@@ -213,8 +213,6 @@ public class TGCGame : Game
         }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
-
-        // Dibujar el HUD
         HUDLayout.Draw(PlayerBall, TargetCamera.View, TargetCamera.Projection, Checkpoints);
 
         base.Draw(gameTime);
@@ -224,7 +222,7 @@ public class TGCGame : Game
     {
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 1));
+            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
@@ -391,7 +389,7 @@ public class TGCGame : Game
 
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 2));
+            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
 
         // Obstaculos
         for (int i = 0; i < 5; i++)
@@ -484,10 +482,10 @@ public class TGCGame : Game
 
         // Checkpoints
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 3));
+            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, 4));
+            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
     }
 
     protected override void UnloadContent()
@@ -496,15 +494,50 @@ public class TGCGame : Game
         base.UnloadContent();
     }
 
-    // Método para pausar/reanudar el timer
-    public void ToggleTimer()
+    public void Reset()
     {
-        HUDLayout.ToggleTimer();
-    }
+        GameState.NewGame();
 
-    // Método para reiniciar el timer
-    public void ResetTimer()
-    {
-        HUDLayout.ResetTimer();
+        foreach (Checkpoint checkpoint in Checkpoints)
+        {
+            checkpoint.Reset();
+        }
+
+        foreach (DynamicBox dynamicBox in DynamicBoxes)
+        {
+            dynamicBox.Reset();
+        }
+
+        foreach (StaticBox staticBox in StaticBoxes)
+        {
+            staticBox.Reset();
+        }
+
+        foreach (FloorWallRamp floorWallRamp in FloorWallRamps)
+        {
+            floorWallRamp.Reset();
+        }
+
+        foreach (KinematicFloor kinematicFloor in KinematicFloors)
+        {
+            kinematicFloor.Reset();
+        }
+
+        foreach (KinematicWall kinematicWall in KinematicWalls)
+        {
+            kinematicWall.Reset();
+        }
+
+        foreach (JumpPowerUp jumpPowerUps in JumpPowerUps)
+        {
+            jumpPowerUps.Reset();
+        }
+
+        foreach (SpeedPowerUp speedPowerUp in SpeedPowerUps)
+        {
+            speedPowerUp.Reset();
+        }
+
+        PlayerBall.Reset();
     }
 }

@@ -97,4 +97,8 @@ public class JumpPowerUp : IColisionable
     {
         audioManager.PlayJumpPowerUpSound();
     }
+
+    public void Reset()
+    {
+    }
 }

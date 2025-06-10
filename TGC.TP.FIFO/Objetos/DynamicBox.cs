@@ -17,7 +17,7 @@ public class DynamicBox : IColisionable
     private readonly PhysicsManager physicsManager;
     private readonly TextureManager textureManager;
 
-    private readonly BodyHandle boundingVolume;
+    private BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
 
     private XnaMatrix world;
@@ -25,6 +25,12 @@ public class DynamicBox : IColisionable
     public BodyType BodyType => BodyType.Box;
 
     public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
+    private XnaVector3 InitialPosition;
+    private XnaQuaternion InitialRotation;
+    private float SideLength;
+    private float Mass;
+    private float Friction;
+
     public bool CanPlayerBallJumpOnIt => false;
 
     public DynamicBox(ModelManager modelManager,
@@ -32,8 +38,8 @@ public class DynamicBox : IColisionable
         PhysicsManager physicsManager,
         TextureManager textureManager,
         GraphicsDevice graphicsDevice,
-        XnaVector3 position,
-        XnaQuaternion rotation,
+        XnaVector3 initialPosition,
+        XnaQuaternion initialRotation,
         float sideLength,
         float friction,
         float mass)
@@ -43,10 +49,16 @@ public class DynamicBox : IColisionable
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
 
-        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
-        boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, position, rotation, this);
+        this.InitialPosition = initialPosition;
+        this.InitialRotation = initialRotation;
+        this.SideLength = sideLength;
+        this.Friction = friction;
+        this.Mass = mass;
 
-        world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
+        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
+
+        world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
@@ -72,5 +84,11 @@ public class DynamicBox : IColisionable
 
     public void NotifyCollition(IColisionable with)
     {
+    }
+
+    public void Reset()
+    {
+        this.physicsManager.RemoveBoundingVolume(boundingVolume);
+        this.boundingVolume = this.physicsManager.AddDynamicBox(SideLength, SideLength, SideLength, Mass, Friction, InitialPosition, InitialRotation, this);
     }
 }

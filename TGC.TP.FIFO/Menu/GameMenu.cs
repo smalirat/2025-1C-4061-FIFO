@@ -25,7 +25,7 @@ public class GameMenu
 
     private int selectedOptionIndex = 0;
 
-    public GameMenu(FontsManager fontsManager, SpriteBatch spriteBatch, Action exitGameAction)
+    public GameMenu(FontsManager fontsManager, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction)
     {
         this.fontsManager = fontsManager;
         this.spriteBatch = spriteBatch;
@@ -36,7 +36,7 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Nuevo juego", () => { GameOptions.State = GameState.Playing; }),
+                    new TextMenuEntry("Nuevo juego", newGameAction),
                     new TextMenuEntry("Opciones de bola", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions)),
                     new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions)),
                     new TextMenuEntry("Salir", exitGameAction),
@@ -46,7 +46,7 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.BallSubOptions),
                 new MenuEntry[]
                 {
-                    new SelectMenuEntry<BallType>("Tipo de bola", new List<BallType> { BallType.Goma, BallType.Metal, BallType.Piedra }, (BallType selected) => { GameOptions.BallType = selected; }),
+                    new SelectMenuEntry<BallType>("Tipo de bola", new List<BallType> { BallType.Goma, BallType.Metal, BallType.Piedra }, (BallType selected) => { GameState.BallType = selected; }),
                     new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions))
                 }
             },
@@ -64,7 +64,7 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.OptionsMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Seguir jugando", () => { GameOptions.State = GameState.Playing; }),
+                    new TextMenuEntry("Seguir jugando", GameState.Resume),
                     new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions)),
                     new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions)),
                     new TextMenuEntry("Salir", exitGameAction)
@@ -81,6 +81,11 @@ public class GameMenu
                 }
             }
         };
+    }
+
+    public void ChangeToOptionsMenu()
+    {
+        this.mainCurrentMenuState = MenuState.OptionsMenu;
     }
 
     public void Update(KeyboardState currentState, float deltaTime, TargetCamera camera)
@@ -145,12 +150,12 @@ public class GameMenu
     {
         return new BarMenuEntry("Volumen general", 
             () => { 
-                return GameOptions.MasterVolume; 
+                return GameState.MasterVolume; 
             }, 
             (int newVolume) => { 
-                GameOptions.MasterVolume = newVolume;
-                MediaPlayer.Volume = GameOptions.MasterVolume / 100f * GameOptions.BackgroundMusicVolume / 100f;
-                SoundEffect.MasterVolume = GameOptions.MasterVolume / 100f * GameOptions.SoundEffectsVolume / 100f;
+                GameState.MasterVolume = newVolume;
+                MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
+                SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             });
     }
 
@@ -158,11 +163,11 @@ public class GameMenu
     {
         return new BarMenuEntry("Volumen musica de fondo", 
             () => { 
-                return GameOptions.BackgroundMusicVolume; 
+                return GameState.BackgroundMusicVolume; 
             },
             (int newVolume) => { 
-                GameOptions.BackgroundMusicVolume = newVolume;
-                MediaPlayer.Volume = GameOptions.MasterVolume / 100f * GameOptions.BackgroundMusicVolume / 100f;
+                GameState.BackgroundMusicVolume = newVolume;
+                MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
             });
     }
 
@@ -170,11 +175,11 @@ public class GameMenu
     {
         return new BarMenuEntry("Volumen efectos de sonido",
             () => { 
-                return GameOptions.SoundEffectsVolume; 
+                return GameState.SoundEffectsVolume; 
             },
             (int newVolume) => {
-                GameOptions.SoundEffectsVolume = newVolume;
-                SoundEffect.MasterVolume = GameOptions.MasterVolume / 100f * GameOptions.SoundEffectsVolume / 100f;
+                GameState.SoundEffectsVolume = newVolume;
+                SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             });
     }
 }

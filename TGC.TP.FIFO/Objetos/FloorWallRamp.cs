@@ -1,5 +1,4 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
@@ -99,6 +98,10 @@ public class FloorWallRamp : IColisionable
     }
 
     public void NotifyCollition(IColisionable with)
+    {
+    }
+
+    public void Reset()
     {
     }
 }

@@ -95,4 +95,8 @@ public class SpeedPowerUp : IColisionable
     {
         audioManager.PlaySpeedPowerUpSound();
     }
+
+    public void Reset()
+    {
+    }
 }

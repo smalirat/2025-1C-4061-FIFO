@@ -57,11 +57,11 @@ public class StaticBox : IColisionable
 
         model.Draw(effect);
     }
-
-
-
     public void NotifyCollition(IColisionable with)
     {
+    }
 
+    public void Reset()
+    {
     }
 }

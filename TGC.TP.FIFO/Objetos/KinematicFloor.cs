@@ -103,4 +103,8 @@ public class KinematicFloor : IColisionable
     public void NotifyCollition(IColisionable with)
     {
     }
+
+    public void Reset()
+    {
+    }
 }
