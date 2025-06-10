@@ -7,23 +7,26 @@ namespace TGC.TP.FIFO.Menu;
 
 public class TextMenuEntry : MenuEntry
 {
-    private readonly string text;
+    public string Label { get; private set; }
     public Action<Keys> Action { get; private set; }
+    public SpriteFont Font { get; private set; }
+    public XnaVector2 Size => Font.MeasureString(Label);
 
-    public TextMenuEntry(string text, Action action)
+    public TextMenuEntry(string label, Action action, SpriteFont font)
     {
-        this.text = text;
-        this.Action = (keyPressed) =>
+        Font = font;
+        Label = label;
+        Action = (keyPressed) =>
         {
             if (keyPressed != Keys.Enter) return;
             action.Invoke();
         };
     }
 
-    public void Draw(SpriteBatch spriteBatch, SpriteFont textFont, Color textColor, XnaVector2 screenTextPosition)
+    public void Draw(SpriteBatch spriteBatch, Color textColor, XnaVector2 screenTextPosition)
     {
         spriteBatch.Begin();
-        spriteBatch.DrawString(textFont, text, screenTextPosition, textColor);
+        spriteBatch.DrawString(Font, Label, screenTextPosition, textColor);
         spriteBatch.End();
     }
 }

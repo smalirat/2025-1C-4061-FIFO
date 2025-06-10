@@ -5,6 +5,7 @@ using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
@@ -52,17 +53,13 @@ public class PlayerBall : IColisionable
     private float YScale => ballProperties.Radius / ModelRadius;
     private float ZScale => ballProperties.Radius / ModelRadius;
 
-    public BallType ballType;
-    public BallType BallType => ballType;
-
     public PlayerBall(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
         TextureManager textureManager,
         AudioManager audioManager,
         GraphicsDevice graphicsDevice,
-        XnaVector3 initialPosition,
-        BallType ballType)
+        XnaVector3 initialPosition)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
@@ -70,11 +67,10 @@ public class PlayerBall : IColisionable
         this.textureManager = textureManager;
         this.audioManager = audioManager;
 
-        this.ballType = ballType;
         InitialPosition = initialPosition;
         respawnPosition = initialPosition;
 
-        ballProperties = BallPresets.Presets[ballType];
+        ballProperties = BallPresets.Presets[GameState.BallType];
 
         boundingVolume = this.physicsManager.AddDynamicSphere(
             radius: ballProperties.Radius,
@@ -161,7 +157,7 @@ public class PlayerBall : IColisionable
             if (keyboardState.IsKeyDown(Keys.Space) && canJump && canJumpTimer >= CanJumpThreshold)
             {
                 canJumpTimer = 0f;
-                audioManager.PlayJumpSound(this.ballType);
+                audioManager.PlayJumpSound(GameState.BallType);
 
                 physicsManager.ApplyImpulse(boundingVolume,
                     XnaVector3.Up,
@@ -180,7 +176,7 @@ public class PlayerBall : IColisionable
                 isRolling = true;
                 audioManager.PlayRollingSound();
             }
-            audioManager.UpdateRollingSound(ballType, currentSpeed);
+            audioManager.UpdateRollingSound(GameState.BallType, currentSpeed);
         }
         else
         {
@@ -216,11 +212,11 @@ public class PlayerBall : IColisionable
         var effect = effectManager.SphereShader;
         Texture2D texture = null;
 
-        if (BallType.Goma == ballType)
+        if (BallType.Goma == GameState.BallType)
         {
             texture = textureManager.RubberTexture;
         }
-        else if (BallType.Metal == ballType)
+        else if (BallType.Metal == GameState.BallType)
         {
             texture = textureManager.SphereMetalTexture;
         }
@@ -284,6 +280,8 @@ public class PlayerBall : IColisionable
     public void Reset()
     {
         physicsManager.RemoveBoundingVolume(boundingVolume);
+
+        ballProperties = BallPresets.Presets[GameState.BallType];
 
         boundingVolume = physicsManager.AddDynamicSphere(
             radius: ballProperties.Radius,

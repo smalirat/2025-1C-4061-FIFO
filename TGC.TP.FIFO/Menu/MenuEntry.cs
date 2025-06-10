@@ -7,7 +7,10 @@ namespace TGC.TP.FIFO.Menu;
 
 public interface MenuEntry
 {
+    Vector2 Size { get; }
+    string Label { get; }
     Action<Keys> Action { get; }
+    SpriteFont Font { get; }
 
-    void Draw(SpriteBatch spriteBatch, SpriteFont textFont, Color textColor, Vector2 screenTextPosition);
+    void Draw(SpriteBatch spriteBatch, Color textColor, Vector2 screenTextPosition);
 }

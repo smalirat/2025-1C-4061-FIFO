@@ -25,7 +25,7 @@ public class GameMenu
 
     private int selectedOptionIndex = 0;
 
-    public GameMenu(FontsManager fontsManager, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction)
+    public GameMenu(FontsManager fontsManager, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction, Action resetBallAction)
     {
         this.fontsManager = fontsManager;
         this.spriteBatch = spriteBatch;
@@ -36,18 +36,26 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Nuevo juego", newGameAction),
-                    new TextMenuEntry("Opciones de bola", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions)),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions)),
-                    new TextMenuEntry("Salir", exitGameAction),
+                    new TextMenuEntry("Nuevo juego", newGameAction, fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Opciones de bola", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions), fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole14)
                 }
             },
             {
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.BallSubOptions),
                 new MenuEntry[]
                 {
-                    new SelectMenuEntry<BallType>("Tipo de bola", new List<BallType> { BallType.Goma, BallType.Metal, BallType.Piedra }, (BallType selected) => { GameState.BallType = selected; }),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions))
+                    new SelectMenuEntry<BallType>(
+                        "Tipo de bola",
+                        new List<BallType> { BallType.Goma, BallType.Metal, BallType.Piedra },
+                        (BallType selected) => { 
+                            GameState.BallType = selected;
+                            resetBallAction.Invoke();
+                        },
+                        fontsManager.LucidaConsole14
+                    ),
+                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14)
                 }
             },
             {
@@ -57,17 +65,17 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions))
+                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14),
                 }
             },
             {
                 new Tuple<MenuState, MenuState>(MenuState.OptionsMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Seguir jugando", GameState.Resume),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions)),
-                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions)),
-                    new TextMenuEntry("Salir", exitGameAction)
+                    new TextMenuEntry("Seguir jugando", GameState.Resume, fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14),
+                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole14)
                 }
             },
             {
@@ -77,7 +85,7 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions))
+                    new TextMenuEntry("Volver atras", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole14)
                 }
             }
         };
@@ -114,15 +122,22 @@ public class GameMenu
         previousKeyboardState = currentState;
     }
 
-    public void Draw(GameTime gameTime)
+    public void Draw(GameTime gameTime, Viewport viewport)
     {
         var menuEntries = this.menuEntries[GetCurrentMenuState()];
+
+        var startY = viewport.Height * 0.3f;
+        var spacing = fontsManager.LucidaConsole14.LineSpacing * 1.5f;
+        var centerX = viewport.Width / 2f;
 
         for (int i = 0; i < menuEntries.Length; i++)
         {
             var menuEntry = menuEntries[i];
+            var textSize = menuEntry.Size;
+            var position = new Vector2(centerX - textSize.X / 2f, startY + i * spacing);
             var textColor = (i == selectedOptionIndex) ? Color.Yellow : Color.White;
-            menuEntry.Draw(spriteBatch, fontsManager.LucidaConsole14, textColor, new XnaVector2(100, 150 + i * 40));
+
+            menuEntry.Draw(spriteBatch, textColor, new XnaVector2(100, 150 + i * 40));
         }
     }
 
@@ -156,7 +171,8 @@ public class GameMenu
                 GameState.MasterVolume = newVolume;
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
-            });
+            },
+            fontsManager.LucidaConsole14);
     }
 
     private BarMenuEntry GetBackgroundMusicVolumeMenuEntry()
@@ -168,7 +184,8 @@ public class GameMenu
             (int newVolume) => { 
                 GameState.BackgroundMusicVolume = newVolume;
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
-            });
+            },
+            fontsManager.LucidaConsole14);
     }
 
     private BarMenuEntry GetSoundEffectsVolumeMenuEntry()
@@ -180,6 +197,7 @@ public class GameMenu
             (int newVolume) => {
                 GameState.SoundEffectsVolume = newVolume;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
-            });
+            },
+            fontsManager.LucidaConsole14);
     }
 }

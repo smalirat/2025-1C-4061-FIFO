@@ -76,10 +76,9 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         SpriteBatch = new SpriteBatch(GraphicsDevice);
-        Menu = new GameMenu(FontsManager, SpriteBatch, Exit, Reset);
         HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice);
         Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, TiposSkybox.Roca);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f), BallType.Goma);
+        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f));
 
         InitializeLevel1();
         InitializeLevel2();
@@ -98,6 +97,8 @@ public class TGCGame : Game
         AudioManager.Load(Content);
         FontsManager.Load(Content);
         HUDLayout.LoadContent(Content);
+
+        Menu = new GameMenu(FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
 
         AudioManager.PlayBackgroundMusic();
 
@@ -166,7 +167,7 @@ public class TGCGame : Game
 
         if (!GameState.Playing)
         {
-            Menu.Draw(gameTime);
+            Menu.Draw(gameTime, GraphicsDevice.Viewport);
             return;
         }
 
@@ -494,7 +495,7 @@ public class TGCGame : Game
         base.UnloadContent();
     }
 
-    public void Reset()
+    public void NewGame()
     {
         GameState.NewGame();
 
