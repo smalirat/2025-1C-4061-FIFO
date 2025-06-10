@@ -31,5 +31,7 @@
 */Content/Models/** filter=lfs diff=lfs merge=lfs -text
 */Content/Music/** filter=lfs diff=lfs merge=lfs -text
 */Content/Sounds/** filter=lfs diff=lfs merge=lfs -text
+*/Content/Songs/** filter=lfs diff=lfs merge=lfs -text
+*/Content/SoundEffects/** filter=lfs diff=lfs merge=lfs -text
 */Content/SpriteFonts/** filter=lfs diff=lfs merge=lfs -text
 */Content/Textures/** filter=lfs diff=lfs merge=lfs -text
