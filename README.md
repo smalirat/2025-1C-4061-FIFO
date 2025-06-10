@@ -38,6 +38,7 @@ Apellido, Nombre | Legajo | Foto
 | Lucas Agustín Máspero | 161542-7 |<img src="" height="500">  |
 | Santiago Malirat Canga | 213857-8 |<img src="" height="500">  |
 | Matias Nicolas Espinoza Bucarey | 167874-7 |<img src="" height="500"> |
+| Eric Piter Huanto Cabrera | 160470-3 |<img src="" height="500"> |
 
 ## Capturas
 
