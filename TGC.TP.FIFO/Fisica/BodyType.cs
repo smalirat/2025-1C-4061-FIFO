@@ -8,7 +8,6 @@ public enum BodyType
     FloorRamp, 
     Checkpoint,
     Box,
-    OilBarrel,
     Other,
     Camera
 }

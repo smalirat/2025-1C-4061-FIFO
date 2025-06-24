@@ -100,60 +100,6 @@ namespace TGC.TP.FIFO.Fisica
             return handle;
         }
 
-        public BodyHandle AddDynamicCylinder(float length, float radius, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
-        {
-            var cylinderShape = new Cylinder(radius, length);
-            var shapeIndex = Simulation.Shapes.Add(cylinderShape);
-
-            var rotationFix = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f); // gira 90° en X
-
-            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
-
-            var bodyDescription = BodyDescription.CreateDynamic(
-                new RigidPose(initialPosition.ToBepuVector3(), (initialRotation * rotationFix).ToBepuQuaternion()),
-                cylinderShape.ComputeInertia(mass),
-                collidableDescription,
-                new BodyActivityDescription(0.1f));
-
-            var handle = Simulation.Bodies.Add(bodyDescription);
-
-            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
-
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = friction,
-                MaximumRecoveryVelocity = float.MaxValue, // Default
-                SpringSettings = new SpringSettings(30, 1) // Default
-            };
-
-            return handle;
-        }
-
-        public StaticHandle AddStaticSphere(float radius, XnaVector3 initialPosition, IColisionable collidableReference)
-        {
-            var sphereShape = new Sphere(radius);
-            var shapeIndex = Simulation.Shapes.Add(sphereShape);
-
-            var staticDescription = new StaticDescription(
-                initialPosition.ToBepuVector3(),
-                BepuQuaternion.Identity,
-                shapeIndex,
-                continuity: ContinuousDetection.Passive);
-
-            var handle = Simulation.Statics.Add(staticDescription);
-
-            CollidableReferences[new CollidableReference(handle)] = collidableReference;
-
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = 1f, // Default
-                MaximumRecoveryVelocity = float.MaxValue, // Default
-                SpringSettings = new SpringSettings(30, 1) // Default
-            };
-
-            return handle;
-        }
-
         public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
         {
             var boxShape = new Box(width, height, length);
@@ -174,33 +120,6 @@ namespace TGC.TP.FIFO.Fisica
                 FrictionCoefficient = 1f,
                 MaximumRecoveryVelocity = float.MaxValue,
                 SpringSettings = new SpringSettings(30, 1)
-            };
-
-            return handle;
-        }
-
-        public StaticHandle AddStaticCylinder(float length, float radius, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
-        {
-            var cylinderShape = new Cylinder(radius, length);
-            var shapeIndex = Simulation.Shapes.Add(cylinderShape);
-
-            var rotationFix = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, MathF.PI / 2f); // gira 90° en X
-
-            var staticDescription = new StaticDescription(
-                initialPosition.ToBepuVector3(),
-                (initialRotation * rotationFix).ToBepuQuaternion(),
-                shapeIndex,
-                continuity: ContinuousDetection.Passive);
-
-            var handle = Simulation.Statics.Add(staticDescription);
-
-            CollidableReferences[new CollidableReference(handle)] = collidableReference;
-
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = 1f, // Default
-                MaximumRecoveryVelocity = float.MaxValue, // Default
-                SpringSettings = new SpringSettings(30, 1) // Default
             };
 
             return handle;
@@ -268,12 +187,6 @@ namespace TGC.TP.FIFO.Fisica
             return bodyRef.Velocity.Linear.ToXnaVector3();
         }
 
-        public XnaVector3 GetAngularVelocity(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            return bodyRef.Velocity.Angular.ToXnaVector3();
-        }
-
         public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
         {
             var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
@@ -296,14 +209,6 @@ namespace TGC.TP.FIFO.Fisica
         public void RemoveBoundingVolume(BodyHandle bodyHandle)
         {
             Simulation.Bodies.Remove(bodyHandle);
-        }
-
-        public CollidableReference RayCast(XnaVector3 origin, XnaVector3 direction, float maxDistance)
-        {
-            var closestRayHitHandler = new ClosestRayHitHandler();
-            Simulation.RayCast(origin.ToBepuVector3(), direction.ToBepuVector3(), maxDistance, ref closestRayHitHandler);
-
-            return closestRayHitHandler.HitCollidable;
         }
     }
 }
