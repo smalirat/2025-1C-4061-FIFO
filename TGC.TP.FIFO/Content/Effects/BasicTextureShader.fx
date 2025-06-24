@@ -55,7 +55,7 @@ VertexShaderOutput MainVS(VertexShaderInput input)
 	// Multiplico matrices: Vista → Proyeccion
     output.Position = mul(viewPosition, Projection);
     
-    // Propago
+    // Propagamos las coordenadas de textura
     output.TextureCoordinate = input.TextureCoordinate;
 
     return output;

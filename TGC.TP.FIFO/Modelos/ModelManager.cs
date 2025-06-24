@@ -9,7 +9,6 @@ public class ModelManager
     public const string ContentFolderModels = "Models/";
 
     public Model SphereModel { get; private set; }
-    public Model SkyBoxCubeModel { get; private set; }
     public Model LigthingModel { get; private set; }
     public Model ArrowModel { get; private set; }
     public Model FlagModel { get; private set; }
@@ -17,7 +16,6 @@ public class ModelManager
     public void Load(ContentManager content)
     {
         SphereModel = LoadModel(content, "sphere");
-        SkyBoxCubeModel = LoadModel(content, "cube");
         LigthingModel = LoadModel(content, "ligthing");
         ArrowModel = LoadModel(content, "arrow");
         FlagModel = LoadModel(content, "flag");

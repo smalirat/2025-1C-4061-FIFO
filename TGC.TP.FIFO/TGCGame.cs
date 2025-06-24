@@ -77,7 +77,7 @@ public class TGCGame : Game
 
         SpriteBatch = new SpriteBatch(GraphicsDevice);
         HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice);
-        Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager);
+        Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, GraphicsDevice);
         PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f));
 
         InitializeLevel1();

@@ -1,7 +1,6 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
@@ -206,7 +205,7 @@ public class PlayerBall : IColisionable
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
         var model = modelManager.SphereModel;
-        var effect = effectManager.SphereShader;
+        var effect = effectManager.BasicTextureShader;
         Texture2D texture = null;
 
         if (BallType.Goma == GameState.BallType)
@@ -229,9 +228,9 @@ public class PlayerBall : IColisionable
                 meshPart.Effect = effect;
             }
 
+            effect.Parameters["World"]?.SetValue(world);
             effect.Parameters["View"]?.SetValue(view);
             effect.Parameters["Projection"]?.SetValue(projection);
-            effect.Parameters["World"]?.SetValue(world);
             effect.Parameters["ModelTexture"]?.SetValue(texture);
 
             mesh.Draw();
