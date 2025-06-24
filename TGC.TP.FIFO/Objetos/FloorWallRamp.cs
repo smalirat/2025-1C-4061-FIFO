@@ -73,24 +73,8 @@ public class FloorWallRamp : IColisionable
                 texture = textureManager.DirtTexture;
                 break;
 
-            case RampWallTextureType.Stones1:
-                texture = textureManager.Stones1Texture;
-                break;
-
-            case RampWallTextureType.Stones2:
-                texture = textureManager.Stones1Texture;
-                break;
-
-            case RampWallTextureType.Stones3:
-                texture = textureManager.Stones1Texture;
-                break;
-
-            case RampWallTextureType.Grass:
-                texture = textureManager.GrassTexture;
-                break;
-
-            case RampWallTextureType.Ground:
-                texture = textureManager.GroundTexture;
+            case RampWallTextureType.Stones:
+                texture = textureManager.StonesTexture;
                 break;
         }
 

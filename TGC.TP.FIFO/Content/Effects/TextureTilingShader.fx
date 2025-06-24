@@ -25,19 +25,23 @@ sampler2D textureSampler = sampler_state
     AddressV = Wrap;
 };
 
+// Entrada al vertex shader
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
     float3 Normal : NORMAL0;
-    float2 TextureCoordinate : TEXCOORD0;
+    float2 TextureCoordinate : TEXCOORD0; // Coordenadas UV
 };
 
+// Salida del vertex shader
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float2 TextureCoordinate : TEXCOORD0;
+    float2 TextureCoordinate : TEXCOORD0; // Coordenadas UV
 };
 
+// Vertex Shader
+// Se aplican las transformaciones estándar: Local → Mundo → Vista → Proyeccion
 VertexShaderOutput BaseTilingVS(in VertexShaderInput input)
 {
     // Restablezco el output
@@ -52,15 +56,15 @@ VertexShaderOutput BaseTilingVS(in VertexShaderInput input)
     // Multiplico matrices: Vista → Proyeccion
     output.Position = mul(viewPosition, Projection);
 
-    // Propagate scaled Texture Coordinates
+    // Propagamos las coordenadas de textura escaladas
     output.TextureCoordinate = input.TextureCoordinate * Tiling;
 
     return output;
 }
 
+// Fragment Shader
 float4 BaseTilingPS(VertexShaderOutput input) : COLOR
 {
-    // Sample the texture using our scaled Texture Coordinates
     return tex2D(textureSampler, input.TextureCoordinate);
 }
 

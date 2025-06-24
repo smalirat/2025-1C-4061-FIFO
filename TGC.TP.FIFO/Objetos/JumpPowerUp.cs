@@ -1,15 +1,10 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-using Microsoft.Xna.Framework.Input;
-using TGC.TP.FIFO.Cameras;
+using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Modelos;
-using TGC.TP.FIFO.Utilidades;
-using TGC.TP.FIFO.Audio;
-
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -77,14 +72,31 @@ public class JumpPowerUp : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.ArrowModel,
-            effectManager.BasicShader,
-            view,
-            projection,
-            translation: XnaMatrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
-            rotation: XnaMatrix.CreateFromQuaternion(rotation),
-            color: color);
+        var translationMatrix = XnaMatrix.CreateTranslation(position);
+        var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
+        var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
+
+        var baseTransforms = new XnaMatrix[modelManager.ArrowModel.Bones.Count];
+        modelManager.ArrowModel.CopyAbsoluteBoneTransformsTo(baseTransforms);
+
+        var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+
+        foreach (var mesh in modelManager.ArrowModel.Meshes)
+        {
+            foreach (var meshPart in mesh.MeshParts)
+            {
+                meshPart.Effect = effectManager.BasicShader;
+            }
+
+            var meshTransform = baseTransforms[mesh.ParentBone.Index];
+
+            effectManager.BasicShader.Parameters["World"]?.SetValue(meshTransform * localTransform);
+            effectManager.BasicShader.Parameters["View"]?.SetValue(view);
+            effectManager.BasicShader.Parameters["Projection"]?.SetValue(projection);
+            effectManager.BasicShader.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
+
+            mesh.Draw();
+        }
     }
 
     public void Update(float deltaTime)

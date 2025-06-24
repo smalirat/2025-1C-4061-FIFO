@@ -7,18 +7,20 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
+
+// Matrices y parámetros
 uniform float4x4 World;
 uniform float4x4 View;
 uniform float4x4 Projection;
 uniform float3 DiffuseColor;
 
-// Vertice
+// Entrada al vertex shader
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 };
 
-// Vertice Proyectado
+// Salida del vertex shader
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;

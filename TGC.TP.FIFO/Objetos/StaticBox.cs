@@ -57,9 +57,7 @@ public class StaticBox : IColisionable
         effect.Parameters["View"]?.SetValue(view);
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(world);
-        effect.Parameters["DiffuseColor"]?.SetValue(Color.Black.ToVector3());
-        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox4Texture);
-        effect.Parameters["UVScale"].SetValue(1f);
+        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox1Texture);
 
         model.Draw(effect);
     }

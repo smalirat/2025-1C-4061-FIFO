@@ -103,7 +103,7 @@ public class GameMenu
             150f,
             150f,
             false,
-            RampWallTextureType.Stones1);
+            RampWallTextureType.Stones);
 
         ParedIzquierda = new FloorWallRamp(
             this.modelManager,
@@ -117,7 +117,7 @@ public class GameMenu
             150f,
             150f,
             false,
-            RampWallTextureType.Stones1);
+            RampWallTextureType.Stones);
 
         StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3010f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
         StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, new XnaVector3(2991f, 2996.5f, 3013f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));

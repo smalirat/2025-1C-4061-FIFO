@@ -2,10 +2,6 @@
 
 public enum RampWallTextureType
 {
-    Stones1,
-    Stones2,
-    Stones3,
-    Grass,
-    Ground,
+    Stones,
     Dirt
 }

@@ -6,7 +6,6 @@ using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
-using TGC.TP.FIFO.Utilidades;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -72,14 +71,33 @@ public class Checkpoint : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection)
     {
-        DrawUtilities.DrawCustomModel(modelManager.FlagModel,
-            effectManager.BasicShader,
-            view,
-            projection,
-            translation: XnaMatrix.CreateTranslation(position),
-            scale: XnaMatrix.CreateScale(XScale, YScale, ZScale),
-            rotation: XnaMatrix.CreateFromQuaternion(rotation),
-            color: Checked ? Color.LimeGreen : color);
+        var translationMatrix = XnaMatrix.CreateTranslation(position);
+        var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
+        var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
+
+        var baseTransforms = new XnaMatrix[modelManager.FlagModel.Bones.Count];
+        modelManager.FlagModel.CopyAbsoluteBoneTransformsTo(baseTransforms);
+
+        var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+
+        var finalColor = Checked ? Color.LimeGreen : color;
+
+        foreach (var mesh in modelManager.FlagModel.Meshes)
+        {
+            foreach (var meshPart in mesh.MeshParts)
+            {
+                meshPart.Effect = effectManager.BasicShader;
+            }
+
+            var meshTransform = baseTransforms[mesh.ParentBone.Index];
+
+            effectManager.BasicShader.Parameters["World"]?.SetValue(meshTransform * localTransform);
+            effectManager.BasicShader.Parameters["View"]?.SetValue(view);
+            effectManager.BasicShader.Parameters["Projection"]?.SetValue(projection);
+            effectManager.BasicShader.Parameters["DiffuseColor"]?.SetValue(finalColor.ToVector3());
+
+            mesh.Draw();
+        }
     }
 
     public void Update(float deltaTime)
