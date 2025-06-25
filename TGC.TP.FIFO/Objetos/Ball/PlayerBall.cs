@@ -203,61 +203,31 @@ public class PlayerBall : IColisionable
         }
     }
 
-    /*public void Draw(XnaMatrix view, XnaMatrix projection)
-    {
-        var model = modelManager.SphereModel;
-        var effect = effectManager.BasicTextureShader;
-        Texture2D texture = null;
-
-        if (BallType.Goma == GameState.BallType)
-        {
-            texture = textureManager.RubberTexture;
-        }
-        else if (BallType.Metal == GameState.BallType)
-        {
-            texture = textureManager.SphereMetalTexture;
-        }
-        else
-        {
-            texture = textureManager.SphereMarbleTexture;
-        }
-
-        foreach (var mesh in model.Meshes)
-        {
-            foreach (var meshPart in mesh.MeshParts)
-            {
-                meshPart.Effect = effect;
-            }
-
-            effect.Parameters["World"]?.SetValue(world);
-            effect.Parameters["View"]?.SetValue(view);
-            effect.Parameters["Projection"]?.SetValue(projection);
-            effect.Parameters["ModelTexture"]?.SetValue(texture);
-
-            mesh.Draw();
-        }
-    }*/
-
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
         var model = modelManager.SphereModel;
-        var effect = effectManager.BlinnPhongShader; // Asegurate de tenerlo en tu EffectManager
-        Texture2D texture = null;
+        var effect = effectManager.BlinnPhongShader;
+        Texture2D texture;
+        BlinnPhongMaterial material;
 
+        // Selección del material y textura según el tipo de bola
         if (BallType.Goma == GameState.BallType)
         {
             texture = textureManager.RubberTexture;
+            material = MaterialPresets.Goma;
         }
         else if (BallType.Metal == GameState.BallType)
         {
             texture = textureManager.SphereMetalTexture;
+            material = MaterialPresets.Metal;
         }
         else
         {
             texture = textureManager.SphereMarbleTexture;
+            material = MaterialPresets.Madera; // o cualquier otro por defecto
         }
 
-        // Matrices para el shader
+        // Calculo de matrices
         var worldViewProjection = world * view * projection;
         var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
 
@@ -268,25 +238,33 @@ public class PlayerBall : IColisionable
                 meshPart.Effect = effect;
             }
 
+            // Envío de matrices al shader
             effect.Parameters["WorldViewProjection"]?.SetValue(worldViewProjection);
             effect.Parameters["World"]?.SetValue(world);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
 
-            effect.Parameters["ambientColor"]?.SetValue(new Vector3(0.2f, 0.2f, 0.2f)); // Ejemplo
-            effect.Parameters["diffuseColor"]?.SetValue(new Vector3(1.0f, 1.0f, 1.0f)); // Ejemplo
-            effect.Parameters["specularColor"]?.SetValue(new Vector3(1.0f, 1.0f, 1.0f)); // Ejemplo
-            effect.Parameters["KAmbient"]?.SetValue(0.3f);
-            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
-            effect.Parameters["KSpecular"]?.SetValue(0.5f);
-            effect.Parameters["shininess"]?.SetValue(32.0f);
+            // Envío del material al shader
+            effect.Parameters["ambientColor"]?.SetValue(material.AmbientColor);
+            effect.Parameters["diffuseColor"]?.SetValue(material.DiffuseColor);
+            effect.Parameters["specularColor"]?.SetValue(material.SpecularColor);
+
+            effect.Parameters["KAmbient"]?.SetValue(material.KAmbient);
+            effect.Parameters["KDiffuse"]?.SetValue(material.KDiffuse);
+            effect.Parameters["KSpecular"]?.SetValue(material.KSpecular);
+            effect.Parameters["shininess"]?.SetValue(material.Shininess);
+
+            // Luz y cámara
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);
 
+            // Textura base
             effect.Parameters["baseTexture"]?.SetValue(texture);
 
+            // Dibujo
             mesh.Draw();
         }
     }
+
 
     public void NotifyCollition(IColisionable with)
     {
