@@ -39,6 +39,8 @@ public class TargetCamera
     // Offset para la posicion final de la camara
     private XnaVector3 Offset;
 
+    public XnaVector3 Position => TargetPosition + Offset;
+
     public TargetCamera(float fov, float aspectRatio, float nearPlaneDistance, float farPlaneDistance, XnaVector3 initialTargetPosition, float cameraTargetDistance, float mouseSensitivity)
     {
         CameraTargetDistance = cameraTargetDistance;

@@ -25,6 +25,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicTextureShader.fx
 
+#begin Effects/BlinnPhongShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/BlinnPhongShader.fx
+
 #begin Effects/SkyBoxShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor

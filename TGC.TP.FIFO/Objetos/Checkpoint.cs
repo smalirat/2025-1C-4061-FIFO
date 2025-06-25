@@ -69,7 +69,7 @@ public class Checkpoint : IColisionable
         boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 4, depth * 2, position, rotation, this);
     }
 
-    public void Draw(XnaMatrix view, XnaMatrix projection)
+    public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
         var translationMatrix = XnaMatrix.CreateTranslation(position);
         var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
@@ -81,20 +81,32 @@ public class Checkpoint : IColisionable
         var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
 
         var finalColor = Checked ? Color.LimeGreen : color;
+        var baseColor = finalColor.ToVector3();
 
         foreach (var mesh in modelManager.FlagModel.Meshes)
         {
             foreach (var meshPart in mesh.MeshParts)
             {
-                meshPart.Effect = effectManager.BasicShader;
+                meshPart.Effect = effectManager.BlinnPhongShader;
             }
 
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-            effectManager.BasicShader.Parameters["World"]?.SetValue(meshTransform * localTransform);
-            effectManager.BasicShader.Parameters["View"]?.SetValue(view);
-            effectManager.BasicShader.Parameters["Projection"]?.SetValue(projection);
-            effectManager.BasicShader.Parameters["DiffuseColor"]?.SetValue(finalColor.ToVector3());
+            var effect = effectManager.BlinnPhongShader;
+            effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
+            effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
+            effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
+
+            effect.Parameters["ambientColor"]?.SetValue(baseColor * 0.3f);
+            effect.Parameters["diffuseColor"]?.SetValue(baseColor);
+            effect.Parameters["specularColor"]?.SetValue(Vector3.One);
+            effect.Parameters["KAmbient"]?.SetValue(0.3f);
+            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+            effect.Parameters["KSpecular"]?.SetValue(0.8f);
+            effect.Parameters["shininess"]?.SetValue(64.0f);
+
+            effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+            effect.Parameters["eyePosition"]?.SetValue(eyePosition);
 
             mesh.Draw();
         }

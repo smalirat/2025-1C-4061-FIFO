@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
@@ -202,7 +203,7 @@ public class PlayerBall : IColisionable
         }
     }
 
-    public void Draw(XnaMatrix view, XnaMatrix projection)
+    /*public void Draw(XnaMatrix view, XnaMatrix projection)
     {
         var model = modelManager.SphereModel;
         var effect = effectManager.BasicTextureShader;
@@ -232,6 +233,56 @@ public class PlayerBall : IColisionable
             effect.Parameters["View"]?.SetValue(view);
             effect.Parameters["Projection"]?.SetValue(projection);
             effect.Parameters["ModelTexture"]?.SetValue(texture);
+
+            mesh.Draw();
+        }
+    }*/
+
+    public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
+    {
+        var model = modelManager.SphereModel;
+        var effect = effectManager.BlinnPhongShader; // Asegurate de tenerlo en tu EffectManager
+        Texture2D texture = null;
+
+        if (BallType.Goma == GameState.BallType)
+        {
+            texture = textureManager.RubberTexture;
+        }
+        else if (BallType.Metal == GameState.BallType)
+        {
+            texture = textureManager.SphereMetalTexture;
+        }
+        else
+        {
+            texture = textureManager.SphereMarbleTexture;
+        }
+
+        // Matrices para el shader
+        var worldViewProjection = world * view * projection;
+        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
+
+        foreach (var mesh in model.Meshes)
+        {
+            foreach (var meshPart in mesh.MeshParts)
+            {
+                meshPart.Effect = effect;
+            }
+
+            effect.Parameters["WorldViewProjection"]?.SetValue(worldViewProjection);
+            effect.Parameters["World"]?.SetValue(world);
+            effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
+
+            effect.Parameters["ambientColor"]?.SetValue(new Vector3(0.2f, 0.2f, 0.2f)); // Ejemplo
+            effect.Parameters["diffuseColor"]?.SetValue(new Vector3(1.0f, 1.0f, 1.0f)); // Ejemplo
+            effect.Parameters["specularColor"]?.SetValue(new Vector3(1.0f, 1.0f, 1.0f)); // Ejemplo
+            effect.Parameters["KAmbient"]?.SetValue(0.3f);
+            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+            effect.Parameters["KSpecular"]?.SetValue(0.5f);
+            effect.Parameters["shininess"]?.SetValue(32.0f);
+            effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+            effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+
+            effect.Parameters["baseTexture"]?.SetValue(texture);
 
             mesh.Draw();
         }

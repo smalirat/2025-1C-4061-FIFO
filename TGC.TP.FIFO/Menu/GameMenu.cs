@@ -234,15 +234,17 @@ public class GameMenu
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice)
     {
-        Piso.Draw(this.Camera.View, this.Camera.Projection);
-        ParedFondo.Draw(this.Camera.View, this.Camera.Projection);
-        ParedIzquierda.Draw(this.Camera.View, this.Camera.Projection);
-        DummyCheckpoint.Draw(this.Camera.View, this.Camera.Projection);
-        DummyPlayerBall.Draw(this.Camera.View, this.Camera.Projection);
+        var eyePosition = this.Camera.Position;
+
+        Piso.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+        ParedFondo.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+        ParedIzquierda.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+        DummyCheckpoint.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+        DummyPlayerBall.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
 
         foreach (StaticBox staticBox in StaticBoxes)
         {
-            staticBox.Draw(this.Camera.View, this.Camera.Projection);
+            staticBox.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
         }
 
         var originalDepthStencilState = graphicsDevice.DepthStencilState;

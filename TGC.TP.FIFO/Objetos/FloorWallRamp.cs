@@ -1,5 +1,6 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
@@ -62,27 +63,49 @@ public class FloorWallRamp : IColisionable
         this.audioManager = audioManager;
     }
 
-    public void Draw(XnaMatrix view, XnaMatrix projection)
+    public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.TextureTilingShader;
+        var effect = effectManager.BlinnPhongShader;
         Texture2D texture = null;
+
+        // Parámetros por defecto (tierra)
+        Vector3 ambientColor = new Vector3(0.2f, 0.15f, 0.1f);
+        Vector3 diffuseColor = new Vector3(0.4f, 0.3f, 0.2f);
+        Vector3 specularColor = new Vector3(0.1f, 0.1f, 0.1f);
+        float kAmbient = 0.5f, kDiffuse = 0.6f, kSpecular = 0.05f, shininess = 4f;
 
         switch (RampWallTextureType)
         {
             case RampWallTextureType.Dirt:
                 texture = textureManager.DirtTexture;
+                // Ya están los valores por defecto
                 break;
 
             case RampWallTextureType.Stones:
                 texture = textureManager.StonesTexture;
+                ambientColor = new Vector3(0.3f, 0.2f, 0.2f);
+                diffuseColor = new Vector3(0.6f, 0.3f, 0.3f);
+                specularColor = new Vector3(0.2f, 0.2f, 0.2f);
+                kAmbient = 0.4f; kDiffuse = 0.7f; kSpecular = 0.1f; shininess = 8f;
                 break;
         }
 
-        effect.Parameters["View"]?.SetValue(view);
-        effect.Parameters["Projection"]?.SetValue(projection);
+        effect.Parameters["WorldViewProjection"]?.SetValue(world * view * projection);
         effect.Parameters["World"]?.SetValue(world);
-        effect.Parameters["ModelTexture"].SetValue(texture);
-        effect.Parameters["Tiling"].SetValue(new XnaVector2(10f, 10f));
+        effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(world)));
+
+        effect.Parameters["ambientColor"]?.SetValue(ambientColor);
+        effect.Parameters["diffuseColor"]?.SetValue(diffuseColor);
+        effect.Parameters["specularColor"]?.SetValue(specularColor);
+        effect.Parameters["KAmbient"]?.SetValue(kAmbient);
+        effect.Parameters["KDiffuse"]?.SetValue(kDiffuse);
+        effect.Parameters["KSpecular"]?.SetValue(kSpecular);
+        effect.Parameters["shininess"]?.SetValue(shininess);
+
+        effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+        effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+
+        effect.Parameters["baseTexture"]?.SetValue(texture);
 
         model.Draw(effect);
     }

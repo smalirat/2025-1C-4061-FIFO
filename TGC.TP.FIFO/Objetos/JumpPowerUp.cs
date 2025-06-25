@@ -70,30 +70,43 @@ public class JumpPowerUp : IColisionable
         boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 2, depth * 2, position, rotation, this);
     }
 
-    public void Draw(XnaMatrix view, XnaMatrix projection)
+    public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
         var translationMatrix = XnaMatrix.CreateTranslation(position);
         var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
-        var baseTransforms = new XnaMatrix[modelManager.ArrowModel.Bones.Count];
-        modelManager.ArrowModel.CopyAbsoluteBoneTransformsTo(baseTransforms);
+        var model = modelManager.ArrowModel;
+        var baseTransforms = new XnaMatrix[model.Bones.Count];
+        model.CopyAbsoluteBoneTransformsTo(baseTransforms);
 
         var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
 
-        foreach (var mesh in modelManager.ArrowModel.Meshes)
+        foreach (var mesh in model.Meshes)
         {
             foreach (var meshPart in mesh.MeshParts)
             {
-                meshPart.Effect = effectManager.BasicShader;
+                meshPart.Effect = effectManager.BlinnPhongShader;
             }
 
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-            effectManager.BasicShader.Parameters["World"]?.SetValue(meshTransform * localTransform);
-            effectManager.BasicShader.Parameters["View"]?.SetValue(view);
-            effectManager.BasicShader.Parameters["Projection"]?.SetValue(projection);
-            effectManager.BasicShader.Parameters["DiffuseColor"]?.SetValue(color.ToVector3());
+            var effect = effectManager.BlinnPhongShader;
+            effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
+            effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
+            effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
+
+            var baseColor = color.ToVector3();
+            effect.Parameters["ambientColor"]?.SetValue(baseColor * 0.3f);
+            effect.Parameters["diffuseColor"]?.SetValue(baseColor);
+            effect.Parameters["specularColor"]?.SetValue(Vector3.One);
+            effect.Parameters["KAmbient"]?.SetValue(0.3f);
+            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+            effect.Parameters["KSpecular"]?.SetValue(0.8f);
+            effect.Parameters["shininess"]?.SetValue(64.0f);
+
+            effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+            effect.Parameters["eyePosition"]?.SetValue(eyePosition);
 
             mesh.Draw();
         }

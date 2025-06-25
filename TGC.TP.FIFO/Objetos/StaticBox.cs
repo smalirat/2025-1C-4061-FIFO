@@ -50,14 +50,27 @@ public class StaticBox : IColisionable
         world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
     }
 
-    public void Draw(XnaMatrix view, XnaMatrix projection)
+    public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BasicTextureShader;
+        var effect = effectManager.BlinnPhongShader;
 
-        effect.Parameters["View"]?.SetValue(view);
-        effect.Parameters["Projection"]?.SetValue(projection);
+        effect.Parameters["WorldViewProjection"]?.SetValue(world * view * projection);
         effect.Parameters["World"]?.SetValue(world);
-        effect.Parameters["ModelTexture"].SetValue(textureManager.WoodBox1Texture);
+        effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(world)));
+
+        effect.Parameters["ambientColor"]?.SetValue(new Vector3(0.25f, 0.18f, 0.1f));
+        effect.Parameters["diffuseColor"]?.SetValue(new Vector3(0.6f, 0.4f, 0.2f));
+        effect.Parameters["specularColor"]?.SetValue(new Vector3(0.2f, 0.2f, 0.1f));
+        effect.Parameters["KAmbient"]?.SetValue(0.4f);
+        effect.Parameters["KDiffuse"]?.SetValue(0.7f);
+        effect.Parameters["KSpecular"]?.SetValue(0.2f);
+        effect.Parameters["shininess"]?.SetValue(12.0f);
+
+        effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+        effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+
+        // Usá la textura de madera correspondiente
+        effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
 
         model.Draw(effect);
     }

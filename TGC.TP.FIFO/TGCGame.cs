@@ -165,6 +165,8 @@ public class TGCGame : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+        var eyePosition = TargetCamera.Position;
+
         if (!GameState.Playing)
         {
             Menu.Draw(gameTime, GraphicsDevice);
@@ -175,45 +177,46 @@ public class TGCGame : Game
 
         foreach (var item in FloorWallRamps)
         {
-            item.Draw(TargetCamera.View, TargetCamera.Projection);
+            item.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var box in DynamicBoxes)
         {
-            box.Draw(TargetCamera.View, TargetCamera.Projection);
+            box.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var staticBox in StaticBoxes)
         {
-            staticBox.Draw(TargetCamera.View, TargetCamera.Projection);
+            staticBox.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var powerUp in SpeedPowerUps)
         {
-            powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+            powerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var powerUp in JumpPowerUps)
         {
-            powerUp.Draw(TargetCamera.View, TargetCamera.Projection);
+            powerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var kinematicWall in KinematicWalls)
         {
-            kinematicWall.Draw(TargetCamera.View, TargetCamera.Projection);
+            kinematicWall.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var kinematicFloor in KinematicFloors)
         {
-            kinematicFloor.Draw(TargetCamera.View, TargetCamera.Projection);
+            kinematicFloor.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var checkpoint in Checkpoints)
         {
-            checkpoint.Draw(TargetCamera.View, TargetCamera.Projection);
+            checkpoint.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-        PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection);
+
+        PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         HUDLayout.Draw(PlayerBall, Checkpoints);
 
         base.Draw(gameTime);
@@ -352,7 +355,7 @@ public class TGCGame : Game
     {
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.5f, 442f + 74.6f*2), XnaQuaternion.Identity, 150f, 450f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, true, RampWallTextureType.Dirt));
 
         // PowerUps
         SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
