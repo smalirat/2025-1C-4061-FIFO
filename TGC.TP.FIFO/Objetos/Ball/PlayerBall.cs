@@ -10,6 +10,7 @@ using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
+using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos.Ball;
 

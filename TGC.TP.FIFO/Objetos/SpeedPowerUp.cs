@@ -5,6 +5,8 @@ using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Modelos;
+using TGC.TP.FIFO.Luz;
+
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -83,11 +85,14 @@ public class SpeedPowerUp : IColisionable
         var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
-        var model = modelManager.LigthingModel;
+        var model = modelManager.ArrowModel;
         var baseTransforms = new XnaMatrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(baseTransforms);
 
         var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+
+        var material = MaterialPresets.PowerUp;
+        var baseColor = color.ToVector3();
 
         foreach (var mesh in model.Meshes)
         {
@@ -103,14 +108,13 @@ public class SpeedPowerUp : IColisionable
             effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
 
-            var baseColor = color.ToVector3();
-            effect.Parameters["ambientColor"]?.SetValue(baseColor * 0.3f);
-            effect.Parameters["diffuseColor"]?.SetValue(baseColor);
-            effect.Parameters["specularColor"]?.SetValue(Vector3.One);
-            effect.Parameters["KAmbient"]?.SetValue(0.3f);
-            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
-            effect.Parameters["KSpecular"]?.SetValue(0.8f);
-            effect.Parameters["shininess"]?.SetValue(64.0f);
+            effect.Parameters["ambientColor"]?.SetValue(baseColor * material.AmbientColor);
+            effect.Parameters["diffuseColor"]?.SetValue(baseColor * material.DiffuseColor);
+            effect.Parameters["specularColor"]?.SetValue(material.SpecularColor);
+            effect.Parameters["KAmbient"]?.SetValue(material.KAmbient);
+            effect.Parameters["KDiffuse"]?.SetValue(material.KDiffuse);
+            effect.Parameters["KSpecular"]?.SetValue(material.KSpecular);
+            effect.Parameters["shininess"]?.SetValue(material.Shininess);
 
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);

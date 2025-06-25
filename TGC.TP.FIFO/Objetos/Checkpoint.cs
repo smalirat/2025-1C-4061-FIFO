@@ -6,6 +6,7 @@ using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
+using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -80,6 +81,7 @@ public class Checkpoint : IColisionable
 
         var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
 
+        var material = MaterialPresets.Checkpoint;
         var finalColor = Checked ? Color.LimeGreen : color;
         var baseColor = finalColor.ToVector3();
 
@@ -97,13 +99,13 @@ public class Checkpoint : IColisionable
             effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
 
-            effect.Parameters["ambientColor"]?.SetValue(baseColor * 0.3f);
-            effect.Parameters["diffuseColor"]?.SetValue(baseColor);
-            effect.Parameters["specularColor"]?.SetValue(Vector3.One);
-            effect.Parameters["KAmbient"]?.SetValue(0.3f);
-            effect.Parameters["KDiffuse"]?.SetValue(0.7f);
-            effect.Parameters["KSpecular"]?.SetValue(0.8f);
-            effect.Parameters["shininess"]?.SetValue(64.0f);
+            effect.Parameters["ambientColor"]?.SetValue(baseColor * material.AmbientColor);
+            effect.Parameters["diffuseColor"]?.SetValue(baseColor * material.DiffuseColor);
+            effect.Parameters["specularColor"]?.SetValue(material.SpecularColor);
+            effect.Parameters["KAmbient"]?.SetValue(material.KAmbient);
+            effect.Parameters["KDiffuse"]?.SetValue(material.KDiffuse);
+            effect.Parameters["KSpecular"]?.SetValue(material.KSpecular);
+            effect.Parameters["shininess"]?.SetValue(material.Shininess);
 
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);

@@ -2,10 +2,10 @@
 
 public enum BodyType
 {
-    PlayerBall, 
-    SpeedPowerUp, 
-    JumpPowerUp, 
-    FloorRamp, 
+    PlayerBall,
+    SpeedPowerUp,
+    JumpPowerUp,
+    FloorRamp,
     Checkpoint,
     Box,
     Other,

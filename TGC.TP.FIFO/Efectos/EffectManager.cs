@@ -23,7 +23,7 @@ public class EffectManager
         BlinnPhongShader = content.Load<Effect>(ContentFolderEffects + "BlinnPhongShader");
 
         //Se puede refactorizar en una clase, o un metodo con otro nombre,
-        LightPosition = new XnaVector3(0f, 50f, 480f);
+        LightPosition = new XnaVector3(0f, 100f, 480f);
 
     }
 }

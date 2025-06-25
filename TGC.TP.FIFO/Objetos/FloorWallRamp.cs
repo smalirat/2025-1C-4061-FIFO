@@ -8,6 +8,7 @@ using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Texturas;
+using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -67,26 +68,21 @@ public class FloorWallRamp : IColisionable
     {
         var effect = effectManager.BlinnPhongShader;
         Texture2D texture = null;
-
-        // Parámetros por defecto (tierra)
-        Vector3 ambientColor = new Vector3(0.2f, 0.15f, 0.1f);
-        Vector3 diffuseColor = new Vector3(0.4f, 0.3f, 0.2f);
-        Vector3 specularColor = new Vector3(0.1f, 0.1f, 0.1f);
-        float kAmbient = 0.5f, kDiffuse = 0.6f, kSpecular = 0.05f, shininess = 4f;
+        BlinnPhongMaterial material;
 
         switch (RampWallTextureType)
         {
             case RampWallTextureType.Dirt:
                 texture = textureManager.DirtTexture;
-                // Ya están los valores por defecto
+                material = MaterialPresets.Tierra;
                 break;
-
             case RampWallTextureType.Stones:
                 texture = textureManager.StonesTexture;
-                ambientColor = new Vector3(0.3f, 0.2f, 0.2f);
-                diffuseColor = new Vector3(0.6f, 0.3f, 0.3f);
-                specularColor = new Vector3(0.2f, 0.2f, 0.2f);
-                kAmbient = 0.4f; kDiffuse = 0.7f; kSpecular = 0.1f; shininess = 8f;
+                material = MaterialPresets.Piedra;
+                break;
+            default:
+                texture = textureManager.DirtTexture;
+                material = MaterialPresets.Tierra;
                 break;
         }
 
@@ -94,13 +90,13 @@ public class FloorWallRamp : IColisionable
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(world)));
 
-        effect.Parameters["ambientColor"]?.SetValue(ambientColor);
-        effect.Parameters["diffuseColor"]?.SetValue(diffuseColor);
-        effect.Parameters["specularColor"]?.SetValue(specularColor);
-        effect.Parameters["KAmbient"]?.SetValue(kAmbient);
-        effect.Parameters["KDiffuse"]?.SetValue(kDiffuse);
-        effect.Parameters["KSpecular"]?.SetValue(kSpecular);
-        effect.Parameters["shininess"]?.SetValue(shininess);
+        effect.Parameters["ambientColor"]?.SetValue(material.AmbientColor);
+        effect.Parameters["diffuseColor"]?.SetValue(material.DiffuseColor);
+        effect.Parameters["specularColor"]?.SetValue(material.SpecularColor);
+        effect.Parameters["KAmbient"]?.SetValue(material.KAmbient);
+        effect.Parameters["KDiffuse"]?.SetValue(material.KDiffuse);
+        effect.Parameters["KSpecular"]?.SetValue(material.KSpecular);
+        effect.Parameters["shininess"]?.SetValue(material.Shininess);
 
         effect.Parameters["lightPosition"]?.SetValue(lightPosition);
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
