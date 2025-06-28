@@ -75,14 +75,17 @@ public class FloorWallRamp : IColisionable
             case RampWallTextureType.Dirt:
                 texture = textureManager.DirtTexture;
                 material = MaterialPresets.Tierra;
+                effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
             case RampWallTextureType.Stones:
                 texture = textureManager.StonesTexture;
                 material = MaterialPresets.Piedra;
+                effect.CurrentTechnique = effect.Techniques["NormalMapping"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
             default:
                 texture = textureManager.DirtTexture;
                 material = MaterialPresets.Tierra;
+                effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
         }
 
@@ -100,8 +103,15 @@ public class FloorWallRamp : IColisionable
 
         effect.Parameters["lightPosition"]?.SetValue(lightPosition);
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+        effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
         effect.Parameters["baseTexture"]?.SetValue(texture);
+
+        // Solo establecer la textura de normales si estamos usando NormalMapping
+        if (effect.CurrentTechnique.Name == "NormalMapping")
+        {
+            effect.Parameters["NormalTexture"]?.SetValue(textureManager.StonesNormalTexture);
+        }
 
         model.Draw(effect);
     }

@@ -211,6 +211,8 @@ public class PlayerBall : IColisionable
         Texture2D texture;
         BlinnPhongMaterial material;
 
+        effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
+
         // Selección del material y textura según el tipo de bola
         if (BallType.Goma == GameState.BallType)
         {
@@ -257,9 +259,16 @@ public class PlayerBall : IColisionable
             // Luz y cámara
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+            effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
             // Textura base
             effect.Parameters["baseTexture"]?.SetValue(texture);
+
+            // Solo establecer la textura de normales si estamos usando NormalMapping
+            // if (effect.CurrentTechnique.Name == "NormalMapping")
+            // {
+            //     effect.Parameters["NormalTexture"]?.SetValue(textureManager.WoodBox1Texture);
+            // }
 
             // Dibujo
             mesh.Draw();

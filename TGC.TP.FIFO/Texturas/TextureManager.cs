@@ -12,6 +12,7 @@ public class TextureManager
     public Texture2D WoodBox2Texture { get; private set; }
     public Texture2D WoodBox3Texture { get; private set; }
     public Texture2D StonesTexture { get; private set; }
+    public Texture2D StonesNormalTexture { get; private set; }
     public Texture2D DirtTexture { get; private set; }
     public Texture2D SphereMetalTexture { get; private set; }
     public Texture2D SphereMarbleTexture { get; private set; }
@@ -24,6 +25,7 @@ public class TextureManager
         WoodBox3Texture = LoadTexture2D(content, "caja-madera-3");
         WoodBox1Texture = LoadTexture2D(content, "caja-madera-4");
         StonesTexture = LoadTexture2D(content, "stones");
+        StonesNormalTexture = LoadTexture2D(content, "stones-normal");
         DirtTexture = LoadTexture2D(content, "tierra");
         SphereMetalTexture = LoadTexture2D(content, "harsh-metal/color");
         SphereMarbleTexture = LoadTexture2D(content, "marble/color");

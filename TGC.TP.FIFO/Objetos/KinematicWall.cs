@@ -74,6 +74,8 @@ public class KinematicWall : IColisionable
         var effect = effectManager.BlinnPhongShader;
         var material = MaterialPresets.Madera;
 
+        effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
+
         effect.Parameters["WorldViewProjection"]?.SetValue(world * view * projection);
         effect.Parameters["World"]?.SetValue(world);
         effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(world)));
@@ -88,8 +90,15 @@ public class KinematicWall : IColisionable
 
         effect.Parameters["lightPosition"]?.SetValue(lightPosition);
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+        effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
         effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
+
+        // Solo establecer la textura de normales si estamos usando NormalMapping
+        // if (effect.CurrentTechnique.Name == "NormalMapping")
+        // {
+        //     effect.Parameters["NormalTexture"]?.SetValue(textureManager.WoodBox1Texture);
+        // }
 
         model.Draw(effect);
     }

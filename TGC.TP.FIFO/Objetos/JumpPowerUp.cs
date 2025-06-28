@@ -96,6 +96,8 @@ public class JumpPowerUp : IColisionable
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
             var effect = effectManager.BlinnPhongShader;
+            effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
+
             effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
             effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
@@ -110,6 +112,13 @@ public class JumpPowerUp : IColisionable
 
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+            effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
+
+            // Solo establecer la textura de normales si estamos usando NormalMapping
+            // if (effect.CurrentTechnique.Name == "NormalMapping")
+            // {
+            //     effect.Parameters["NormalTexture"]?.SetValue(textureManager.WoodBox1Texture);
+            // }
 
             mesh.Draw();
         }
