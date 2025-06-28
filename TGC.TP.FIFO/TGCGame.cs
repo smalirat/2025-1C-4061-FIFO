@@ -226,7 +226,10 @@ public class TGCGame : Game
     {
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 0f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0f, 0f, 10f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, true));
+
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
+            new XnaVector3(0f, 0f, 25f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
@@ -387,7 +390,7 @@ public class TGCGame : Game
 
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
 
         // Obstaculos
         for (int i = 0; i < 5; i++)
@@ -476,10 +479,10 @@ public class TGCGame : Game
 
         // Checkpoints
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue));
+            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, true));
     }
 
     protected override void UnloadContent()

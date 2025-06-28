@@ -1,12 +1,13 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
-using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -40,6 +41,8 @@ public class Checkpoint : IColisionable
     public BodyType BodyType => BodyType.Checkpoint;
     public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
 
+    private bool glow;
+
     public bool CanPlayerBallJumpOnIt => false;
 
     public Checkpoint(ModelManager modelManager,
@@ -52,7 +55,8 @@ public class Checkpoint : IColisionable
         float width,
         float height,
         float depth,
-        Color color)
+        Color color,
+        bool useGlow)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
@@ -66,6 +70,7 @@ public class Checkpoint : IColisionable
         this.color = color;
         this.rotation = rotation;
         this.position = position;
+        this.glow = useGlow;
 
         boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 4, depth * 2, position, rotation, this);
     }
@@ -89,12 +94,14 @@ public class Checkpoint : IColisionable
         {
             foreach (var meshPart in mesh.MeshParts)
             {
-                meshPart.Effect = effectManager.BlinnPhongShader;
+                //meshPart.Effect = effectManager.BlinnPhongShader;
+                //meshPart.Effect = effectManager.BasicGlowShader;
+                meshPart.Effect = effectManager.BasicGlowShader;
             }
 
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-            var effect = effectManager.BlinnPhongShader;
+            var effect = effectManager.BasicGlowShader;
             effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
             effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
@@ -109,6 +116,11 @@ public class Checkpoint : IColisionable
 
             effect.Parameters["lightPosition"]?.SetValue(lightPosition);
             effect.Parameters["eyePosition"]?.SetValue(eyePosition);
+            effect.Parameters["useGlow"]?.SetValue(glow);
+            effect.Parameters["emissiveColor"]?.SetValue(baseColor);
+
+            float tiempo = (float)GameState.Cronometer.Elapsed.TotalSeconds;
+            effect.Parameters["emissiveStrength"]?.SetValue(0.5f + 0.3f * MathF.Sin(tiempo * 3f));
 
             mesh.Draw();
         }

@@ -12,6 +12,7 @@ public class EffectManager
     public Effect TextureTilingShader { get; private set; }
     public Effect SkyBoxShader { get; private set; }
     public Effect BlinnPhongShader { get; private set; }
+    public Effect BasicGlowShader { get; private set; }
     public XnaVector3 LightPosition { get; set; }
 
     public void Load(ContentManager content)
@@ -21,6 +22,7 @@ public class EffectManager
         TextureTilingShader = content.Load<Effect>(ContentFolderEffects + "TextureTilingShader");
         SkyBoxShader = content.Load<Effect>(ContentFolderEffects + "SkyBoxShader");
         BlinnPhongShader = content.Load<Effect>(ContentFolderEffects + "BlinnPhongShader");
+        BasicGlowShader = content.Load<Effect>(ContentFolderEffects + "BasicGlowShader");
 
         //Se puede refactorizar en una clase, o un metodo con otro nombre,
         LightPosition = new XnaVector3(0f, 100f, 480f);
