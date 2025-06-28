@@ -229,7 +229,7 @@ public class TGCGame : Game
             new XnaVector3(0f, 0f, 10f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, true));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 25f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
+            new XnaVector3(8f, 0f, 40f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,

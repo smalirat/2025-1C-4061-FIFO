@@ -185,8 +185,12 @@ public class HUDLayout
 
     private Vector2 GetMinimapPosition(Vector3 worldPosition)
     {
-        float normX = (worldPosition.X - MIN_X) / (MAX_X - MIN_X);
+        float normX = 1 - (worldPosition.X - MIN_X) / (MAX_X - MIN_X);
         float normZ = (worldPosition.Z - MIN_Z) / (MAX_Z - MIN_Z);
-        return _minimapPosition + new Vector2(normX * MINIMAP_SIZE, MINIMAP_SIZE - normZ * MINIMAP_SIZE);
+
+        var posX = normX * MINIMAP_SIZE;
+        var posZ = MINIMAP_SIZE - normZ * MINIMAP_SIZE;
+
+        return _minimapPosition + new Vector2(posX , posZ);
     }
 }
