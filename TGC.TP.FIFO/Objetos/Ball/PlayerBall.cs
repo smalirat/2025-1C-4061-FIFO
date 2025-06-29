@@ -11,6 +11,7 @@ using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
 using TGC.TP.FIFO.Luz;
+using System.Diagnostics;
 
 namespace TGC.TP.FIFO.Objetos.Ball;
 
@@ -50,6 +51,7 @@ public class PlayerBall : IColisionable
     private bool isRolling = false;
     private float speedMultiplier;
     private float jumpMultiplier;
+    public bool isDummy;
 
     private float XScale => ballProperties.Radius / ModelRadius;
     private float YScale => ballProperties.Radius / ModelRadius;
@@ -61,13 +63,15 @@ public class PlayerBall : IColisionable
         TextureManager textureManager,
         AudioManager audioManager,
         GraphicsDevice graphicsDevice,
-        XnaVector3 initialPosition)
+        XnaVector3 initialPosition,
+        bool isDummy = false)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
         this.audioManager = audioManager;
+        this.isDummy = isDummy;
 
         InitialPosition = initialPosition;
         respawnPosition = initialPosition;
@@ -206,6 +210,8 @@ public class PlayerBall : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
+        Debug.WriteLine($"BALL SPEED {GetLinearSpeed()}");
+
         var model = modelManager.SphereModel;
         var effect = effectManager.BlinnPhongShader;
         Texture2D texture;
@@ -276,9 +282,13 @@ public class PlayerBall : IColisionable
     }
 
 
-    public void NotifyCollition(IColisionable with)
+
+    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed) {}
+    public void NotifyCollition(IColisionable with) { }
+
+    public void NotifyCollition(IColisionable with, XnaVector3? contactNormal)
     {
-        if (with.CanPlayerBallJumpOnIt)
+        if (with.CanPlayerBallJumpOnIt && contactNormal?.Y != 0)
         {
             canJump = true;
         }
@@ -339,5 +349,10 @@ public class PlayerBall : IColisionable
         world = XnaMatrix.CreateScale(XScale, YScale, ZScale) *
                 XnaMatrix.CreateFromQuaternion(rotation) *
                 XnaMatrix.CreateTranslation(position);
+    }
+
+    public float GetLinearSpeed()
+    {
+        return physicsManager.GetLinearSpeed(boundingVolume);
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Objetos.Ball;
 
 namespace TGC.TP.FIFO.Audio;
@@ -79,6 +80,7 @@ public class AudioManager
 
     public void PlayJumpSound(BallType ballType)
     {
+        if (!GameState.Playing) return;
         switch (ballType)
         {
             case BallType.Metal:
@@ -97,6 +99,7 @@ public class AudioManager
 
     public void PlayWallHitSound(BallType ballType)
     {
+        if (!GameState.Playing) return;
         switch (ballType)
         {
             case BallType.Metal:
@@ -125,6 +128,7 @@ public class AudioManager
 
     public void PlayWoodBoxHitSound()
     {
+        if (!GameState.Playing) return;
         if (WoodBoxHitSoundInstance.State != SoundState.Playing)
         {
             WoodBoxHitSoundInstance.Play();
@@ -133,6 +137,7 @@ public class AudioManager
 
     public void PlaySpeedPowerUpSound()
     {
+        if (!GameState.Playing) return;
         if (SpeedPowerUpInstance.State != SoundState.Playing)
         {
             SpeedPowerUpInstance.Play();
@@ -141,6 +146,7 @@ public class AudioManager
 
     public void PlayJumpPowerUpSound()
     {
+        if (!GameState.Playing) return;
         if (JumpPowerUpInstance.State != SoundState.Playing)
         {
             JumpPowerUpInstance.Play();
@@ -149,6 +155,7 @@ public class AudioManager
 
     public void PlayCheckpointSound()
     {
+        if (!GameState.Playing) return;
         if (CheckpointInstance.State != SoundState.Playing)
         {
             CheckpointInstance.Play();
@@ -157,6 +164,7 @@ public class AudioManager
 
     public void PlayRollingSound()
     {
+        if (!GameState.Playing) return;
         float volume = 1.0f;
         BallRollInstance.Volume = volume;
         BallRollInstance.Play();

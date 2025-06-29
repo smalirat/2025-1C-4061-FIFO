@@ -151,6 +151,12 @@ namespace TGC.TP.FIFO.Fisica
             return handle;
         }
 
+        public float GetLinearSpeed(BodyHandle bodyHandle)
+        {
+            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+            return bodyRef.Velocity.Linear.Length();
+        }
+
         public XnaVector3 GetPosition(BodyHandle bodyHandle)
         {
             var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);

@@ -33,7 +33,7 @@ public static class BallPresets
         [BallType.Goma] = new BallProperties
         {
             ImpulseForce = 30f,
-            JumpForce = 2000f,
+            JumpForce = 2100f,
             Friction = 0.8f,
             DampingRatio = 0.2f,
             MaximumRecoveryVelocity = 6f,

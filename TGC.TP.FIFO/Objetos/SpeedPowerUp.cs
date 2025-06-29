@@ -4,8 +4,10 @@ using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
-using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Luz;
+using TGC.TP.FIFO.Menu;
+using TGC.TP.FIFO.Modelos;
+using TGC.TP.FIFO.Objetos.Ball;
 
 
 namespace TGC.TP.FIFO.Objetos;
@@ -132,9 +134,14 @@ public class SpeedPowerUp : IColisionable
         }
     }
 
-    public void NotifyCollition(IColisionable with)
+    public void NotifyCollition(IColisionable with) { }
+
+    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        audioManager.PlaySpeedPowerUpSound();
+        if (contactSpeed >= GameState.MinBallSpeedForSounds)
+        {
+            audioManager.PlaySpeedPowerUpSound();
+        }
     }
 
     public void Reset()

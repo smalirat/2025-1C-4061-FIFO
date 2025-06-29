@@ -1,15 +1,14 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
-using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -29,6 +28,8 @@ public class StaticBox : IColisionable
     public BodyType BodyType => BodyType.Box;
     public bool CanPlayerBallJumpOnIt => true;
 
+    private float MinContactSpeedForSound;
+
     public StaticBox(ModelManager modelManager,
         EffectManager effectManager,
         PhysicsManager physicsManager,
@@ -37,13 +38,16 @@ public class StaticBox : IColisionable
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float sideLength)
+        float sideLength,
+        float minContactSpeedForSound = GameState.MinBallSpeedForSounds)
     {
         this.modelManager = modelManager;
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.textureManager = textureManager;
         this.audioManager = audioManager;
+
+        MinContactSpeedForSound = minContactSpeedForSound;
 
         model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
         boundingVolume = this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
@@ -84,9 +88,12 @@ public class StaticBox : IColisionable
 
         model.Draw(effect);
     }
-    public void NotifyCollition(IColisionable with)
+
+    public void NotifyCollition(IColisionable with) { }
+
+    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (with.BodyType == BodyType.PlayerBall)
+        if (contactNormal?.Y == 0 && contactSpeed >= MinContactSpeedForSound)
         {
             audioManager.PlayWallHitSound(GameState.BallType);
         }

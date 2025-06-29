@@ -25,6 +25,9 @@ public static class GameState
     public const int TotalSecondsBeforeLosing = 60 * 5;
     public const int TotalSecondsBeforeAboutToLose = 30;
 
+    // Contactos
+    public const float MinBallSpeedForSounds = 30f;
+
     public static void CheckpointChecked()
     {
         TotalCheckpointsChecked++;

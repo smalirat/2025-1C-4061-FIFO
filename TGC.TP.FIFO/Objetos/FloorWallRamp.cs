@@ -1,14 +1,14 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
+using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
-using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -31,6 +31,8 @@ public class FloorWallRamp : IColisionable
 
     public BodyType BodyType => BodyType.FloorRamp;
 
+    private FloorWallRampType FloorWallRampType;
+
     public bool CanPlayerBallJumpOnIt { get; private set; }
 
     private const float Height = 1.25f;
@@ -45,7 +47,7 @@ public class FloorWallRamp : IColisionable
         XnaQuaternion rotation,
         float width,
         float length,
-        bool canPlayerBallJumpOnIt,
+        FloorWallRampType floorWallRampType,
         RampWallTextureType rampWallTextureType)
     {
         this.modelManager = modelManager;
@@ -55,7 +57,8 @@ public class FloorWallRamp : IColisionable
         this.audioManager = audioManager;
 
         RampWallTextureType = rampWallTextureType;
-        CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
+        FloorWallRampType = floorWallRampType;
+        CanPlayerBallJumpOnIt = floorWallRampType != FloorWallRampType.Wall;
 
         model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
@@ -77,11 +80,13 @@ public class FloorWallRamp : IColisionable
                 material = MaterialPresets.Tierra;
                 effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
+
             case RampWallTextureType.Stones:
                 texture = textureManager.StonesTexture;
                 material = MaterialPresets.Piedra;
                 effect.CurrentTechnique = effect.Techniques["NormalMapping"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
+
             default:
                 texture = textureManager.DirtTexture;
                 material = MaterialPresets.Tierra;
@@ -116,9 +121,11 @@ public class FloorWallRamp : IColisionable
         model.Draw(effect);
     }
 
-    public void NotifyCollition(IColisionable with)
+    public void NotifyCollition(IColisionable with) { }
+
+    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (with.BodyType == BodyType.PlayerBall && !CanPlayerBallJumpOnIt)
+        if (!playerBall.isDummy && FloorWallRampType == FloorWallRampType.Wall && contactSpeed >= GameState.MinBallSpeedForSounds)
         {
             audioManager.PlayWallHitSound(GameState.BallType);
         }

@@ -5,10 +5,12 @@ using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Luz;
+using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
+using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
-using TGC.TP.FIFO.Luz;
 
 namespace TGC.TP.FIFO.Objetos;
 
@@ -107,9 +109,11 @@ public class DynamicBox : IColisionable
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
     }
 
-    public void NotifyCollition(IColisionable with)
+    public void NotifyCollition(IColisionable with) { }
+
+    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (with.BodyType == BodyType.PlayerBall)
+        if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
             audioManager.PlayWoodBoxHitSound();
         }

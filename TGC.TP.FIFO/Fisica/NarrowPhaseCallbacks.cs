@@ -4,6 +4,7 @@ using BepuPhysics.CollisionDetection;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TGC.TP.FIFO.Objetos.Ball;
 
 namespace TGC.TP.FIFO.Fisica;
 
@@ -36,7 +37,9 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ConfigureContactManifold<TManifold>(
-        int workerIndex, CollidablePair collidablePair, ref TManifold manifold,
+        int workerIndex,
+        CollidablePair collidablePair,
+        ref TManifold contacts,
         out PairMaterialProperties pairMaterial)
         where TManifold : unmanaged, IContactManifold<TManifold>
     {
@@ -47,24 +50,40 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
         pairMaterial.MaximumRecoveryVelocity = MathF.Max(collidableMaterialA.MaximumRecoveryVelocity, collidableMaterialB.MaximumRecoveryVelocity);
         pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == collidableMaterialA.MaximumRecoveryVelocity ? collidableMaterialA.SpringSettings : collidableMaterialB.SpringSettings;
 
-        if (manifold.Count > 0)
+        if (contacts.Count <= 0)
         {
-            if (CollidableReferences.TryGetValue(collidablePair.A, out var collidableReferenceA) && CollidableReferences.TryGetValue(collidablePair.B, out var collidableReferenceB))
-            {
-                collidableReferenceA.NotifyCollition(collidableReferenceB);
-                collidableReferenceB.NotifyCollition(collidableReferenceA);
-
-                if (collidableReferenceA.BodyType == BodyType.Checkpoint || collidableReferenceB.BodyType == BodyType.Checkpoint ||
-                    collidableReferenceA.BodyType == BodyType.SpeedPowerUp || collidableReferenceB.BodyType == BodyType.SpeedPowerUp ||
-                    collidableReferenceA.BodyType == BodyType.Camera || collidableReferenceB.BodyType == BodyType.Camera ||
-                    collidableReferenceA.BodyType == BodyType.JumpPowerUp || collidableReferenceB.BodyType == BodyType.JumpPowerUp)
-                {
-                    return false;
-                }
-            }
+            return true;
         }
 
-        return true;
+        var collidableReferenceA = CollidableReferences[collidablePair.A];
+        var collidableReferenceB = CollidableReferences[collidablePair.B];
+
+        if (collidableReferenceA is null || collidableReferenceB is null)
+        {
+            return true;
+        }
+
+        if (ContactWith(collidableReferenceA, collidableReferenceB, BodyType.PlayerBall))
+        {
+            var convexContact = contacts as ConvexContactManifold?;
+
+            var playerBall = collidableReferenceA is PlayerBall ? collidableReferenceA as PlayerBall : collidableReferenceB as PlayerBall;
+            var contactWithPlayerBall = collidableReferenceA is PlayerBall ? collidableReferenceB : collidableReferenceA;
+
+            contactWithPlayerBall.NotifyCollitionWithPlayerBall(playerBall, convexContact?.Normal, playerBall.GetLinearSpeed());
+            playerBall.NotifyCollition(contactWithPlayerBall, convexContact?.Normal);
+        }
+
+        var ignorePhyisicsReactionToCollition = ContactWith(collidableReferenceA, collidableReferenceB, BodyType.Checkpoint) ||
+                                                ContactWith(collidableReferenceA, collidableReferenceB, BodyType.SpeedPowerUp) ||
+                                                ContactWith(collidableReferenceA, collidableReferenceB, BodyType.JumpPowerUp);
+
+        return !ignorePhyisicsReactionToCollition;
+    }
+
+    private bool ContactWith(IColisionable a, IColisionable b, BodyType bodyType)
+    {
+        return a.BodyType == bodyType || b.BodyType == bodyType;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

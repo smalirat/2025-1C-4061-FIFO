@@ -114,6 +114,7 @@ public class TGCGame : Game
         {
             GameState.Pause();
             Menu.ChangeToOptionsMenu();
+            AudioManager.StopRollingSound();
             return;
         }
 
@@ -233,21 +234,21 @@ public class TGCGame : Game
 
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
 
         // Paredes
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
 
         // Obstaculos
         KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0f, 11f, 225f), 40f, 20f, 1f, 1f, false, 50f));
@@ -358,7 +359,7 @@ public class TGCGame : Game
     {
         // Pisos
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, true, RampWallTextureType.Dirt));
+            new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
 
         // PowerUps
         SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
@@ -411,36 +412,36 @@ public class TGCGame : Game
     {
         // Paredes
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
         FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, false, RampWallTextureType.Stones));
+            new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
 
         // Subi baja
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(10f, -46.7f + 2f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(20f, -46.7f + 22f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-10f, -46.7f + 42f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-20f, -46.7f + 62f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(10f, -46.7f + 82f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(20f, -46.7f + 102f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-10f, -46.7f + 122f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-20f, -46.7f + 142f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(10f, -46.7f + 162f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(20f, -46.7f + 182f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-10f, -46.7f + 222f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, GraphicsDevice,
+        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-20f, -46.7f + 242f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
 
         // Cajas estaticas
