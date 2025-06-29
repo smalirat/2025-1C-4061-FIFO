@@ -138,7 +138,7 @@ public class GameMenu
         StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
         StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
 
-        DummyCheckpoint = new Checkpoint(this.modelManager, this.effectManager, this.physicsManager, this.graphicsDevice, this.audioManager, MenuPosition + new XnaVector3(10f, -5f, -10f), XnaQuaternion.Identity, 0.5f, 0.5f, 0.5f, Color.Blue, false);
+        DummyCheckpoint = new Checkpoint(this.modelManager, this.effectManager, this.physicsManager, this.graphicsDevice, this.audioManager, MenuPosition + new XnaVector3(10f, -5f, -10f), XnaQuaternion.Identity, 0.5f, Color.Blue, false);
 
         menuEntries = new Dictionary<Tuple<MenuState, MenuState>, MenuEntry[]>
         {

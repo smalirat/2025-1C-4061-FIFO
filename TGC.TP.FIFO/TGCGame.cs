@@ -32,25 +32,22 @@ public class TGCGame : Game
 
     private TargetCamera TargetCamera;
     private HUDLayout HUDLayout;
-    private PlayerBall PlayerBall;
-    private List<FloorWallRamp> FloorWallRamps = new();
-
-    private SimpleSkyBox Skybox;
-
-    private List<DynamicBox> DynamicBoxes = new();
-    private List<StaticBox> StaticBoxes = new();
-
-    private List<KinematicWall> KinematicWalls = new();
-    private List<KinematicFloor> KinematicFloors = new();
 
     private Random random;
+    private GameMenu GameMenu;
+    private SimpleSkyBox Skybox;
 
+    private PlayerBall PlayerBall;
+
+    private List<FloorWallRamp> Floors = new();
+    private List<FloorWallRamp> Walls = new();
+    private List<DynamicBox> DynamicBoxes = new();
+    private List<StaticBox> StaticBoxes = new();
+    private List<KinematicWall> KinematicWalls = new();
+    private List<KinematicFloor> KinematicFloors = new();
     private List<SpeedPowerUp> SpeedPowerUps = new();
     private List<JumpPowerUp> JumpPowerUps = new();
-
     private List<Checkpoint> Checkpoints = new();
-
-    private GameMenu Menu;
 
     public TGCGame()
     {
@@ -98,7 +95,7 @@ public class TGCGame : Game
         FontsManager.Load(Content);
         HUDLayout.LoadContent(Content);
 
-        Menu = new GameMenu(ModelManager, TextureManager, PhysicsManager, EffectManager, AudioManager, GraphicsDevice, FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
+        GameMenu = new GameMenu(ModelManager, TextureManager, PhysicsManager, EffectManager, AudioManager, GraphicsDevice, FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
 
         AudioManager.PlayBackgroundMusic();
 
@@ -113,14 +110,14 @@ public class TGCGame : Game
         if (keyboardState.IsKeyDown(Keys.Escape))
         {
             GameState.Pause();
-            Menu.ChangeToOptionsMenu();
+            GameMenu.ChangeToOptionsMenu();
             AudioManager.StopRollingSound();
             return;
         }
 
         if (!GameState.Playing)
         {
-            Menu.Update(keyboardState, deltaTime, TargetCamera);
+            GameMenu.Update(keyboardState, deltaTime, TargetCamera);
             return;
         }
 
@@ -131,9 +128,9 @@ public class TGCGame : Game
         PhysicsManager.Update(deltaTime);
         TargetCamera.Update(PlayerBall.Position);
 
-        foreach (var box in DynamicBoxes)
+        foreach (var dynamicBox in DynamicBoxes)
         {
-            box.Update(deltaTime, TargetCamera);
+            dynamicBox.Update(deltaTime, TargetCamera);
         }
 
         foreach (var kinematicWall in KinematicWalls)
@@ -170,20 +167,25 @@ public class TGCGame : Game
 
         if (!GameState.Playing)
         {
-            Menu.Draw(gameTime, GraphicsDevice);
+            GameMenu.Draw(gameTime, GraphicsDevice);
             return;
         }
 
         Skybox.Draw(TargetCamera.View, TargetCamera.Projection, PlayerBall.Position, GraphicsDevice);
 
-        foreach (var item in FloorWallRamps)
+        foreach (var floors in Floors)
         {
-            item.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+            floors.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-        foreach (var box in DynamicBoxes)
+        foreach (var walls in Walls)
         {
-            box.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+            walls.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+        }
+
+        foreach (var dynamicBox in DynamicBoxes)
+        {
+            dynamicBox.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var staticBox in StaticBoxes)
@@ -191,14 +193,14 @@ public class TGCGame : Game
             staticBox.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-        foreach (var powerUp in SpeedPowerUps)
+        foreach (var speedPowerUp in SpeedPowerUps)
         {
-            powerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+            speedPowerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-        foreach (var powerUp in JumpPowerUps)
+        foreach (var jumpPowerUp in JumpPowerUps)
         {
-            powerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+            jumpPowerUp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var kinematicWall in KinematicWalls)
@@ -216,7 +218,6 @@ public class TGCGame : Game
             checkpoint.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         HUDLayout.Draw(PlayerBall, Checkpoints);
 
@@ -227,27 +228,24 @@ public class TGCGame : Game
     {
         // Checkpoint
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 10f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, true));
-
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(8f, 0f, 40f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
+            new XnaVector3(0f, 0f, 10f), XnaQuaternion.Identity, 1f, Color.Blue, true));
 
         // Pisos
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
 
         // Paredes
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
 
         // Obstaculos
@@ -271,23 +269,23 @@ public class TGCGame : Game
             baseCenter + new XnaVector3(0f, 3 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
 
         // PowerUps
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.1f, Color.Yellow));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(-15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f),  0.1f, Color.Yellow));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.2f, Color.Orange));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f),  0.2f, Color.Orange));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-15f, 2f, 70f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.3f, Color.Red));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(-15f, 2f, 70f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.3f, Color.Red));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(25f, 2f, 80f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.3f, Color.Red));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(25f, 2f, 80f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.3f, Color.Red));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-47f, 2f, 92f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.2f, Color.Orange));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(-47f, 2f, 92f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.2f, Color.Orange));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-5f, 2f, 140f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 1f, 5f, 3f, 0.1f, Color.Yellow));
+        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
+            new XnaVector3(-5f, 2f, 140f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.1f, Color.Yellow));
 
         // Cajas estáticas
         List<(XnaVector3 pos, XnaQuaternion rot, float size)> cajas = new();
@@ -358,42 +356,23 @@ public class TGCGame : Game
     private void InitializeLevel2()
     {
         // Pisos
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
+        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
 
         // PowerUps
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(-44f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(45f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(-44f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(45f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(-44f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 3f, 3f, 1f, 15f, Color.Yellow));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 3f, 3f, 1f, 60f, Color.Red));
-
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(45f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 3f, 3f, 1f, 30f, Color.Orange));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 442f), XnaQuaternion.Identity,  60f, Color.Red));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 30f, Color.Orange));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 15f, Color.Yellow));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 30f, Color.Orange));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 15f, Color.Yellow));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 60f, Color.Red));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 515f), XnaQuaternion.Identity,  15f, Color.Yellow));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 60f, Color.Red));
+        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 30f, Color.Orange));
 
         // Checkpoint
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
+        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, Color.Blue, false));
 
-        // Obstaculos
+        // Paredes Obstaculos
         for (int i = 0; i < 5; i++)
         {
             KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0, -46.5f + 10f, 410f + 21f * i), 20f, 20f, 1f, 1f, false, 50f - i * 4));
@@ -411,11 +390,11 @@ public class TGCGame : Game
     private void InitializeLevel3()
     {
         // Paredes
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        FloorWallRamps.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
+        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
             new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
 
         // Subi baja
@@ -480,10 +459,10 @@ public class TGCGame : Game
 
         // Checkpoints
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, false));
+            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, Color.Blue, false));
 
         Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, 1f, 1f, Color.Blue, true));
+            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, Color.Blue, true));
     }
 
     protected override void UnloadContent()
@@ -504,36 +483,6 @@ public class TGCGame : Game
         foreach (DynamicBox dynamicBox in DynamicBoxes)
         {
             dynamicBox.Reset();
-        }
-
-        foreach (StaticBox staticBox in StaticBoxes)
-        {
-            staticBox.Reset();
-        }
-
-        foreach (FloorWallRamp floorWallRamp in FloorWallRamps)
-        {
-            floorWallRamp.Reset();
-        }
-
-        foreach (KinematicFloor kinematicFloor in KinematicFloors)
-        {
-            kinematicFloor.Reset();
-        }
-
-        foreach (KinematicWall kinematicWall in KinematicWalls)
-        {
-            kinematicWall.Reset();
-        }
-
-        foreach (JumpPowerUp jumpPowerUps in JumpPowerUps)
-        {
-            jumpPowerUps.Reset();
-        }
-
-        foreach (SpeedPowerUp speedPowerUp in SpeedPowerUps)
-        {
-            speedPowerUp.Reset();
         }
 
         PlayerBall.Reset();

@@ -1,6 +1,4 @@
-﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
@@ -17,29 +15,14 @@ public class JumpPowerUp : IColisionable
     private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
     private readonly AudioManager audioManager;
-
-
-    private readonly StaticHandle boundingVolume;
-
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
-
-    private const float ModelHeight = 3.72f;
-    private const float ModelWidth = 0.78f;
-    private const float ModelLength = 5.66f;
-
-    private readonly float width;
-    private readonly float height;
-    private readonly float depth;
-
-    private float XScale => width / ModelWidth;
-    private float YScale => height / ModelHeight;
-    private float ZScale => depth / ModelLength;
+    private const float xScale = 1f / 0.78f;
+    private const float yScale = 5f / 3.72f;
+    private const float zScale = 3f / 5.66f;
 
     public BodyType BodyType => BodyType.JumpPowerUp;
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
-
     public float JumpMultiplier { get; private set; }
     public bool CanPlayerBallJumpOnIt => false;
 
@@ -47,12 +30,8 @@ public class JumpPowerUp : IColisionable
         EffectManager effectManager,
         PhysicsManager physicsManager,
         AudioManager audioManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float width,
-        float height,
-        float depth,
         float jumpMultiplier,
         Color color)
     {
@@ -60,23 +39,19 @@ public class JumpPowerUp : IColisionable
         this.effectManager = effectManager;
         this.physicsManager = physicsManager;
         this.audioManager = audioManager;
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
-
-        this.color = color;
-        this.rotation = rotation;
         this.position = position;
+        this.rotation = rotation;
+        this.color = color;
 
         JumpMultiplier = jumpMultiplier;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 2, depth * 2, position, rotation, this);
+        this.physicsManager.AddStaticBox(4.4f, 4.4f, 3.5f, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
         var translationMatrix = XnaMatrix.CreateTranslation(position);
-        var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
+        var scaleMatrix = XnaMatrix.CreateScale(xScale, yScale, zScale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
         var model = modelManager.ArrowModel;
@@ -132,9 +107,6 @@ public class JumpPowerUp : IColisionable
         rotation = XnaQuaternion.Normalize(incrementalRotation * rotation);
     }
 
-
-    public void NotifyCollition(IColisionable with) { }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
@@ -143,7 +115,5 @@ public class JumpPowerUp : IColisionable
         }
     }
 
-    public void Reset()
-    {
-    }
+    public void NotifyCollition(IColisionable with) { }
 }

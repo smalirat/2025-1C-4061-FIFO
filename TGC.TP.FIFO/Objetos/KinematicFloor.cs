@@ -126,8 +126,6 @@ public class KinematicFloor : IColisionable
     }
 
 
-    public void NotifyCollition(IColisionable with) { }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
@@ -136,7 +134,5 @@ public class KinematicFloor : IColisionable
         }
     }
 
-    public void Reset()
-    {
-    }
+    public void NotifyCollition(IColisionable with) { }
 }

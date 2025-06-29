@@ -121,8 +121,6 @@ public class FloorWallRamp : IColisionable
         model.Draw(effect);
     }
 
-    public void NotifyCollition(IColisionable with) { }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (!playerBall.isDummy && FloorWallRampType == FloorWallRampType.Wall && contactSpeed >= GameState.MinBallSpeedForSounds)
@@ -131,7 +129,5 @@ public class FloorWallRamp : IColisionable
         }
     }
 
-    public void Reset()
-    {
-    }
+    public void NotifyCollition(IColisionable with) { }
 }

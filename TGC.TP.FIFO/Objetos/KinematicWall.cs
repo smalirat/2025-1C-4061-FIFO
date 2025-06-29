@@ -119,8 +119,7 @@ public class KinematicWall : IColisionable
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
     }
 
-    public void NotifyCollition(IColisionable with)
-    { }
+    
 
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
@@ -130,7 +129,5 @@ public class KinematicWall : IColisionable
         }
     }
 
-    public void Reset()
-    {
-    }
+    public void NotifyCollition(IColisionable with) { }
 }

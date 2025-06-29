@@ -27,23 +27,12 @@ public class Checkpoint : IColisionable
     private XnaQuaternion rotation;
     private XnaVector3 position;
 
-    private const float ModelHeight = 1f;
-    private const float ModelWidth = 1f;
-    private const float ModelLength = 1f;
-
-    private readonly float width;
-    private readonly float height;
-    private readonly float depth;
-
-    private float XScale => width / ModelWidth;
-    private float YScale => height / ModelHeight;
-    private float ZScale => depth / ModelLength;
+    private float scale;
 
     public BodyType BodyType => BodyType.Checkpoint;
     public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
 
     private bool glow;
-
     public bool CanPlayerBallJumpOnIt => false;
 
     public Checkpoint(ModelManager modelManager,
@@ -53,9 +42,7 @@ public class Checkpoint : IColisionable
         AudioManager audioManager,
         XnaVector3 position,
         XnaQuaternion rotation,
-        float width,
-        float height,
-        float depth,
+        float scale,
         Color color,
         bool useGlow)
     {
@@ -64,22 +51,20 @@ public class Checkpoint : IColisionable
         this.physicsManager = physicsManager;
         this.audioManager = audioManager;
 
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
+        this.scale = scale;
 
         this.color = color;
         this.rotation = rotation;
         this.position = position;
         this.glow = useGlow;
 
-        boundingVolume = this.physicsManager.AddStaticBox(width * 2, height * 4, depth * 2, position, rotation, this);
+        boundingVolume = this.physicsManager.AddStaticBox(2f, 10f, 2f, position + new Vector3(0f, 5f, 0f), rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
         var translationMatrix = XnaMatrix.CreateTranslation(position);
-        var scaleMatrix = XnaMatrix.CreateScale(XScale, YScale, ZScale);
+        var scaleMatrix = XnaMatrix.CreateScale(scale, scale, scale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
         var baseTransforms = new XnaMatrix[modelManager.FlagModel.Bones.Count];
@@ -133,8 +118,6 @@ public class Checkpoint : IColisionable
         rotation = XnaQuaternion.Normalize(incrementalRotation * rotation);
     }
 
-    public void NotifyCollition(IColisionable with) { }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (!Checked && !GameState.Lost)
@@ -154,4 +137,6 @@ public class Checkpoint : IColisionable
     {
         Checked = false;
     }
+
+    public void NotifyCollition(IColisionable with) { }
 }

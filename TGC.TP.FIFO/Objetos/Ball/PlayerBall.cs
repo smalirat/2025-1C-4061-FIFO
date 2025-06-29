@@ -125,25 +125,25 @@ public class PlayerBall : IColisionable
         }
         else
         {
-            if (keyboardState.IsKeyDown(Keys.W))
+            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
             {
                 keyPressed = true;
                 impulseDirection -= camera.ForwardXZ.ToBepuVector3();
             }
 
-            if (keyboardState.IsKeyDown(Keys.S))
+            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
             {
                 keyPressed = true;
                 impulseDirection += camera.ForwardXZ.ToBepuVector3();
             }
 
-            if (keyboardState.IsKeyDown(Keys.A))
+            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
                 keyPressed = true;
                 impulseDirection -= camera.RightXZ.ToBepuVector3();
             }
 
-            if (keyboardState.IsKeyDown(Keys.D))
+            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
             {
                 keyPressed = true;
                 impulseDirection += camera.RightXZ.ToBepuVector3();

@@ -89,17 +89,13 @@ public class StaticBox : IColisionable
         model.Draw(effect);
     }
 
-    public void NotifyCollition(IColisionable with) { }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (contactNormal?.Y == 0 && contactSpeed >= MinContactSpeedForSound)
+        if (contactSpeed >= MinContactSpeedForSound)
         {
             audioManager.PlayWallHitSound(GameState.BallType);
         }
     }
 
-    public void Reset()
-    {
-    }
+    public void NotifyCollition(IColisionable with) { }
 }
