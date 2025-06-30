@@ -103,7 +103,7 @@ public static class AudioManager
 
     public static void PlayWallHitSound(BallType ballType, float contactSpeed)
     {
-        if (!GameState.Playing || contactSpeed < GameState.MinBallSpeedForSounds)
+        if (!GameState.Playing || contactSpeed < GameState.GetMinBallSpeedForSounds())
         {
             return;
         }
@@ -136,7 +136,7 @@ public static class AudioManager
 
     public static void PlayWoodBoxHitSound(float contactSpeed)
     {
-        if (!GameState.Playing || contactSpeed < GameState.MinBallSpeedForSounds)
+        if (!GameState.Playing || contactSpeed < GameState.GetMinBallSpeedForSounds())
         {
             return;
         }

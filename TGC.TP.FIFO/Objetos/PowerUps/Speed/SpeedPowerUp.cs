@@ -97,10 +97,7 @@ public abstract class SpeedPowerUp : IGameObject
 
     public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (contactSpeed >= GameState.MinBallSpeedForSounds)
-        {
-            AudioManager.PlaySpeedPowerUpSound();
-        }
+        AudioManager.PlaySpeedPowerUpSound();
     }
 
     public void Reset()

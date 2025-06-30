@@ -194,6 +194,19 @@ public class TGCGame : Game
         gameObjects.Add(new HighJumpPowerUp(position: new XnaVector3(-15f, yInitialFloor, 70f)));
         gameObjects.Add(new HighJumpPowerUp(position: new XnaVector3(25f, yInitialFloor, 80f)));
 
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(65.56f, -43.88f, 778.90f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(62.07f, -24.40f, 799.16f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(56.81f, -4.20f, 798.99f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(50.48f, 16.00f, 799.23f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(44.21f, 36.20f, 799.70f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(39.28f, 56.40f, 799.23f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(32.75f, 76.60f, 801.59f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(27.14f, 96.80f, 799.18f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(19.99f, 117.00f, 801.53f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(14.20f, 137.20f, 799.27f)));
+        gameObjects.Add(new MediumJumpPowerUp(position: new XnaVector3(8.29f, 157.40f, 800.11f)));
+
+
         // Paredes Obstaculos
         gameObjects.Add(new KinematicWall(position: new XnaVector3(0f, yInitialFloor + 11f, 225f), width: 40f, height: 20f, movementSpeed: 50f));
 

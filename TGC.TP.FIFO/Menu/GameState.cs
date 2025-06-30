@@ -27,7 +27,12 @@ public static class GameState
     public const int TotalSecondsBeforeAboutToLose = 30;
 
     // Contactos
-    public const float MinBallSpeedForSounds = 30f;
+    public static float GetMinBallSpeedForSounds()
+    {
+        if (BallType == BallType.Goma) return 30f;
+        if (BallType == BallType.Metal) return 15f;
+        return 20f;
+    }
 
     public static void CheckpointChecked()
     {
