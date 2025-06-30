@@ -1,6 +1,7 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
+using BepuUtilities;
 using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using System;
@@ -13,7 +14,7 @@ public static class PhysicsManager
 {
     private static Simulation Simulation;
     public static BufferPool BufferPool { get; private set; }
-    public static SimpleThreadDispatcher ThreadDispatcher { get; private set; }
+    public static ThreadDispatcher ThreadDispatcher { get; private set; }
 
     private static CollidableProperty<MaterialProperties> MaterialProperties;
     public static Dictionary<CollidableReference, ICollisionable> CollidableReferences = new();
@@ -23,7 +24,7 @@ public static class PhysicsManager
         BufferPool = new BufferPool();
 
         var targetThreadCount = Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
-        ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
+        ThreadDispatcher = new ThreadDispatcher(targetThreadCount);
 
         MaterialProperties = new CollidableProperty<MaterialProperties>();
 
