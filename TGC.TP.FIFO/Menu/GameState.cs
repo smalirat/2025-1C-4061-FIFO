@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 using TGC.TP.FIFO.Objetos.Ball;
 
 namespace TGC.TP.FIFO.Menu;

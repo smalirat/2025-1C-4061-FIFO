@@ -1,4 +1,4 @@
-﻿namespace TGC.TP.FIFO.Objetos;
+﻿namespace TGC.TP.FIFO.Objetos.Surfaces;
 
 public enum FloorWallRampType
 {

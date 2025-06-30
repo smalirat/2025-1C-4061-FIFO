@@ -14,8 +14,10 @@ using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
+using TGC.TP.FIFO.Objetos.Boxes;
 using TGC.TP.FIFO.Objetos.PowerUps.Jump;
 using TGC.TP.FIFO.Objetos.PowerUps.Speed;
+using TGC.TP.FIFO.Objetos.Surfaces;
 using TGC.TP.FIFO.Skybox;
 using TGC.TP.FIFO.Texturas;
 
@@ -23,7 +25,7 @@ namespace TGC.TP.FIFO;
 
 public class TGCGame : Game
 {
-    private readonly GraphicsDeviceManager Graphics;
+    private readonly GraphicsDeviceManager GraphicsDeviceManager;
     private readonly PhysicsManager PhysicsManager;
     private SpriteBatch SpriteBatch;
 
@@ -38,6 +40,7 @@ public class TGCGame : Game
 
     private readonly List<Floor> Floors = [];
     private readonly List<Wall> Walls = [];
+    private readonly List<Ramp> Ramps = [];
     private readonly List<DynamicBox> DynamicBoxes = [];
     private readonly List<StaticBox> StaticBoxes = [];
     private readonly List<KinematicWall> KinematicWalls = [];
@@ -48,7 +51,7 @@ public class TGCGame : Game
 
     public TGCGame()
     {
-        Graphics = new GraphicsDeviceManager(this);
+        GraphicsDeviceManager = new GraphicsDeviceManager(this);
         PhysicsManager = new PhysicsManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -58,9 +61,9 @@ public class TGCGame : Game
 
     protected override void Initialize()
     {
-        Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
-        Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-        Graphics.ApplyChanges();
+        GraphicsDeviceManager.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+        GraphicsDeviceManager.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+        GraphicsDeviceManager.ApplyChanges();
 
         PhysicsManager.Initialize();
 
@@ -167,9 +170,14 @@ public class TGCGame : Game
             floors.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
-        foreach (var walls in Walls)
+        foreach (var wall in Walls)
         {
-            walls.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+            wall.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
+        }
+
+        foreach (var ramp in Ramps)
+        {
+            ramp.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         foreach (var dynamicBox in DynamicBoxes)
@@ -222,9 +230,11 @@ public class TGCGame : Game
         Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, 175f, 800f), glow: true)); // Final
 
         // Pisos
-        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f));
-        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f));
-        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f));
+        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 0f, 74.6f), width: 150f, length: 300f));
+        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 591.2f), width: 150f, length: 450f));
+
+        // Rampas
+        Ramps.Add(new Ramp(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -23.2f, 296f), width: 150f, length: 150f));
 
         // Paredes
         Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f));

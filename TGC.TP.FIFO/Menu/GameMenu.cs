@@ -11,6 +11,8 @@ using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Fuentes;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
+using TGC.TP.FIFO.Objetos.Boxes;
+using TGC.TP.FIFO.Objetos.Surfaces;
 
 namespace TGC.TP.FIFO.Menu;
 
@@ -64,7 +66,7 @@ public class GameMenu
 
         DummyCheckpoint = new Checkpoint(this.physicsManager, MenuPosition + new XnaVector3(10f, -5f, -10f), scale: 0.5f, glow: false);
 
-        Piso = new Floor(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, -10f, -50f), XnaQuaternion.Identity, 150f, 150f);
+        Piso = new Floor(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, -10f, -50f), width: 150f, length: 150f);
         ParedFondo = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, 65f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f);
         ParedIzquierda = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(-25f, 65f, -50f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f);
 

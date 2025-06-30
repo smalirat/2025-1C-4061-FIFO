@@ -21,41 +21,41 @@ public class BoxPrimitive
 
         var positions = new XnaVector3[]
         {
-                // Back face
-                new XnaVector3(x, -y, z),
-                new XnaVector3(-x, -y, z),
-                new XnaVector3(x, y, z),
-                new XnaVector3(-x, y, z),
+            // Back face
+            new XnaVector3(x, -y, z),
+            new XnaVector3(-x, -y, z),
+            new XnaVector3(x, y, z),
+            new XnaVector3(-x, y, z),
 
-                // Front face
-                new XnaVector3(x, y, -z),
-                new XnaVector3(-x, y, -z),
-                new XnaVector3(x, -y, -z),
-                new XnaVector3(-x, -y, -z),
+            // Front face
+            new XnaVector3(x, y, -z),
+            new XnaVector3(-x, y, -z),
+            new XnaVector3(x, -y, -z),
+            new XnaVector3(-x, -y, -z),
 
-                // Top face
-                new XnaVector3(x, y, z),
-                new XnaVector3(-x, y, z),
-                new XnaVector3(x, y, -z),
-                new XnaVector3(-x, y, -z),
+            // Top face
+            new XnaVector3(x, y, z),
+            new XnaVector3(-x, y, z),
+            new XnaVector3(x, y, -z),
+            new XnaVector3(-x, y, -z),
 
-                // Bottom face
-                new XnaVector3(x, -y, -z),
-                new XnaVector3(x, -y, z),
-                new XnaVector3(-x, -y, z),
-                new XnaVector3(-x, -y, -z),
+            // Bottom face
+            new XnaVector3(x, -y, -z),
+            new XnaVector3(x, -y, z),
+            new XnaVector3(-x, -y, z),
+            new XnaVector3(-x, -y, -z),
 
-                // Left face
-                new XnaVector3(-x, -y, z),
-                new XnaVector3(-x, y, z),
-                new XnaVector3(-x, y, -z),
-                new XnaVector3(-x, -y, -z),
+            // Left face
+            new XnaVector3(-x, -y, z),
+            new XnaVector3(-x, y, z),
+            new XnaVector3(-x, y, -z),
+            new XnaVector3(-x, -y, -z),
 
-                // Right face
-                new XnaVector3(x, -y, -z),
-                new XnaVector3(x, y, -z),
-                new XnaVector3(x, y, z),
-                new XnaVector3(x, -y, z),
+            // Right face
+            new XnaVector3(x, -y, -z),
+            new XnaVector3(x, y, -z),
+            new XnaVector3(x, y, z),
+            new XnaVector3(x, -y, z),
         };
 
         var textureCoordinates = new XnaVector2[]

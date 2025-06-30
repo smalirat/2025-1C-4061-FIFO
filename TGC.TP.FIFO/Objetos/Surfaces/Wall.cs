@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Fisica;
 
-namespace TGC.TP.FIFO.Objetos;
+namespace TGC.TP.FIFO.Objetos.Surfaces;
 
 public class Wall : FloorWallRamp
 {

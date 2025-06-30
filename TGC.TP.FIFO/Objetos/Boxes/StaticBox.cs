@@ -1,7 +1,5 @@
-﻿using BepuPhysics;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
-using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Luz;
@@ -11,48 +9,35 @@ using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
-namespace TGC.TP.FIFO.Objetos;
+namespace TGC.TP.FIFO.Objetos.Boxes;
 
-public class DynamicBox : IColisionable
+public class StaticBox : IColisionable
 {
     private readonly PhysicsManager physicsManager;
-
-    private BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
 
     private XnaMatrix world;
 
     public BodyType BodyType => BodyType.Box;
+    public bool CanPlayerBallJumpOnIt => true;
 
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
-    private XnaVector3 InitialPosition;
-    private XnaQuaternion InitialRotation;
-    private float SideLength;
-    private float Mass;
-    private float Friction;
+    private float MinContactSpeedForSound;
 
-    public bool CanPlayerBallJumpOnIt => false;
-
-    public DynamicBox(PhysicsManager physicsManager,
+    public StaticBox(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
-        XnaVector3 initialPosition,
-        XnaQuaternion initialRotation,
+        XnaVector3 position,
+        XnaQuaternion rotation,
         float sideLength,
-        float friction,
-        float mass)
+        float minContactSpeedForSound = GameState.MinBallSpeedForSounds)
     {
         this.physicsManager = physicsManager;
 
-        this.InitialPosition = initialPosition;
-        this.InitialRotation = initialRotation;
-        this.SideLength = sideLength;
-        this.Friction = friction;
-        this.Mass = mass;
+        MinContactSpeedForSound = minContactSpeedForSound;
 
         model = ModelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
-        boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
+        this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
 
-        world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
+        world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
@@ -83,30 +68,18 @@ public class DynamicBox : IColisionable
         // Solo establecer la textura de normales si estamos usando NormalMapping
         // if (effect.CurrentTechnique.Name == "NormalMapping")
         // {
-        //     effect.Parameters["NormalTexture"]?.SetValue(textureManager.WoodBox1Texture); //por ahora no tiene textura normal
+        //     effect.Parameters["NormalTexture"]?.SetValue(textureManager.WoodBox1Texture);
         // }
 
         model.Draw(effect);
     }
 
-    public void Update(float deltaTime, TargetCamera camera)
-    {
-        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
-                XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
-    }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (contactSpeed >= GameState.MinBallSpeedForSounds)
+        if (contactSpeed >= MinContactSpeedForSound)
         {
-            AudioManager.PlayWoodBoxHitSound();
+            AudioManager.PlayWallHitSound(GameState.BallType);
         }
-    }
-
-    public void Reset()
-    {
-        this.physicsManager.RemoveBoundingVolume(boundingVolume);
-        this.boundingVolume = this.physicsManager.AddDynamicBox(SideLength, SideLength, SideLength, Mass, Friction, InitialPosition, InitialRotation, this);
     }
 
     public void NotifyCollition(IColisionable with) { }

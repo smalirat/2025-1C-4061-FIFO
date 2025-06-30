@@ -10,7 +10,7 @@ using TGC.TP.FIFO.Modelos.Primitivas;
 using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
-namespace TGC.TP.FIFO.Objetos;
+namespace TGC.TP.FIFO.Objetos.Surfaces;
 
 public abstract class FloorWallRamp : IColisionable
 {
