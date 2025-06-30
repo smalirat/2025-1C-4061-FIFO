@@ -9,7 +9,7 @@ namespace TGC.TP.FIFO.Skybox;
 public class SkyBox
 {
     private readonly BoxPrimitive model;
-    private const float Size = 2500f;
+    private const float Size = 5000f;
 
     public SkyBox()
     {
