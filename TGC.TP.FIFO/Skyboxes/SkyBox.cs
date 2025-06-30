@@ -21,8 +21,11 @@ public class SkyBox
         var originalState = graphicsDevice.RasterizerState;
         graphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
 
+        XnaMatrix viewWithoutTranslation = view;
+        viewWithoutTranslation.Translation = XnaVector3.Zero;
+
         var effect = EffectManager.SkyBoxShader;
-        effect.Parameters["View"]?.SetValue(view);
+        effect.Parameters["View"]?.SetValue(viewWithoutTranslation);
         effect.Parameters["Projection"]?.SetValue(projection);
         effect.Parameters["World"]?.SetValue(XnaMatrix.CreateTranslation(cameraPosition));
         effect.Parameters["ModelTexture"].SetValue(TextureManager.MountainSkyBoxTexture);
