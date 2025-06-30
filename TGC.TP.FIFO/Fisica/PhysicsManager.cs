@@ -7,214 +7,213 @@ using System;
 using System.Collections.Generic;
 using TGC.TP.FIFO.Utilidades;
 
-namespace TGC.TP.FIFO.Fisica
+namespace TGC.TP.FIFO.Fisica;
+
+public class PhysicsManager
 {
-    public class PhysicsManager
+    private Simulation Simulation;
+    public BufferPool BufferPool { get; private set; }
+    public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
+
+    private CollidableProperty<MaterialProperties> MaterialProperties;
+    public Dictionary<CollidableReference, IColisionable> CollidableReferences = new();
+
+    public void Initialize()
     {
-        private Simulation Simulation;
-        public BufferPool BufferPool { get; private set; }
-        public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
+        BufferPool = new BufferPool();
 
-        private CollidableProperty<MaterialProperties> MaterialProperties;
-        public Dictionary<CollidableReference, IColisionable> CollidableReferences = new();
+        var targetThreadCount = Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+        ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
 
-        public void Initialize()
+        MaterialProperties = new CollidableProperty<MaterialProperties>();
+
+        Simulation = Simulation.Create(
+            BufferPool,
+            new NarrowPhaseCallbacks(MaterialProperties, CollidableReferences),
+            new PoseIntegratorCallbacks(
+                gravity: new BepuVector3(0, -15, 0),
+                linearDamping: 0.03f, // Que tan rapido se disipa la velocidad lineal
+                angularDamping: 0.6f // Que tan rapido se disipa la velocidad angular
+             ),
+            new SolveDescription(8, 4));
+
+        MaterialProperties.Initialize(Simulation);
+    }
+
+    public void Update(float deltaTime)
+    {
+        float safeDeltaTime = Math.Max(deltaTime, 1f / 240f);
+        Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
+    }
+
+    public BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, IColisionable collidableReference)
+    {
+        var sphereShape = new Sphere(radius);
+        var shapeIndex = Simulation.Shapes.Add(sphereShape);
+
+        var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
+
+        var bodyDescription = BodyDescription.CreateDynamic(
+            initialPosition.ToBepuVector3(),
+            sphereShape.ComputeInertia(mass),
+            collidableDescription,
+            new BodyActivityDescription(0.1f));
+
+        var handle = Simulation.Bodies.Add(bodyDescription);
+
+        CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+
+        MaterialProperties.Allocate(handle) = new MaterialProperties
         {
-            BufferPool = new BufferPool();
+            FrictionCoefficient = friction,
+            MaximumRecoveryVelocity = maximumRecoveryVelocity,
+            SpringSettings = new SpringSettings(springFrequency, dampingRatio)
+        };
 
-            var targetThreadCount = Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
-            ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
+        return handle;
+    }
 
-            MaterialProperties = new CollidableProperty<MaterialProperties>();
+    public BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    {
+        var boxShape = new Box(width, height, length);
+        var shapeIndex = Simulation.Shapes.Add(boxShape);
 
-            Simulation = Simulation.Create(
-                BufferPool,
-                new NarrowPhaseCallbacks(MaterialProperties, CollidableReferences),
-                new PoseIntegratorCallbacks(
-                    gravity: new BepuVector3(0, -15, 0),
-                    linearDamping: 0.03f, // Que tan rapido se disipa la velocidad lineal
-                    angularDamping: 0.6f // Que tan rapido se disipa la velocidad angular
-                 ),
-                new SolveDescription(8, 4));
+        var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
 
-            MaterialProperties.Initialize(Simulation);
-        }
+        var bodyDescription = BodyDescription.CreateDynamic(
+            new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
+            boxShape.ComputeInertia(mass),
+            collidableDescription,
+            new BodyActivityDescription(0.1f));
 
-        public void Update(float deltaTime)
+        var handle = Simulation.Bodies.Add(bodyDescription);
+
+        CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+
+        MaterialProperties.Allocate(handle) = new MaterialProperties
         {
-            float safeDeltaTime = Math.Max(deltaTime, 1f / 240f);
-            Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
-        }
+            FrictionCoefficient = friction,
+            MaximumRecoveryVelocity = float.MaxValue, // Default
+            SpringSettings = new SpringSettings(30, 1) // Default
+        };
 
-        public BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, IColisionable collidableReference)
+        return handle;
+    }
+
+    public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    {
+        var boxShape = new Box(width, height, length);
+        var shapeIndex = Simulation.Shapes.Add(boxShape);
+
+        var staticDescription = new StaticDescription(
+            initialPosition.ToBepuVector3(),
+            initialRotation.ToBepuQuaternion(),
+            shapeIndex,
+            continuity: ContinuousDetection.Passive);
+
+        var handle = Simulation.Statics.Add(staticDescription);
+
+        CollidableReferences[new CollidableReference(handle)] = collidableReference;
+
+        MaterialProperties.Allocate(handle) = new MaterialProperties
         {
-            var sphereShape = new Sphere(radius);
-            var shapeIndex = Simulation.Shapes.Add(sphereShape);
+            FrictionCoefficient = 1f,
+            MaximumRecoveryVelocity = float.MaxValue,
+            SpringSettings = new SpringSettings(30, 1)
+        };
 
-            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
+        return handle;
+    }
 
-            var bodyDescription = BodyDescription.CreateDynamic(
-                initialPosition.ToBepuVector3(),
-                sphereShape.ComputeInertia(mass),
-                collidableDescription,
-                new BodyActivityDescription(0.1f));
+    public BodyHandle AddKinematicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    {
+        var boxShape = new Box(width, height, length);
+        var shapeIndex = Simulation.Shapes.Add(boxShape);
 
-            var handle = Simulation.Bodies.Add(bodyDescription);
+        var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
 
-            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+        var bodyDescription = BodyDescription.CreateKinematic(
+            new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
+            collidableDescription,
+            new BodyActivityDescription(0.1f));
 
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = friction,
-                MaximumRecoveryVelocity = maximumRecoveryVelocity,
-                SpringSettings = new SpringSettings(springFrequency, dampingRatio)
-            };
+        var handle = Simulation.Bodies.Add(bodyDescription);
 
-            return handle;
-        }
+        CollidableReferences[new CollidableReference(CollidableMobility.Kinematic, handle)] = collidableReference;
 
-        public BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+        MaterialProperties.Allocate(handle) = new MaterialProperties
         {
-            var boxShape = new Box(width, height, length);
-            var shapeIndex = Simulation.Shapes.Add(boxShape);
+            FrictionCoefficient = friction,
+            MaximumRecoveryVelocity = 1f, // Default
+            SpringSettings = new SpringSettings(30, 1) // Default
+        };
 
-            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
+        return handle;
+    }
 
-            var bodyDescription = BodyDescription.CreateDynamic(
-                new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
-                boxShape.ComputeInertia(mass),
-                collidableDescription,
-                new BodyActivityDescription(0.1f));
+    public float GetLinearSpeed(BodyHandle bodyHandle)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+        return bodyRef.Velocity.Linear.Length();
+    }
 
-            var handle = Simulation.Bodies.Add(bodyDescription);
+    public XnaVector3 GetPosition(BodyHandle bodyHandle)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+        return bodyRef.Pose.Position.ToXnaVector3();
+    }
 
-            CollidableReferences[new CollidableReference(CollidableMobility.Dynamic, handle)] = collidableReference;
+    public XnaVector3 GetPosition(StaticHandle staticHandle)
+    {
+        var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
+        return bodyRef.Pose.Position.ToXnaVector3();
+    }
 
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = friction,
-                MaximumRecoveryVelocity = float.MaxValue, // Default
-                SpringSettings = new SpringSettings(30, 1) // Default
-            };
+    public XnaQuaternion GetOrientation(BodyHandle bodyHandle)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+        return bodyRef.Pose.Orientation.ToXnaQuaternion();
+    }
 
-            return handle;
-        }
+    public XnaQuaternion GetOrientation(StaticHandle staticHandle)
+    {
+        var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
+        return bodyRef.Pose.Orientation.ToXnaQuaternion();
+    }
 
-        public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
-        {
-            var boxShape = new Box(width, height, length);
-            var shapeIndex = Simulation.Shapes.Add(boxShape);
+    public void Awake(BodyHandle bodyHandle)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+        bodyRef.Awake = true;
+    }
 
-            var staticDescription = new StaticDescription(
-                initialPosition.ToBepuVector3(),
-                initialRotation.ToBepuQuaternion(),
-                shapeIndex,
-                continuity: ContinuousDetection.Passive);
+    public XnaVector3 GetLinearVelocity(BodyHandle bodyHandle)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
+        return bodyRef.Velocity.Linear.ToXnaVector3();
+    }
 
-            var handle = Simulation.Statics.Add(staticDescription);
+    public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
+    {
+        var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
 
-            CollidableReferences[new CollidableReference(handle)] = collidableReference;
+        var direction = Vector3.Normalize(impulseDirection.ToBepuVector3());
+        var impulse = direction * impulseForce * deltaTime;
 
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = 1f,
-                MaximumRecoveryVelocity = float.MaxValue,
-                SpringSettings = new SpringSettings(30, 1)
-            };
+        var position = bodyRef.Pose.Position;
 
-            return handle;
-        }
+        bodyRef.ApplyLinearImpulse(impulse.ToBepuVector3());
+    }
 
-        public BodyHandle AddKinematicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
-        {
-            var boxShape = new Box(width, height, length);
-            var shapeIndex = Simulation.Shapes.Add(boxShape);
+    public void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)
+    {
+        var body = Simulation.Bodies.GetBodyReference(bodyHandle);
+        body.Pose.Position = newPosition.ToBepuVector3();
+        body.Velocity.Linear = BepuVector3.Zero;
+    }
 
-            var collidableDescription = new CollidableDescription(shapeIndex, ContinuousDetection.Passive);
-
-            var bodyDescription = BodyDescription.CreateKinematic(
-                new RigidPose(initialPosition.ToBepuVector3(), initialRotation.ToBepuQuaternion()),
-                collidableDescription,
-                new BodyActivityDescription(0.1f));
-
-            var handle = Simulation.Bodies.Add(bodyDescription);
-
-            CollidableReferences[new CollidableReference(CollidableMobility.Kinematic, handle)] = collidableReference;
-
-            MaterialProperties.Allocate(handle) = new MaterialProperties
-            {
-                FrictionCoefficient = friction,
-                MaximumRecoveryVelocity = 1f, // Default
-                SpringSettings = new SpringSettings(30, 1) // Default
-            };
-
-            return handle;
-        }
-
-        public float GetLinearSpeed(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            return bodyRef.Velocity.Linear.Length();
-        }
-
-        public XnaVector3 GetPosition(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            return bodyRef.Pose.Position.ToXnaVector3();
-        }
-
-        public XnaVector3 GetPosition(StaticHandle staticHandle)
-        {
-            var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
-            return bodyRef.Pose.Position.ToXnaVector3();
-        }
-
-        public XnaQuaternion GetOrientation(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            return bodyRef.Pose.Orientation.ToXnaQuaternion();
-        }
-
-        public XnaQuaternion GetOrientation(StaticHandle staticHandle)
-        {
-            var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
-            return bodyRef.Pose.Orientation.ToXnaQuaternion();
-        }
-
-        public void Awake(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            bodyRef.Awake = true;
-        }
-
-        public XnaVector3 GetLinearVelocity(BodyHandle bodyHandle)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-            return bodyRef.Velocity.Linear.ToXnaVector3();
-        }
-
-        public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
-        {
-            var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
-
-            var direction = Vector3.Normalize(impulseDirection.ToBepuVector3());
-            var impulse = direction * impulseForce * deltaTime;
-
-            var position = bodyRef.Pose.Position;
-
-            bodyRef.ApplyLinearImpulse(impulse.ToBepuVector3());
-        }
-
-        public void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)
-        {
-            var body = Simulation.Bodies.GetBodyReference(bodyHandle);
-            body.Pose.Position = newPosition.ToBepuVector3();
-            body.Velocity.Linear = BepuVector3.Zero;
-        }
-
-        public void RemoveBoundingVolume(BodyHandle bodyHandle)
-        {
-            Simulation.Bodies.Remove(bodyHandle);
-        }
+    public void RemoveBoundingVolume(BodyHandle bodyHandle)
+    {
+        Simulation.Bodies.Remove(bodyHandle);
     }
 }

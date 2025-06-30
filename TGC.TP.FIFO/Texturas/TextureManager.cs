@@ -3,22 +3,22 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.TP.FIFO.Texturas;
 
-public class TextureManager
+public static class TextureManager
 {
     public const string ContentFolderTextures = "Textures/";
 
-    public Texture2D RubberTexture { get; private set; }
-    public Texture2D WoodBox1Texture { get; private set; }
-    public Texture2D WoodBox2Texture { get; private set; }
-    public Texture2D WoodBox3Texture { get; private set; }
-    public Texture2D StonesTexture { get; private set; }
-    public Texture2D StonesNormalTexture { get; private set; }
-    public Texture2D DirtTexture { get; private set; }
-    public Texture2D SphereMetalTexture { get; private set; }
-    public Texture2D SphereMarbleTexture { get; private set; }
-    public TextureCube MountainSkyBoxTexture { get; private set; }
+    public static Texture2D RubberTexture { get; private set; }
+    public static Texture2D WoodBox1Texture { get; private set; }
+    public static Texture2D WoodBox2Texture { get; private set; }
+    public static Texture2D WoodBox3Texture { get; private set; }
+    public static Texture2D StonesTexture { get; private set; }
+    public static Texture2D StonesNormalTexture { get; private set; }
+    public static Texture2D DirtTexture { get; private set; }
+    public static Texture2D SphereMetalTexture { get; private set; }
+    public static Texture2D SphereMarbleTexture { get; private set; }
+    public static TextureCube MountainSkyBoxTexture { get; private set; }
 
-    public void Load(ContentManager content)
+    public static void Load(ContentManager content)
     {
         RubberTexture = LoadTexture2D(content, "rubber");
         WoodBox2Texture = LoadTexture2D(content, "caja-madera-2");
@@ -32,12 +32,12 @@ public class TextureManager
         MountainSkyBoxTexture = LoadTextureCube(content, "mountainSkybox");
     }
 
-    private Texture2D LoadTexture2D(ContentManager content, string path)
+    private static Texture2D LoadTexture2D(ContentManager content, string path)
     {
         return content.Load<Texture2D>(ContentFolderTextures + path);
     }
 
-    private TextureCube LoadTextureCube(ContentManager content, string path)
+    private static TextureCube LoadTextureCube(ContentManager content, string path)
     {
         return content.Load<TextureCube>(ContentFolderTextures + path);
     }

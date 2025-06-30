@@ -12,13 +12,9 @@ using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos;
 
-public class FloorWallRamp : IColisionable
+public abstract class FloorWallRamp : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
 
     private readonly StaticHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -37,11 +33,7 @@ public class FloorWallRamp : IColisionable
 
     private const float Height = 1.25f;
 
-    public FloorWallRamp(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public FloorWallRamp(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
@@ -50,45 +42,41 @@ public class FloorWallRamp : IColisionable
         FloorWallRampType floorWallRampType,
         RampWallTextureType rampWallTextureType)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
+
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
 
         RampWallTextureType = rampWallTextureType;
         FloorWallRampType = floorWallRampType;
         CanPlayerBallJumpOnIt = floorWallRampType != FloorWallRampType.Wall;
 
-        model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
+        model = ModelManager.CreateBox(graphicsDevice, Height, width, length);
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
-        this.audioManager = audioManager;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BlinnPhongShader;
+        var effect = EffectManager.BlinnPhongShader;
         Texture2D texture = null;
         BlinnPhongMaterial material;
 
         switch (RampWallTextureType)
         {
             case RampWallTextureType.Dirt:
-                texture = textureManager.DirtTexture;
+                texture = TextureManager.DirtTexture;
                 material = MaterialPresets.Tierra;
                 effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
 
             case RampWallTextureType.Stones:
-                texture = textureManager.StonesTexture;
+                texture = TextureManager.StonesTexture;
                 material = MaterialPresets.Piedra;
                 effect.CurrentTechnique = effect.Techniques["NormalMapping"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
 
             default:
-                texture = textureManager.DirtTexture;
+                texture = TextureManager.DirtTexture;
                 material = MaterialPresets.Tierra;
                 effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
                 break;
@@ -115,7 +103,7 @@ public class FloorWallRamp : IColisionable
         // Solo establecer la textura de normales si estamos usando NormalMapping
         if (effect.CurrentTechnique.Name == "NormalMapping")
         {
-            effect.Parameters["NormalTexture"]?.SetValue(textureManager.StonesNormalTexture);
+            effect.Parameters["NormalTexture"]?.SetValue(TextureManager.StonesNormalTexture);
         }
 
         model.Draw(effect);
@@ -125,7 +113,7 @@ public class FloorWallRamp : IColisionable
     {
         if (!playerBall.isDummy && FloorWallRampType == FloorWallRampType.Wall && contactSpeed >= GameState.MinBallSpeedForSounds)
         {
-            audioManager.PlayWallHitSound(GameState.BallType);
+            AudioManager.PlayWallHitSound(GameState.BallType);
         }
     }
 

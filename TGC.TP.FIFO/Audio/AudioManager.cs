@@ -7,37 +7,36 @@ using TGC.TP.FIFO.Objetos.Ball;
 
 namespace TGC.TP.FIFO.Audio;
 
-public class AudioManager
+public static class AudioManager
 {
     public const string ContentFolderSongs = "Songs/";
     public const string ContentFolderSoundEffects = "SoundEffects/";
 
     // Música de fondo
-    public Song BackgroundMusic { get; private set; }
+    public static Song BackgroundMusic { get; private set; }
 
     // Efectos de sonido para diferentes tipos de bola
-    public SoundEffect MetalJumpSound { get; private set; }
+    public static SoundEffect MetalJumpSound { get; private set; }
+    public static SoundEffect RubberJumpSound { get; private set; }
+    public static SoundEffect StoneJumpSound { get; private set; }
+    public static SoundEffect BallRollingSound { get; private set; }
+    public static SoundEffect SpeedPowerUpSound { get; private set; }
+    public static SoundEffect JumpPowerUpSound { get; private set; }
+    public static SoundEffect CheckpointSound { get; private set; }
+    public static SoundEffect MetalHitSound { get; private set; }
+    public static SoundEffect RubberHitSound { get; private set; }
+    public static SoundEffect RockHitSound { get; private set; }
+    public static SoundEffect WoodBoxHitSound { get; private set; }
+    public static SoundEffectInstance BallRollInstance { get; set; }
+    public static SoundEffectInstance SpeedPowerUpInstance { get; set; }
+    public static SoundEffectInstance JumpPowerUpInstance { get; set; }
+    public static SoundEffectInstance CheckpointInstance { get; set; }
+    public static SoundEffectInstance MetalHitSoundInstance { get; set; }
+    public static SoundEffectInstance RubberHitSoundInstance { get; set; }
+    public static SoundEffectInstance RockHitSoundInstance { get; set; }
+    public static SoundEffectInstance WoodBoxHitSoundInstance { get; set; }
 
-    public SoundEffect RubberJumpSound { get; private set; }
-    public SoundEffect StoneJumpSound { get; private set; }
-    public SoundEffect BallRollingSound { get; private set; }
-    public SoundEffect SpeedPowerUpSound { get; private set; }
-    public SoundEffect JumpPowerUpSound { get; private set; }
-    public SoundEffect CheckpointSound { get; private set; }
-    public SoundEffect MetalHitSound { get; private set; }
-    public SoundEffect RubberHitSound { get; private set; }
-    public SoundEffect RockHitSound { get; private set; }
-    public SoundEffect WoodBoxHitSound { get; private set; }
-    private SoundEffectInstance BallRollInstance { get; set; }
-    private SoundEffectInstance SpeedPowerUpInstance { get; set; }
-    private SoundEffectInstance JumpPowerUpInstance { get; set; }
-    private SoundEffectInstance CheckpointInstance { get; set; }
-    public SoundEffectInstance MetalHitSoundInstance { get; set; }
-    public SoundEffectInstance RubberHitSoundInstance { get; set; }
-    public SoundEffectInstance RockHitSoundInstance { get; set; }
-    public SoundEffectInstance WoodBoxHitSoundInstance { get; set; }
-
-    public void Load(ContentManager content)
+    public static void Load(ContentManager content)
     {
         // Cargar música
         BackgroundMusic = content.Load<Song>(ContentFolderSongs + "Marble_It_Up_Gameplay_Sound");
@@ -67,18 +66,18 @@ public class AudioManager
         BallRollInstance.IsLooped = true;
     }
 
-    public void PlayBackgroundMusic()
+    public static void PlayBackgroundMusic()
     {
         MediaPlayer.Play(BackgroundMusic);
         MediaPlayer.IsRepeating = true;
     }
 
-    public void StopBackgroundMusic()
+    public static void StopBackgroundMusic()
     {
         MediaPlayer.Stop();
     }
 
-    public void PlayJumpSound(BallType ballType)
+    public static void PlayJumpSound(BallType ballType)
     {
         if (!GameState.Playing) return;
         switch (ballType)
@@ -97,7 +96,7 @@ public class AudioManager
         }
     }
 
-    public void PlayWallHitSound(BallType ballType)
+    public static void PlayWallHitSound(BallType ballType)
     {
         if (!GameState.Playing) return;
         switch (ballType)
@@ -126,7 +125,7 @@ public class AudioManager
         }
     }
 
-    public void PlayWoodBoxHitSound()
+    public static void PlayWoodBoxHitSound()
     {
         if (!GameState.Playing) return;
         if (WoodBoxHitSoundInstance.State != SoundState.Playing)
@@ -135,7 +134,7 @@ public class AudioManager
         }
     }
 
-    public void PlaySpeedPowerUpSound()
+    public static void PlaySpeedPowerUpSound()
     {
         if (!GameState.Playing) return;
         if (SpeedPowerUpInstance.State != SoundState.Playing)
@@ -144,7 +143,7 @@ public class AudioManager
         }
     }
 
-    public void PlayJumpPowerUpSound()
+    public static void PlayJumpPowerUpSound()
     {
         if (!GameState.Playing) return;
         if (JumpPowerUpInstance.State != SoundState.Playing)
@@ -153,7 +152,7 @@ public class AudioManager
         }
     }
 
-    public void PlayCheckpointSound()
+    public static void PlayCheckpointSound()
     {
         if (!GameState.Playing) return;
         if (CheckpointInstance.State != SoundState.Playing)
@@ -162,7 +161,7 @@ public class AudioManager
         }
     }
 
-    public void PlayRollingSound()
+    public static void PlayRollingSound()
     {
         if (!GameState.Playing) return;
         float volume = 1.0f;
@@ -170,12 +169,12 @@ public class AudioManager
         BallRollInstance.Play();
     }
 
-    public void StopRollingSound()
+    public static void StopRollingSound()
     {
         BallRollInstance.Stop();
     }
 
-    public void UpdateRollingSound(BallType ballType, float speed)
+    public static void UpdateRollingSound(BallType ballType, float speed)
     {
         // Ajustar el volumen basado en la velocidad
         float volume = MathHelper.Clamp(speed / 10f, 0f, 1f);

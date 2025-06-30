@@ -9,11 +9,13 @@ using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Fuentes;
-using TGC.TP.FIFO.HUD;
+using TGC.TP.FIFO.HUDS;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
+using TGC.TP.FIFO.Objetos.PowerUps.Jump;
+using TGC.TP.FIFO.Objetos.PowerUps.Speed;
 using TGC.TP.FIFO.Skybox;
 using TGC.TP.FIFO.Texturas;
 
@@ -22,16 +24,11 @@ namespace TGC.TP.FIFO;
 public class TGCGame : Game
 {
     private readonly GraphicsDeviceManager Graphics;
-    private readonly ModelManager ModelManager;
-    private readonly EffectManager EffectManager;
     private readonly PhysicsManager PhysicsManager;
-    private readonly TextureManager TextureManager;
-    private readonly AudioManager AudioManager;
-    private readonly FontsManager FontsManager;
     private SpriteBatch SpriteBatch;
 
     private TargetCamera TargetCamera;
-    private HUDLayout HUDLayout;
+    private HUD HUD;
 
     private Random random;
     private GameMenu GameMenu;
@@ -39,25 +36,20 @@ public class TGCGame : Game
 
     private PlayerBall PlayerBall;
 
-    private List<FloorWallRamp> Floors = new();
-    private List<FloorWallRamp> Walls = new();
-    private List<DynamicBox> DynamicBoxes = new();
-    private List<StaticBox> StaticBoxes = new();
-    private List<KinematicWall> KinematicWalls = new();
-    private List<KinematicFloor> KinematicFloors = new();
-    private List<SpeedPowerUp> SpeedPowerUps = new();
-    private List<JumpPowerUp> JumpPowerUps = new();
-    private List<Checkpoint> Checkpoints = new();
+    private readonly List<Floor> Floors = [];
+    private readonly List<Wall> Walls = [];
+    private readonly List<DynamicBox> DynamicBoxes = [];
+    private readonly List<StaticBox> StaticBoxes = [];
+    private readonly List<KinematicWall> KinematicWalls = [];
+    private readonly List<KinematicFloor> KinematicFloors = [];
+    private readonly List<SpeedPowerUp> SpeedPowerUps = [];
+    private readonly List<JumpPowerUp> JumpPowerUps = [];
+    private readonly List<Checkpoint> Checkpoints = [];
 
     public TGCGame()
     {
         Graphics = new GraphicsDeviceManager(this);
-        ModelManager = new ModelManager();
-        EffectManager = new EffectManager();
         PhysicsManager = new PhysicsManager();
-        TextureManager = new TextureManager();
-        AudioManager = new AudioManager();
-        FontsManager = new FontsManager();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
@@ -73,13 +65,11 @@ public class TGCGame : Game
         PhysicsManager.Initialize();
 
         SpriteBatch = new SpriteBatch(GraphicsDevice);
-        HUDLayout = new HUDLayout(FontsManager, SpriteBatch, GraphicsDevice);
-        Skybox = new SimpleSkyBox(ModelManager, EffectManager, TextureManager, GraphicsDevice);
-        PlayerBall = new PlayerBall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new Vector3(0, 50f, 0f));
+        HUD = new HUD(SpriteBatch, GraphicsDevice);
+        Skybox = new SimpleSkyBox(GraphicsDevice);
+        PlayerBall = new PlayerBall(PhysicsManager, GraphicsDevice, new Vector3(0, 50f, 0f));
 
-        InitializeLevel1();
-        InitializeLevel2();
-        InitializeLevel3();
+        InitializeScenario();
 
         TargetCamera = new TargetCamera(MathF.PI / 3f, GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, PlayerBall.Position, 30f, 0.01f);
 
@@ -93,10 +83,9 @@ public class TGCGame : Game
         TextureManager.Load(Content);
         AudioManager.Load(Content);
         FontsManager.Load(Content);
-        HUDLayout.LoadContent(Content);
+        HUD.LoadContent(Content);
 
-        GameMenu = new GameMenu(ModelManager, TextureManager, PhysicsManager, EffectManager, AudioManager, GraphicsDevice, FontsManager, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
-
+        GameMenu = new GameMenu(PhysicsManager, GraphicsDevice, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
         AudioManager.PlayBackgroundMusic();
 
         base.LoadContent();
@@ -219,75 +208,106 @@ public class TGCGame : Game
         }
 
         PlayerBall.Draw(TargetCamera.View, TargetCamera.Projection, EffectManager.LightPosition, eyePosition);
-        HUDLayout.Draw(PlayerBall, Checkpoints);
+        HUD.Draw(PlayerBall, Checkpoints);
 
         base.Draw(gameTime);
     }
 
-    private void InitializeLevel1()
+    private void InitializeScenario()
     {
-        // Checkpoint
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 0f, 10f), XnaQuaternion.Identity, 1f, Color.Blue, true));
+        // Checkpoints
+        Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, 0f, 10f), glow: true)); // Inicial
+        Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, -44.5f, 380f), glow: false));
+        Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, -44.5f, 580f), glow: false));
+        Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, 175f, 800f), glow: true)); // Final
 
         // Pisos
-        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
-        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
+        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 0f, 74.6f), XnaQuaternion.Identity, 150f, 300f));
+        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f));
+        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -23.2f, 296f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 10f), 150f, 150f));
 
         // Paredes
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
 
-        // Obstaculos
-        KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0f, 11f, 225f), 40f, 20f, 1f, 1f, false, 50f));
+        // Power Ups de Velocidad
+        SpeedPowerUps.Add(new HighSpeedPowerUp(PhysicsManager, position: new XnaVector3(-44f, -44.5f, 442f)));
+        SpeedPowerUps.Add(new HighSpeedPowerUp(PhysicsManager, position: new XnaVector3(45f, -44.5f, 394f)));
+        SpeedPowerUps.Add(new HighSpeedPowerUp(PhysicsManager, position: new XnaVector3(0f, -44.5f, 515f)));
+        SpeedPowerUps.Add(new MediumSpeedPowerUp(PhysicsManager, position: new XnaVector3(0f, -44.5f, 442f)));
+        SpeedPowerUps.Add(new MediumSpeedPowerUp(PhysicsManager, position: new XnaVector3(-44f, -44.5f, 394f)));
+        SpeedPowerUps.Add(new MediumSpeedPowerUp(PhysicsManager, position: new XnaVector3(45f, -44.5f, 515f)));
+        SpeedPowerUps.Add(new LowSpeedPowerUp(PhysicsManager, position: new XnaVector3(45f, -44.5f, 442f)));
+        SpeedPowerUps.Add(new LowSpeedPowerUp(PhysicsManager, position: new XnaVector3(0f, -44.5f, 394f)));
+        SpeedPowerUps.Add(new LowSpeedPowerUp(PhysicsManager, position: new XnaVector3(-44f, -44.5f, 515f)));
 
-        // Cajas dinamicas en piramide
+        // Power Ups de Salto
+        JumpPowerUps.Add(new LowJumpPowerUp(PhysicsManager, position: new XnaVector3(-15f, 2f, 30f)));
+        JumpPowerUps.Add(new LowJumpPowerUp(PhysicsManager, position: new XnaVector3(-5f, 2f, 140f)));
+        JumpPowerUps.Add(new MediumJumpPowerUp(PhysicsManager, position: new XnaVector3(15f, 2f, 30f)));
+        JumpPowerUps.Add(new MediumJumpPowerUp(PhysicsManager, position: new XnaVector3(-47f, 2f, 92f)));
+        JumpPowerUps.Add(new HighJumpPowerUp(PhysicsManager, position: new XnaVector3(-15f, 2f, 70f)));
+        JumpPowerUps.Add(new HighJumpPowerUp(PhysicsManager, position: new XnaVector3(25f, 2f, 80f)));
+
+        // Paredes Obstaculos
+        KinematicWalls.Add(new KinematicWall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 11f, 225f), 40f, 20f, 50f));
+
+        for (int i = 0; i < 5; i++)
+        {
+            KinematicWalls.Add(new KinematicWall(PhysicsManager, GraphicsDevice, new XnaVector3(0, -46.5f + 10f, 410f + 21f * i), 20f, 20f, 150f - i * 4));
+        }
+
+        // Pisos Flotantes Movedizos
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 2f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 22f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 42f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 62f, 712f), XnaVector3.Backward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 82f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 102f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 122f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 142f, 712f), XnaVector3.Backward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 162f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 182f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 222f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 242f, 712f), XnaVector3.Backward));
+
+        // Cajas Dinamicas Dispersas
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-55f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 5, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 6, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(22f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 8, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(52f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 3, 1f, 0.1f));
+
+        // Cajas Dinamicas en Piramide
         float boxSize = 5f;
         float spacing = 5f;
         XnaVector3 baseCenter = new XnaVector3(0f, 5f, 180f);
 
         for (int i = -3; i <= 3; i++)
-            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-                baseCenter + new XnaVector3(i * spacing, 0f, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        {
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, 0f, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        }
+
         for (int i = -2; i <= 2; i++)
-            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-                baseCenter + new XnaVector3(i * spacing, spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        {
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        }
+
         for (int i = -1; i <= 1; i++)
-            DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-                baseCenter + new XnaVector3(i * spacing, 2 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            baseCenter + new XnaVector3(0f, 3 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        {
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, 2 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        }
 
-        // PowerUps
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(-15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f),  0.1f, Color.Yellow));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(0f, 3 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
 
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(15f, 2f, 30f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f),  0.2f, Color.Orange));
-
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(-15f, 2f, 70f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.3f, Color.Red));
-
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(25f, 2f, 80f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.3f, Color.Red));
-
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(-47f, 2f, 92f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.2f, Color.Orange));
-
-        JumpPowerUps.Add(new JumpPowerUp(ModelManager, EffectManager, PhysicsManager, AudioManager,
-            new XnaVector3(-5f, 2f, 140f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f), 0.1f, Color.Yellow));
-
-        // Cajas estáticas
+        // Cajas Estáticas Dispersas
         List<(XnaVector3 pos, XnaQuaternion rot, float size)> cajas = new();
 
         float[] staticBoxSizes = { 3f, 6f, 9f };
@@ -302,17 +322,12 @@ public class TGCGame : Game
             int attempts = 0;
             do
             {
-                float x = (float)(random.NextDouble() * 115.0 - 55.0);
-                float z = (float)(random.NextDouble() * 260.0 - 60.0);
-                position = new XnaVector2(x, z);
+                float xx = (float)(random.NextDouble() * 60f);
+                float zz = (float)(random.NextDouble() * 200f);
+                position = new XnaVector2(xx, zz);
 
                 valid = staticBoxPositions.All(p => XnaVector2.Distance(p, position) >= 18f);
                 attempts++;
-
-                if (attempts > 1000)
-                {
-                    throw new Exception("No se pudieron generar suficientes posiciones únicas");
-                }
             } while (!valid);
 
             staticBoxPositions.Add(position);
@@ -320,110 +335,39 @@ public class TGCGame : Game
 
         for (int i = 0; i < staticBoxPositions.Count; i++)
         {
-            float x = staticBoxPositions[i].X;
-            float z = staticBoxPositions[i].Y;
+            float xxx = staticBoxPositions[i].X;
+            float zzz = staticBoxPositions[i].Y;
 
             // Una caja sola tamaño random
             if (i % 3 == 0)
             {
                 float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
-                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
-                cajas.Add((new XnaVector3(x, size / 2f + 0.75f, z), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), size));
+                float ssize = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new XnaVector3(xxx, ssize / 2f + 0.75f, zzz), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), ssize));
             }
             // Dos cajas del mismo tamaño apiladas
             else if (i % 3 == 1)
             {
                 float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
-                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
-                cajas.Add((new XnaVector3(x, size / 2f + 0.75f, z), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), size));
-                cajas.Add((new XnaVector3(x, size + size / 2f + 0.75f, z), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), size));
+                float ssize = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new XnaVector3(xxx, ssize / 2f + 0.75f, zzz), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), ssize));
+                cajas.Add((new XnaVector3(xxx, ssize + ssize / 2f + 0.75f, zzz), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), ssize));
             }
             else
             {
                 float randomAngle = (float)(random.NextDouble() * 2 * MathF.PI);
-                float size = staticBoxSizes[random.Next(staticBoxSizes.Length)];
-                cajas.Add((new XnaVector3(x, size / 2f + 0.75f, z), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), size));
-                cajas.Add((new XnaVector3(x + size + 2f, size / 2f + 0.75f, z), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), size));
+                float ssize = staticBoxSizes[random.Next(staticBoxSizes.Length)];
+                cajas.Add((new XnaVector3(xxx, ssize / 2f + 0.75f, zzz), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), ssize));
+                cajas.Add((new XnaVector3(xxx + ssize + 2f, ssize / 2f + 0.75f, zzz), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, randomAngle), ssize));
             }
         }
 
-        foreach (var (pos, rot, size) in cajas)
+        foreach (var (pos, rot, ssize) in cajas)
         {
-            StaticBoxes.Add(new StaticBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, pos, rot, size));
-        }
-    }
-
-    private void InitializeLevel2()
-    {
-        // Pisos
-        Floors.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 442f + 74.6f * 2), XnaQuaternion.Identity, 150f, 450f, FloorWallRampType.Floor, RampWallTextureType.Dirt));
-
-        // PowerUps
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 442f), XnaQuaternion.Identity,  60f, Color.Red));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 30f, Color.Orange));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 442f), XnaQuaternion.Identity, 15f, Color.Yellow));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 30f, Color.Orange));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 15f, Color.Yellow));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 394f), XnaQuaternion.Identity, 60f, Color.Red));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(-44f, -46.5f + 2f, 515f), XnaQuaternion.Identity,  15f, Color.Yellow));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 60f, Color.Red));
-        SpeedPowerUps.Add(new SpeedPowerUp(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(45f, -46.5f + 2f, 515f), XnaQuaternion.Identity, 30f, Color.Orange));
-
-        // Checkpoint
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager, new XnaVector3(0, -46.5f + 2f, 380f), XnaQuaternion.Identity, 1f, Color.Blue, false));
-
-        // Paredes Obstaculos
-        for (int i = 0; i < 5; i++)
-        {
-            KinematicWalls.Add(new KinematicWall(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(0, -46.5f + 10f, 410f + 21f * i), 20f, 20f, 1f, 1f, false, 50f - i * 4));
+            StaticBoxes.Add(new StaticBox(PhysicsManager, GraphicsDevice, pos, rot, ssize));
         }
 
-        // Cajas dinamicas
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(-55f, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 5, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(-30f, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(-10, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 6, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(22f, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(30f, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 8, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice, new XnaVector3(52f, -46.5f + 10f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 3, 1f, 0.1f));
-    }
-
-    private void InitializeLevel3()
-    {
-        // Paredes
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-        Walls.Add(new FloorWallRamp(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f, FloorWallRampType.Wall, RampWallTextureType.Stones));
-
-        // Subi baja
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(10f, -46.7f + 2f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(20f, -46.7f + 22f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-10f, -46.7f + 42f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-20f, -46.7f + 62f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(10f, -46.7f + 82f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(20f, -46.7f + 102f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-10f, -46.7f + 122f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-20f, -46.7f + 142f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(10f, -46.7f + 162f, 712f), XnaVector3.Left, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(20f, -46.7f + 182f, 712f), XnaVector3.Forward, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-10f, -46.7f + 222f, 712f), XnaVector3.Right, 15f, 15f, 1f, 0.2f, true));
-        KinematicFloors.Add(new KinematicFloor(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-            new XnaVector3(-20f, -46.7f + 242f, 712f), XnaVector3.Backward, 15f, 15f, 1f, 0.2f, true));
-
-        // Cajas estaticas
+        // Cajas Estáticas en Piramide
         float size = 10f;
         float spacingX = 12f;
         float spacingY = size + 0.1f;
@@ -447,8 +391,7 @@ public class TGCGame : Game
                     float x = startX + i * spacingX;
                     float y = baseFloorY + filaY * spacingY + size / 2f;
 
-                    StaticBoxes.Add(new StaticBox(ModelManager, EffectManager, PhysicsManager, TextureManager, AudioManager, GraphicsDevice,
-                        new XnaVector3(x, y, z), XnaQuaternion.Identity, size));
+                    StaticBoxes.Add(new StaticBox(PhysicsManager, GraphicsDevice, new XnaVector3(x, y, z), XnaQuaternion.Identity, size));
                 }
 
                 filaY++;
@@ -456,13 +399,6 @@ public class TGCGame : Game
 
             cantidadActual--;
         }
-
-        // Checkpoints
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0, -46.5f + 2f, 580f), XnaQuaternion.Identity, 1f, Color.Blue, false));
-
-        Checkpoints.Add(new Checkpoint(ModelManager, EffectManager, PhysicsManager, GraphicsDevice, AudioManager,
-            new XnaVector3(0f, 175f, 800f), XnaQuaternion.Identity, 1f, Color.Blue, true));
     }
 
     protected override void UnloadContent()

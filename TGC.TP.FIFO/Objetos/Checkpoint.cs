@@ -1,6 +1,5 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
@@ -14,50 +13,33 @@ namespace TGC.TP.FIFO.Objetos;
 
 public class Checkpoint : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly AudioManager audioManager;
 
     private readonly StaticHandle boundingVolume;
-
     public bool Checked { get; private set; } = false;
 
-    private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
 
     private float scale;
 
     public BodyType BodyType => BodyType.Checkpoint;
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
+    public XnaVector3 Position => this.physicsManager.GetPosition(boundingVolume);
 
     private bool glow;
     public bool CanPlayerBallJumpOnIt => false;
 
-    public Checkpoint(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
-        AudioManager audioManager,
+    public Checkpoint(PhysicsManager physicsManager,
         XnaVector3 position,
-        XnaQuaternion rotation,
-        float scale,
-        Color color,
-        bool useGlow)
+        bool glow,
+        float scale = 1f)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.audioManager = audioManager;
-
         this.scale = scale;
-
-        this.color = color;
-        this.rotation = rotation;
         this.position = position;
-        this.glow = useGlow;
+        this.glow = glow;
 
+        rotation = XnaQuaternion.Identity;
         boundingVolume = this.physicsManager.AddStaticBox(2f, 10f, 2f, position + new Vector3(0f, 5f, 0f), rotation, this);
     }
 
@@ -67,27 +49,27 @@ public class Checkpoint : IColisionable
         var scaleMatrix = XnaMatrix.CreateScale(scale, scale, scale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
-        var baseTransforms = new XnaMatrix[modelManager.FlagModel.Bones.Count];
-        modelManager.FlagModel.CopyAbsoluteBoneTransformsTo(baseTransforms);
+        var baseTransforms = new XnaMatrix[ModelManager.FlagModel.Bones.Count];
+        ModelManager.FlagModel.CopyAbsoluteBoneTransformsTo(baseTransforms);
 
         var localTransform = scaleMatrix * rotationMatrix * translationMatrix;
 
         var material = MaterialPresets.Checkpoint;
-        var finalColor = Checked ? Color.LimeGreen : color;
+        var finalColor = Checked ? Color.LimeGreen : Color.Blue;
         var baseColor = finalColor.ToVector3();
 
-        foreach (var mesh in modelManager.FlagModel.Meshes)
+        foreach (var mesh in ModelManager.FlagModel.Meshes)
         {
             foreach (var meshPart in mesh.MeshParts)
             {
                 //meshPart.Effect = effectManager.BlinnPhongShader;
                 //meshPart.Effect = effectManager.BasicGlowShader;
-                meshPart.Effect = effectManager.BasicGlowShader;
+                meshPart.Effect = EffectManager.BasicGlowShader;
             }
 
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-            var effect = effectManager.BasicGlowShader;
+            var effect = EffectManager.BasicGlowShader;
             effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
             effect.Parameters["World"]?.SetValue(meshTransform * localTransform);
             effect.Parameters["InverseTransposeWorld"]?.SetValue(XnaMatrix.Transpose(XnaMatrix.Invert(meshTransform * localTransform)));
@@ -123,7 +105,7 @@ public class Checkpoint : IColisionable
         if (!Checked && !GameState.Lost)
         {
             Checked = true;
-            audioManager.PlayCheckpointSound();
+            AudioManager.PlayCheckpointSound();
             GameState.CheckpointChecked();
         }
     }

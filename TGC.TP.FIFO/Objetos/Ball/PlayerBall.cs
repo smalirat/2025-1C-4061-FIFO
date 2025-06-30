@@ -1,17 +1,19 @@
 ﻿using BepuPhysics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework;
+using System.Diagnostics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
+using TGC.TP.FIFO.Objetos.PowerUps.Jump;
+using TGC.TP.FIFO.Objetos.PowerUps.Speed;
 using TGC.TP.FIFO.Texturas;
 using TGC.TP.FIFO.Utilidades;
-using TGC.TP.FIFO.Luz;
-using System.Diagnostics;
 
 namespace TGC.TP.FIFO.Objetos.Ball;
 
@@ -33,11 +35,7 @@ public class PlayerBall : IColisionable
 
     private const float ModelRadius = 1.00f;
 
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
 
     private BodyHandle boundingVolume;
 
@@ -57,20 +55,12 @@ public class PlayerBall : IColisionable
     private float YScale => ballProperties.Radius / ModelRadius;
     private float ZScale => ballProperties.Radius / ModelRadius;
 
-    public PlayerBall(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public PlayerBall(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         bool isDummy = false)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
         this.isDummy = isDummy;
 
         InitialPosition = initialPosition;
@@ -160,7 +150,7 @@ public class PlayerBall : IColisionable
             if (keyboardState.IsKeyDown(Keys.Space) && canJump && canJumpTimer >= CanJumpThreshold)
             {
                 canJumpTimer = 0f;
-                audioManager.PlayJumpSound(GameState.BallType);
+                AudioManager.PlayJumpSound(GameState.BallType);
 
                 physicsManager.ApplyImpulse(boundingVolume,
                     XnaVector3.Up,
@@ -176,16 +166,16 @@ public class PlayerBall : IColisionable
             if (!isRolling)
             {
                 isRolling = true;
-                audioManager.PlayRollingSound();
+                AudioManager.PlayRollingSound();
             }
-            audioManager.UpdateRollingSound(GameState.BallType, currentSpeed);
+            AudioManager.UpdateRollingSound(GameState.BallType, currentSpeed);
         }
         else
         {
             if (isRolling)
             {
                 isRolling = false;
-                audioManager.StopRollingSound();
+                AudioManager.StopRollingSound();
             }
         }
 
@@ -212,8 +202,8 @@ public class PlayerBall : IColisionable
     {
         Debug.WriteLine($"BALL SPEED {GetLinearSpeed()}");
 
-        var model = modelManager.SphereModel;
-        var effect = effectManager.BlinnPhongShader;
+        var model = ModelManager.SphereModel;
+        var effect = EffectManager.BlinnPhongShader;
         Texture2D texture;
         BlinnPhongMaterial material;
 
@@ -222,17 +212,17 @@ public class PlayerBall : IColisionable
         // Selección del material y textura según el tipo de bola
         if (BallType.Goma == GameState.BallType)
         {
-            texture = textureManager.RubberTexture;
+            texture = TextureManager.RubberTexture;
             material = MaterialPresets.Goma;
         }
         else if (BallType.Metal == GameState.BallType)
         {
-            texture = textureManager.SphereMetalTexture;
+            texture = TextureManager.SphereMetalTexture;
             material = MaterialPresets.Metal;
         }
         else
         {
-            texture = textureManager.SphereMarbleTexture;
+            texture = TextureManager.SphereMarbleTexture;
             material = MaterialPresets.Madera; // o cualquier otro por defecto
         }
 

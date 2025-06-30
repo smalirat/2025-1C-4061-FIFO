@@ -1,5 +1,4 @@
-﻿using BepuPhysics;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
@@ -14,13 +13,7 @@ namespace TGC.TP.FIFO.Objetos;
 
 public class StaticBox : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
-
-    private readonly StaticHandle boundingVolume;
     private readonly BoxPrimitive model;
 
     private XnaMatrix world;
@@ -30,34 +23,26 @@ public class StaticBox : IColisionable
 
     private float MinContactSpeedForSound;
 
-    public StaticBox(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public StaticBox(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
         float sideLength,
         float minContactSpeedForSound = GameState.MinBallSpeedForSounds)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
 
         MinContactSpeedForSound = minContactSpeedForSound;
 
-        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
-        boundingVolume = this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
+        model = ModelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BlinnPhongShader;
+        var effect = EffectManager.BlinnPhongShader;
         var material = MaterialPresets.Madera;
 
         effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
@@ -78,7 +63,7 @@ public class StaticBox : IColisionable
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
         effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
-        effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
+        effect.Parameters["baseTexture"]?.SetValue(TextureManager.WoodBox1Texture);
 
         // Solo establecer la textura de normales si estamos usando NormalMapping
         // if (effect.CurrentTechnique.Name == "NormalMapping")
@@ -93,7 +78,7 @@ public class StaticBox : IColisionable
     {
         if (contactSpeed >= MinContactSpeedForSound)
         {
-            audioManager.PlayWallHitSound(GameState.BallType);
+            AudioManager.PlayWallHitSound(GameState.BallType);
         }
     }
 

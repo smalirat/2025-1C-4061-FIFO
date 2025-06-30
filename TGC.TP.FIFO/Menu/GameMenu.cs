@@ -5,27 +5,19 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
-using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Fuentes;
-using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
-using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Menu;
 
 public class GameMenu
 {
-    private readonly FontsManager fontsManager;
     private readonly SpriteBatch spriteBatch;
-    private readonly ModelManager modelManager;
-    private readonly TextureManager textureManager;
     private readonly PhysicsManager physicsManager;
-    private readonly EffectManager effectManager;
-    private readonly AudioManager audioManager;
     private readonly GraphicsDevice graphicsDevice;
     private readonly TargetCamera Camera;
 
@@ -54,16 +46,11 @@ public class GameMenu
 
     private Texture2D BackgroundMenuTexture;
 
-    public GameMenu(ModelManager modelManager, TextureManager textureManager, PhysicsManager physicsManager, EffectManager effectManager, AudioManager audioManager, GraphicsDevice graphicsDevice, FontsManager fontsManager, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction, Action resetBallAction)
+    public GameMenu(PhysicsManager physicsManager, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction, Action resetBallAction)
     {
-        this.fontsManager = fontsManager;
         this.spriteBatch = spriteBatch;
-        this.modelManager = modelManager;
-        this.textureManager = textureManager;
         this.physicsManager = physicsManager;
-        this.audioManager = audioManager;
         this.graphicsDevice = graphicsDevice;
-        this.effectManager = effectManager;
 
         BallPosition = MenuPosition + new XnaVector3(0f, -5f, 10f);
 
@@ -73,72 +60,26 @@ public class GameMenu
         var cameraPosition = MenuPosition;
         Camera = new TargetCamera(MathF.PI / 3f, this.graphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, cameraPosition, 30f, 0.01f);
 
-        DummyPlayerBall = new PlayerBall(
-            this.modelManager,
-            this.effectManager,
-            this.physicsManager,
-            this.textureManager,
-            this.audioManager,
-            this.graphicsDevice,
-            BallPosition,
-            isDummy: true);
+        DummyPlayerBall = new PlayerBall(this.physicsManager, this.graphicsDevice, BallPosition, isDummy: true);
 
-        Piso = new FloorWallRamp(
-            this.modelManager,
-            this.effectManager,
-            this.physicsManager,
-            this.textureManager,
-            this.audioManager,
-            this.graphicsDevice,
-            MenuPosition + new XnaVector3(50f, -10f, -50f),
-            XnaQuaternion.Identity,
-            150f,
-            150f,
-            FloorWallRampType.Floor,
-            RampWallTextureType.Dirt);
+        DummyCheckpoint = new Checkpoint(this.physicsManager, MenuPosition + new XnaVector3(10f, -5f, -10f), scale: 0.5f, glow: false);
 
-        ParedFondo = new FloorWallRamp(
-            this.modelManager,
-            this.effectManager,
-            this.physicsManager,
-            this.textureManager,
-            this.audioManager,
-            this.graphicsDevice,
-            MenuPosition + new XnaVector3(50f, 65f, -75f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f),
-            150f,
-            150f,
-            FloorWallRampType.Wall,
-            RampWallTextureType.Stones);
+        Piso = new Floor(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, -10f, -50f), XnaQuaternion.Identity, 150f, 150f);
+        ParedFondo = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, 65f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f);
+        ParedIzquierda = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(-25f, 65f, -50f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f);
 
-        ParedIzquierda = new FloorWallRamp(
-            this.modelManager,
-            this.effectManager,
-            this.physicsManager,
-            this.textureManager,
-            this.audioManager,
-            this.graphicsDevice,
-            MenuPosition + new XnaVector3(-25f, 65f, -50f),
-            XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f),
-            150f,
-            150f,
-            FloorWallRampType.Wall,
-            RampWallTextureType.Stones);
-
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 13f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 16f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 19f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 10f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 15f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 12f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 18f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 17f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 14f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
-        StaticBoxes.Add(new StaticBox(modelManager, effectManager, physicsManager, textureManager, audioManager, graphicsDevice, MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
-
-        DummyCheckpoint = new Checkpoint(this.modelManager, this.effectManager, this.physicsManager, this.graphicsDevice, this.audioManager, MenuPosition + new XnaVector3(10f, -5f, -10f), XnaQuaternion.Identity, 0.5f, Color.Blue, false);
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 13f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 16f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 19f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 10f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 15f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 12f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 18f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 17f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 14f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
+        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
 
         menuEntries = new Dictionary<Tuple<MenuState, MenuState>, MenuEntry[]>
         {
@@ -146,10 +87,10 @@ public class GameMenu
                 new Tuple<MenuState, MenuState>(MenuState.MainMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Nuevo juego", newGameAction, fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Opciones de juego", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions), fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole20)
+                    new TextMenuEntry("Nuevo juego", newGameAction, FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de juego", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.BallSubOptions), FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.SoundSubOptions), FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Salir", exitGameAction, FontsManager.LucidaConsole20)
                 }
             },
             {
@@ -164,9 +105,9 @@ public class GameMenu
                             resetBallAction.Invoke();
                             DummyPlayerBall.Reset();
                         },
-                        fontsManager.LucidaConsole20
+                        FontsManager.LucidaConsole20
                     ),
-                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20)
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), FontsManager.LucidaConsole20)
                 }
             },
             {
@@ -176,17 +117,17 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20),
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), FontsManager.LucidaConsole20),
                 }
             },
             {
                 new Tuple<MenuState, MenuState>(MenuState.OptionsMenu, MenuState.NoSubOptions),
                 new MenuEntry[]
                 {
-                    new TextMenuEntry("Seguir jugando", GameState.Resume, fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions), fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20),
-                    new TextMenuEntry("Salir", exitGameAction, fontsManager.LucidaConsole20)
+                    new TextMenuEntry("Seguir jugando", GameState.Resume, FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Opciones de sonido", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.SoundSubOptions), FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Volver al menu principal", SetCurrentMenuStateAction(MenuState.MainMenu, MenuState.NoSubOptions), FontsManager.LucidaConsole20),
+                    new TextMenuEntry("Salir", exitGameAction, FontsManager.LucidaConsole20)
                 }
             },
             {
@@ -196,7 +137,7 @@ public class GameMenu
                     GetMasterVolumeMenuEntry(),
                     GetBackgroundMusicVolumeMenuEntry(),
                     GetSoundEffectsVolumeMenuEntry(),
-                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions), fontsManager.LucidaConsole20)
+                    new TextMenuEntry("Volver", SetCurrentMenuStateAction(MenuState.OptionsMenu, MenuState.NoSubOptions), FontsManager.LucidaConsole20)
                 }
             }
         };
@@ -242,15 +183,15 @@ public class GameMenu
     {
         var eyePosition = this.Camera.Position;
 
-        Piso.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
-        ParedFondo.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
-        ParedIzquierda.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
-        DummyCheckpoint.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
-        DummyPlayerBall.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+        Piso.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
+        ParedFondo.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
+        ParedIzquierda.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
+        DummyCheckpoint.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
+        DummyPlayerBall.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
 
         foreach (StaticBox staticBox in StaticBoxes)
         {
-            staticBox.Draw(this.Camera.View, this.Camera.Projection, effectManager.LightPosition, eyePosition);
+            staticBox.Draw(this.Camera.View, this.Camera.Projection, EffectManager.LightPosition, eyePosition);
         }
 
         var originalDepthStencilState = graphicsDevice.DepthStencilState;
@@ -262,7 +203,7 @@ public class GameMenu
         var menuEntries = this.menuEntries[GetCurrentMenuState()];
 
         var startY = graphicsDevice.Viewport.Height * 0.3f;
-        var spacing = fontsManager.LucidaConsole20.LineSpacing * 2.5f;
+        var spacing = FontsManager.LucidaConsole20.LineSpacing * 2.5f;
         var centerX = graphicsDevice.Viewport.Width / 2f;
 
         for (int i = 0; i < menuEntries.Length; i++)
@@ -340,7 +281,7 @@ public class GameMenu
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             },
-            fontsManager.LucidaConsole20);
+            FontsManager.LucidaConsole20);
     }
 
     private BarMenuEntry GetBackgroundMusicVolumeMenuEntry()
@@ -355,7 +296,7 @@ public class GameMenu
                 GameState.BackgroundMusicVolume = newVolume;
                 MediaPlayer.Volume = GameState.MasterVolume / 100f * GameState.BackgroundMusicVolume / 100f;
             },
-            fontsManager.LucidaConsole20);
+            FontsManager.LucidaConsole20);
     }
 
     private BarMenuEntry GetSoundEffectsVolumeMenuEntry()
@@ -370,6 +311,6 @@ public class GameMenu
                 GameState.SoundEffectsVolume = newVolume;
                 SoundEffect.MasterVolume = GameState.MasterVolume / 100f * GameState.SoundEffectsVolume / 100f;
             },
-            fontsManager.LucidaConsole20);
+            FontsManager.LucidaConsole20);
     }
 }

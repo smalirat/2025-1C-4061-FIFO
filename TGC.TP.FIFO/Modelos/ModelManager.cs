@@ -4,16 +4,16 @@ using TGC.TP.FIFO.Modelos.Primitivas;
 
 namespace TGC.TP.FIFO.Modelos;
 
-public class ModelManager
+public static class ModelManager
 {
     public const string ContentFolderModels = "Models/";
 
-    public Model SphereModel { get; private set; }
-    public Model LigthingModel { get; private set; }
-    public Model ArrowModel { get; private set; }
-    public Model FlagModel { get; private set; }
+    public static Model SphereModel { get; private set; }
+    public static Model LigthingModel { get; private set; }
+    public static Model ArrowModel { get; private set; }
+    public static Model FlagModel { get; private set; }
 
-    public void Load(ContentManager content)
+    public static void Load(ContentManager content)
     {
         SphereModel = LoadModel(content, "sphere");
         LigthingModel = LoadModel(content, "ligthing");
@@ -21,12 +21,12 @@ public class ModelManager
         FlagModel = LoadModel(content, "flag");
     }
 
-    private Model LoadModel(ContentManager content, string path)
+    private static Model LoadModel(ContentManager content, string path)
     {
         return content.Load<Model>(ContentFolderModels + path);
     }
 
-    public BoxPrimitive CreateBox(GraphicsDevice graphicsDevice, float height, float width, float length)
+    public static BoxPrimitive CreateBox(GraphicsDevice graphicsDevice, float height, float width, float length)
     {
         return new BoxPrimitive(graphicsDevice, new XnaVector3(width, height, length));
     }

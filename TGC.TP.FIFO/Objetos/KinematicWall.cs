@@ -16,11 +16,7 @@ namespace TGC.TP.FIFO.Objetos;
 
 public class KinematicWall : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
 
     private readonly BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -31,47 +27,35 @@ public class KinematicWall : IColisionable
 
     private float tiempo;
 
-    public bool CanPlayerBallJumpOnIt { get; private set; }
+    public bool CanPlayerBallJumpOnIt => false;
 
-    private const float Height = 1.25f;
+    private const float Depth = 1.25f;
+    private const float Mass = 1f;
+    private const float Friction = 1f;
 
-    private float movementMultiplier;
+    private float speed;
 
-    public KinematicWall(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public KinematicWall(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
         float width,
         float length,
-        float mass,
-        float friction,
-        bool canPlayerBallJumpOnIt,
-        float movementMultiplier)
+        float speed)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
-
-        CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
-        this.movementMultiplier = movementMultiplier;
+        this.speed = speed;
 
         var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f);
 
-        model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
-        boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, rotation, this);
+        model = ModelManager.CreateBox(graphicsDevice, Depth, width, length);
+        boundingVolume = this.physicsManager.AddKinematicBox(width, Depth, length, Mass, Friction, position, rotation, this);
 
         world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
-        this.movementMultiplier = movementMultiplier;
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BlinnPhongShader;
+        var effect = EffectManager.BlinnPhongShader;
         var material = MaterialPresets.Madera;
 
         effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
@@ -92,7 +76,7 @@ public class KinematicWall : IColisionable
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
         effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
-        effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
+        effect.Parameters["baseTexture"]?.SetValue(TextureManager.WoodBox1Texture);
 
         // Solo establecer la textura de normales si estamos usando NormalMapping
         // if (effect.CurrentTechnique.Name == "NormalMapping")
@@ -108,7 +92,7 @@ public class KinematicWall : IColisionable
         physicsManager.Awake(boundingVolume);
 
         tiempo += deltaTime;
-        float x = MathF.Sin(tiempo) * movementMultiplier;
+        float x = MathF.Sin(tiempo) * speed;
 
         var previousPosition = physicsManager.GetPosition(boundingVolume);
 
@@ -119,13 +103,11 @@ public class KinematicWall : IColisionable
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
     }
 
-    
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
-            audioManager.PlayWallHitSound(GameState.BallType);
+            AudioManager.PlayWallHitSound(GameState.BallType);
         }
     }
 

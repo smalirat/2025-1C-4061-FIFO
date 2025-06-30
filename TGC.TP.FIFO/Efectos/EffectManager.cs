@@ -3,19 +3,19 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.TP.FIFO.Efectos;
 
-public class EffectManager
+public static class EffectManager
 {
     public const string ContentFolderEffects = "Effects/";
 
-    public Effect BasicShader { get; private set; }
-    public Effect BasicTextureShader { get; private set; }
-    public Effect TextureTilingShader { get; private set; }
-    public Effect SkyBoxShader { get; private set; }
-    public Effect BlinnPhongShader { get; private set; }
-    public Effect BasicGlowShader { get; private set; }
-    public XnaVector3 LightPosition { get; set; }
+    public static Effect BasicShader { get; private set; }
+    public static Effect BasicTextureShader { get; private set; }
+    public static Effect TextureTilingShader { get; private set; }
+    public static Effect SkyBoxShader { get; private set; }
+    public static Effect BlinnPhongShader { get; private set; }
+    public static Effect BasicGlowShader { get; private set; }
+    public static XnaVector3 LightPosition { get; set; }
 
-    public void Load(ContentManager content)
+    public static void Load(ContentManager content)
     {
         BasicShader = content.Load<Effect>(ContentFolderEffects + "BasicShader");
         BasicTextureShader = content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
@@ -26,6 +26,5 @@ public class EffectManager
 
         // Se puede refactorizar en una clase, o un metodo con otro nombre,
         LightPosition = new XnaVector3(0f, 100f, 480f);
-
     }
 }

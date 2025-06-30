@@ -7,45 +7,41 @@ using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Objetos.Ball;
 
-namespace TGC.TP.FIFO.Objetos;
+namespace TGC.TP.FIFO.Objetos.PowerUps.Speed;
 
-public class JumpPowerUp : IColisionable
+public abstract class SpeedPowerUp : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly AudioManager audioManager;
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
-    private const float xScale = 1f / 0.78f;
-    private const float yScale = 5f / 3.72f;
-    private const float zScale = 3f / 5.66f;
+    private const float xScale = 3f / 492.08f;
+    private const float yScale = 3f / 859.56f;
+    private const float zScale = 1f / 115.72f;
 
-    public BodyType BodyType => BodyType.JumpPowerUp;
-    public float JumpMultiplier { get; private set; }
+    public BodyType BodyType => BodyType.SpeedPowerUp;
+    public float SpeedMultiplier { get; private set; }
     public bool CanPlayerBallJumpOnIt => false;
 
-    public JumpPowerUp(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        AudioManager audioManager,
+    public SpeedPowerUp(PhysicsManager physicsManager,
         XnaVector3 position,
-        XnaQuaternion rotation,
-        float jumpMultiplier,
+        float speedMultiplier,
         Color color)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.audioManager = audioManager;
-        this.position = position;
-        this.rotation = rotation;
         this.color = color;
+        this.position = position;
 
-        JumpMultiplier = jumpMultiplier;
+        rotation = XnaQuaternion.Identity;
+        SpeedMultiplier = speedMultiplier;
 
-        this.physicsManager.AddStaticBox(4.4f, 4.4f, 3.5f, position, rotation, this);
+        this.physicsManager.AddStaticBox(3.3f, 3f, 3.3f, position, XnaQuaternion.Identity, this);
+    }
+
+    public void Update(float deltaTime)
+    {
+        var incrementalRotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, deltaTime * 0.8f);
+        rotation = XnaQuaternion.Normalize(incrementalRotation);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
@@ -54,7 +50,7 @@ public class JumpPowerUp : IColisionable
         var scaleMatrix = XnaMatrix.CreateScale(xScale, yScale, zScale);
         var rotationMatrix = XnaMatrix.CreateFromQuaternion(rotation);
 
-        var model = modelManager.ArrowModel;
+        var model = ModelManager.ArrowModel;
         var baseTransforms = new XnaMatrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(baseTransforms);
 
@@ -67,12 +63,12 @@ public class JumpPowerUp : IColisionable
         {
             foreach (var meshPart in mesh.MeshParts)
             {
-                meshPart.Effect = effectManager.BlinnPhongShader;
+                meshPart.Effect = EffectManager.BlinnPhongShader;
             }
 
             var meshTransform = baseTransforms[mesh.ParentBone.Index];
 
-            var effect = effectManager.BlinnPhongShader;
+            var effect = EffectManager.BlinnPhongShader;
             effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
 
             effect.Parameters["WorldViewProjection"]?.SetValue(meshTransform * localTransform * view * projection);
@@ -100,18 +96,11 @@ public class JumpPowerUp : IColisionable
             mesh.Draw();
         }
     }
-
-    public void Update(float deltaTime)
-    {
-        var incrementalRotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, deltaTime * 0.5f);
-        rotation = XnaQuaternion.Normalize(incrementalRotation * rotation);
-    }
-
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
-            audioManager.PlayJumpPowerUpSound();
+            AudioManager.PlaySpeedPowerUpSound();
         }
     }
 

@@ -1,5 +1,4 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
@@ -16,11 +15,7 @@ namespace TGC.TP.FIFO.Objetos;
 
 public class DynamicBox : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
 
     private BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -38,11 +33,7 @@ public class DynamicBox : IColisionable
 
     public bool CanPlayerBallJumpOnIt => false;
 
-    public DynamicBox(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public DynamicBox(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         XnaQuaternion initialRotation,
@@ -50,11 +41,7 @@ public class DynamicBox : IColisionable
         float friction,
         float mass)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
 
         this.InitialPosition = initialPosition;
         this.InitialRotation = initialRotation;
@@ -62,7 +49,7 @@ public class DynamicBox : IColisionable
         this.Friction = friction;
         this.Mass = mass;
 
-        model = this.modelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        model = ModelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
         boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
@@ -70,7 +57,7 @@ public class DynamicBox : IColisionable
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BlinnPhongShader;
+        var effect = EffectManager.BlinnPhongShader;
         var material = MaterialPresets.Madera;
 
         effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
@@ -91,7 +78,7 @@ public class DynamicBox : IColisionable
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
         effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
-        effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
+        effect.Parameters["baseTexture"]?.SetValue(TextureManager.WoodBox1Texture);
 
         // Solo establecer la textura de normales si estamos usando NormalMapping
         // if (effect.CurrentTechnique.Name == "NormalMapping")
@@ -104,18 +91,15 @@ public class DynamicBox : IColisionable
 
     public void Update(float deltaTime, TargetCamera camera)
     {
-        // Actualizo matriz mundo
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
                 XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
     }
-
-    public void NotifyCollition(IColisionable with) { }
 
     public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
-            audioManager.PlayWoodBoxHitSound();
+            AudioManager.PlayWoodBoxHitSound();
         }
     }
 
@@ -124,4 +108,6 @@ public class DynamicBox : IColisionable
         this.physicsManager.RemoveBoundingVolume(boundingVolume);
         this.boundingVolume = this.physicsManager.AddDynamicBox(SideLength, SideLength, SideLength, Mass, Friction, InitialPosition, InitialRotation, this);
     }
+
+    public void NotifyCollition(IColisionable with) { }
 }

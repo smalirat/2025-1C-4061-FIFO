@@ -13,7 +13,7 @@ public static class GameState
 
     // Checkpoints
     public static int TotalCheckpointsChecked = 0;
-    public static int TotalCheckpoints = 5;
+    public static int TotalCheckpoints = 4;
 
     public static bool Playing = false;
     public static BallType BallType = BallType.Goma;

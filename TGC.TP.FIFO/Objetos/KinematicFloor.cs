@@ -1,5 +1,4 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using TGC.TP.FIFO.Audio;
@@ -17,11 +16,7 @@ namespace TGC.TP.FIFO.Objetos;
 
 public class KinematicFloor : IColisionable
 {
-    private readonly ModelManager modelManager;
-    private readonly EffectManager effectManager;
     private readonly PhysicsManager physicsManager;
-    private readonly TextureManager textureManager;
-    private readonly AudioManager audioManager;
 
     private readonly BodyHandle boundingVolume;
     private readonly BoxPrimitive model;
@@ -34,42 +29,30 @@ public class KinematicFloor : IColisionable
 
     private float tiempo;
 
-    public bool CanPlayerBallJumpOnIt { get; private set; }
+    public bool CanPlayerBallJumpOnIt => true;
 
-    private const float Height = 1.25f;
+    private const float Depth = 1.25f;
+    private const float Width = 15f;
+    private const float Mass = 1f;
+    private const float Friction = 0.2f;
 
-    public KinematicFloor(ModelManager modelManager,
-        EffectManager effectManager,
-        PhysicsManager physicsManager,
-        TextureManager textureManager,
-        AudioManager audioManager,
+    public KinematicFloor(PhysicsManager physicsManager,
         GraphicsDevice graphicsDevice,
         XnaVector3 position,
-        XnaVector3 direction,
-        float width,
-        float length,
-        float mass,
-        float friction,
-        bool canPlayerBallJumpOnIt)
+        XnaVector3 direction)
     {
-        this.modelManager = modelManager;
-        this.effectManager = effectManager;
         this.physicsManager = physicsManager;
-        this.textureManager = textureManager;
-        this.audioManager = audioManager;
-
         this.direction = direction;
-        CanPlayerBallJumpOnIt = canPlayerBallJumpOnIt;
 
-        model = this.modelManager.CreateBox(graphicsDevice, Height, width, length);
-        boundingVolume = this.physicsManager.AddKinematicBox(width, Height, length, mass, friction, position, XnaQuaternion.Identity, this);
+        model = ModelManager.CreateBox(graphicsDevice, Depth, Width, Width);
+        boundingVolume = this.physicsManager.AddKinematicBox(Width, Depth, Width, Mass, Friction, position, XnaQuaternion.Identity, this);
 
         world = XnaMatrix.CreateTranslation(position);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        var effect = effectManager.BlinnPhongShader;
+        var effect = EffectManager.BlinnPhongShader;
         var material = MaterialPresets.Madera;
 
         effect.CurrentTechnique = effect.Techniques["Default"]; // Opciones: "Default", "Gouraud", "NormalMapping"
@@ -90,7 +73,7 @@ public class KinematicFloor : IColisionable
         effect.Parameters["eyePosition"]?.SetValue(eyePosition);
         effect.Parameters["Tiling"]?.SetValue(new XnaVector2(1.0f, 1.0f));
 
-        effect.Parameters["baseTexture"]?.SetValue(textureManager.WoodBox1Texture);
+        effect.Parameters["baseTexture"]?.SetValue(TextureManager.WoodBox1Texture);
 
         // Solo establecer la textura de normales si estamos usando NormalMapping
         // if (effect.CurrentTechnique.Name == "NormalMapping")
@@ -130,7 +113,7 @@ public class KinematicFloor : IColisionable
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
-            audioManager.PlayWallHitSound(GameState.BallType);
+            AudioManager.PlayWallHitSound(GameState.BallType);
         }
     }
 
