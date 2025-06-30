@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -178,15 +178,18 @@ public class HUD
         GameGlobals.SpriteBatch.End();
     }
 
-    private XnaVector2 GetMinimapPosition(XnaVector3 worldPosition)
+    private Vector2 GetMinimapPosition(Vector3 worldPosition)
     {
-        float normX = 1 - (worldPosition.X - MIN_X) / (MAX_X - MIN_X);
+        float normX = 1f - (worldPosition.X - MIN_X) / (MAX_X - MIN_X);
         float normZ = (worldPosition.Z - MIN_Z) / (MAX_Z - MIN_Z);
 
-        var posX = normX * MINIMAP_SIZE;
-        var posZ = MINIMAP_SIZE - normZ * MINIMAP_SIZE;
+        normX = MathHelper.Clamp(normX, 0f, 1f);
+        normZ = MathHelper.Clamp(normZ, 0f, 1f);
 
-        return _minimapPosition + new XnaVector2(posX , posZ);
+        float posX = normX * MINIMAP_SIZE;
+        float posZ = (1f - normZ) * MINIMAP_SIZE;
+
+        return _minimapPosition + new Vector2(posX, posZ);
     }
 
     public void SetCheckpoints(List<Checkpoint> checkpoints)
