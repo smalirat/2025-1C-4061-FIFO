@@ -1,5 +1,4 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
@@ -36,10 +35,9 @@ public class KinematicWall : IColisionable
     private float speed;
 
     public KinematicWall(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 position,
         float width,
-        float length,
+        float height,
         float speed)
     {
         this.physicsManager = physicsManager;
@@ -47,8 +45,8 @@ public class KinematicWall : IColisionable
 
         var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f);
 
-        model = ModelManager.CreateBox(graphicsDevice, Depth, width, length);
-        boundingVolume = this.physicsManager.AddKinematicBox(width, Depth, length, Mass, Friction, position, rotation, this);
+        model = ModelManager.CreateBox(Depth, width, height);
+        boundingVolume = this.physicsManager.AddKinematicBox(width, Depth, height, Mass, Friction, position, rotation, this);
 
         world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
     }

@@ -5,7 +5,7 @@ namespace TGC.TP.FIFO.Objetos.Surfaces;
 
 public class Floor : FloorWallRamp
 {
-    public Floor(PhysicsManager physicsManager, GraphicsDevice graphicsDevice, XnaVector3 position, float width, float length) : base(physicsManager, graphicsDevice, position, XnaQuaternion.Identity, width, length, FloorWallRampType.Floor, RampWallTextureType.Dirt)
+    public Floor(PhysicsManager physicsManager, XnaVector3 position, float width, float length) : base(physicsManager, position, XnaQuaternion.Identity, width, length, FloorWallRampType.Floor, RampWallTextureType.Dirt)
     {
     }
 }

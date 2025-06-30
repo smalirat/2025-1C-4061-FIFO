@@ -24,7 +24,6 @@ public class StaticBox : IColisionable
     private float MinContactSpeedForSound;
 
     public StaticBox(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
         float sideLength,
@@ -34,7 +33,7 @@ public class StaticBox : IColisionable
 
         MinContactSpeedForSound = minContactSpeedForSound;
 
-        model = ModelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
         this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);

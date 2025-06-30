@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework.Input;
+using System;
+using TGC.TP.FIFO.Globales;
 
 namespace TGC.TP.FIFO.Cameras;
 
@@ -6,9 +8,7 @@ public class TargetCamera
 {
     // Matrices de la camara
     public XnaMatrix World { get; private set; }
-
     public XnaMatrix Projection { get; private set; }
-
     public XnaMatrix View { get; private set; }
 
     // Distancia de la camara al objetivo
@@ -41,7 +41,14 @@ public class TargetCamera
 
     public XnaVector3 Position => TargetPosition + Offset;
 
-    public TargetCamera(float fov, float aspectRatio, float nearPlaneDistance, float farPlaneDistance, XnaVector3 initialTargetPosition, float cameraTargetDistance, float mouseSensitivity)
+    private const float fov = MathF.PI / 3f;
+    private const float nearPlaneDistance = 0.1f;
+    private const float farPlaneDistance = 100000f;
+    private const float cameraTargetDistance = 30f;
+    private const float mouseSensitivity = 0.01f;
+    private readonly float aspectRatio = GameGlobals.GraphicsDevice.Viewport.AspectRatio;
+
+    public TargetCamera(XnaVector3 initialTargetPosition)
     {
         CameraTargetDistance = cameraTargetDistance;
         MouseSensitivity = mouseSensitivity;

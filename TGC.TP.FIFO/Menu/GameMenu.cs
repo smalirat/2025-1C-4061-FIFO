@@ -9,6 +9,7 @@ using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Fuentes;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Objetos.Boxes;
@@ -18,9 +19,7 @@ namespace TGC.TP.FIFO.Menu;
 
 public class GameMenu
 {
-    private readonly SpriteBatch spriteBatch;
     private readonly PhysicsManager physicsManager;
-    private readonly GraphicsDevice graphicsDevice;
     private readonly TargetCamera Camera;
 
     private FloorWallRamp Piso;
@@ -48,40 +47,37 @@ public class GameMenu
 
     private Texture2D BackgroundMenuTexture;
 
-    public GameMenu(PhysicsManager physicsManager, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Action exitGameAction, Action newGameAction, Action resetBallAction)
+    public GameMenu(PhysicsManager physicsManager, Action exitGameAction, Action newGameAction, Action resetBallAction)
     {
-        this.spriteBatch = spriteBatch;
         this.physicsManager = physicsManager;
-        this.graphicsDevice = graphicsDevice;
 
         BallPosition = MenuPosition + new XnaVector3(0f, -5f, 10f);
 
-        BackgroundMenuTexture = new Texture2D(graphicsDevice, 1, 1);
+        BackgroundMenuTexture = new Texture2D(GameGlobals.GraphicsDevice, 1, 1);
         BackgroundMenuTexture.SetData([Color.White]);
 
-        var cameraPosition = MenuPosition;
-        Camera = new TargetCamera(MathF.PI / 3f, this.graphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, cameraPosition, 30f, 0.01f);
+        Camera = new TargetCamera(initialTargetPosition: MenuPosition);
 
-        DummyPlayerBall = new PlayerBall(this.physicsManager, this.graphicsDevice, BallPosition, isDummy: true);
+        DummyPlayerBall = new PlayerBall(this.physicsManager, BallPosition, isDummy: true);
 
         DummyCheckpoint = new Checkpoint(this.physicsManager, MenuPosition + new XnaVector3(10f, -5f, -10f), scale: 0.5f, glow: false);
 
-        Piso = new Floor(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, -10f, -50f), width: 150f, length: 150f);
-        ParedFondo = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(50f, 65f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f);
-        ParedIzquierda = new Wall(this.physicsManager, this.graphicsDevice, MenuPosition + new XnaVector3(-25f, 65f, -50f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f);
+        Piso = new Floor(this.physicsManager, MenuPosition + new XnaVector3(50f, -10f, -50f), width: 150f, length: 150f);
+        ParedFondo = new Wall(this.physicsManager, MenuPosition + new XnaVector3(50f, 65f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f);
+        ParedIzquierda = new Wall(this.physicsManager, MenuPosition + new XnaVector3(-25f, 65f, -50f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f);
 
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 13f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 16f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 19f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -3.5f, 10f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 15f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 12f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, -1.5f, 18f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 17f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 0.5f, 14f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
-        StaticBoxes.Add(new StaticBox(physicsManager, graphicsDevice, MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -3.5f, 13f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -3.5f, 16f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -3.5f, 19f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -3.5f, 10f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -1.5f, 15f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -1.5f, 12f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, -1.5f, 18f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, 0.5f, 17f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, 0.5f, 14f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
+        StaticBoxes.Add(new StaticBox(physicsManager, MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
 
         menuEntries = new Dictionary<Tuple<MenuState, MenuState>, MenuEntry[]>
         {
@@ -223,12 +219,12 @@ public class GameMenu
                 (int)(textSize.X + padding * 2),
                 (int)(textSize.Y + padding * 2)
             );
-            spriteBatch.Begin();
-            spriteBatch.Draw(this.BackgroundMenuTexture, backgroundRect, Color.Black * 0.6f);
-            spriteBatch.End();
+            GameGlobals.SpriteBatch.Begin();
+            GameGlobals.SpriteBatch.Draw(this.BackgroundMenuTexture, backgroundRect, Color.Black * 0.6f);
+            GameGlobals.SpriteBatch.End();
 
             // Dibujo del texto encima
-            menuEntry.Draw(spriteBatch, textColor, position);
+            menuEntry.Draw(GameGlobals.SpriteBatch, textColor, position);
         }
 
         graphicsDevice.DepthStencilState = originalDepthStencilState;

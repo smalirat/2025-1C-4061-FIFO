@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using TGC.TP.FIFO.Fuentes;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
@@ -11,9 +12,6 @@ namespace TGC.TP.FIFO.HUDS;
 
 public class HUD
 {
-    private readonly GraphicsDevice graphicsDevice;
-    private readonly SpriteBatch spriteBatch;
-
     private Texture2D _progressBarTexture;
     private XnaVector2 _timerPosition;
     private XnaVector2 _progressBarPosition;
@@ -27,42 +25,39 @@ public class HUD
 
     private const float MIN_X = -75f, MAX_X = 75f, MIN_Z = -75f, MAX_Z = 900f;
 
-    public HUD(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
+    public HUD()
     {
-        this.spriteBatch = spriteBatch;
-        this.graphicsDevice = graphicsDevice;
-
-        _timerPosition = new XnaVector2(graphicsDevice.Viewport.Width / 2f, 50);
-        _progressBarPosition = new XnaVector2(graphicsDevice.Viewport.Width - _progressBarSize.X - 20, graphicsDevice.Viewport.Height - _progressBarSize.Y - 20);
-        _minimapPosition = new XnaVector2(20, graphicsDevice.Viewport.Height - MINIMAP_SIZE - 20);
+        _timerPosition = new XnaVector2(GameGlobals.GraphicsDevice.Viewport.Width / 2f, 50);
+        _progressBarPosition = new XnaVector2(GameGlobals.GraphicsDevice.Viewport.Width - _progressBarSize.X - 20, GameGlobals.GraphicsDevice.Viewport.Height - _progressBarSize.Y - 20);
+        _minimapPosition = new XnaVector2(20, GameGlobals.GraphicsDevice.Viewport.Height - MINIMAP_SIZE - 20);
     }
 
     public void LoadContent(ContentManager content)
     {
-        _progressBarTexture = new Texture2D(graphicsDevice, 1, 1);
+        _progressBarTexture = new Texture2D(GameGlobals.GraphicsDevice, 1, 1);
         _progressBarTexture.SetData(new[] { Color.White });
     }
 
     public void Draw(PlayerBall playerBall, List<Checkpoint> checkpoints)
     {
-        var originalDepthStencilState = graphicsDevice.DepthStencilState;
-        var originalBlendState = graphicsDevice.BlendState;
+        var originalDepthStencilState = GameGlobals.GraphicsDevice.DepthStencilState;
+        var originalBlendState = GameGlobals.GraphicsDevice.BlendState;
 
-        graphicsDevice.DepthStencilState = DepthStencilState.None;
-        graphicsDevice.BlendState = BlendState.AlphaBlend;
+        GameGlobals.GraphicsDevice.DepthStencilState = DepthStencilState.None;
+        GameGlobals.GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
         DrawTimer();
         DrawProgressBar();
         DrawMinimap(playerBall, checkpoints);
         DrawEndGameMessage();
 
-        graphicsDevice.DepthStencilState = originalDepthStencilState;
-        graphicsDevice.BlendState = originalBlendState;
+        GameGlobals.GraphicsDevice.DepthStencilState = originalDepthStencilState;
+        GameGlobals.GraphicsDevice.BlendState = originalBlendState;
     }
 
     private void DrawTimer()
     {
-        spriteBatch.Begin();
+        GameGlobals.SpriteBatch.Begin();
 
         string time = GameState.Cronometer.Elapsed.ToString("mm\\:ss\\.ff");
         var font = FontsManager.LucidaConsole40;
@@ -99,22 +94,22 @@ public class HUD
         int rectWidth = (int)(size.X + 2 * paddingX);
         int rectHeight = (int)(size.Y + 2 * paddingY);
 
-        spriteBatch.Draw(_progressBarTexture, new Rectangle(rectX, rectY, rectWidth, rectHeight), BarBackground);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, new Rectangle(rectX, rectY, rectWidth, rectHeight), BarBackground);
 
-        spriteBatch.DrawString(font, time, pos, timerColor);
+        GameGlobals.SpriteBatch.DrawString(font, time, pos, timerColor);
 
-        spriteBatch.End();
+        GameGlobals.SpriteBatch.End();
     }
 
     private void DrawProgressBar()
     {
-        spriteBatch.Begin();
+        GameGlobals.SpriteBatch.Begin();
 
         float progress = (float)GameState.TotalCheckpointsChecked / GameState.TotalCheckpoints;
         Color fillColor = GameState.Lost ? Color.Red : BarFill;
 
-        spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, BarBackground, 0f, XnaVector2.Zero, _progressBarSize, SpriteEffects.None, 0f);
-        spriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, fillColor, 0f, XnaVector2.Zero, new XnaVector2(_progressBarSize.X * progress, _progressBarSize.Y), SpriteEffects.None, 0f);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, BarBackground, 0f, XnaVector2.Zero, _progressBarSize, SpriteEffects.None, 0f);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, _progressBarPosition, null, fillColor, 0f, XnaVector2.Zero, new XnaVector2(_progressBarSize.X * progress, _progressBarSize.Y), SpriteEffects.None, 0f);
 
         var font = FontsManager.LucidaConsole20;
         string resultText;
@@ -125,28 +120,28 @@ public class HUD
 
         XnaVector2 textSize = font.MeasureString(resultText);
         XnaVector2 textPosition = new XnaVector2(_progressBarPosition.X + _progressBarSize.X / 2f - textSize.X / 2f, _progressBarPosition.Y - textSize.Y - 5);
-        spriteBatch.DrawString(font, resultText, textPosition, resultColor);
+        GameGlobals.SpriteBatch.DrawString(font, resultText, textPosition, resultColor);
 
-        spriteBatch.End();
+        GameGlobals.SpriteBatch.End();
     }
 
     private void DrawMinimap(PlayerBall playerBall, List<Checkpoint> checkpoints)
     {
-        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+        GameGlobals.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
-        spriteBatch.Draw(_progressBarTexture, new Rectangle((int)_minimapPosition.X, (int)_minimapPosition.Y, MINIMAP_SIZE, MINIMAP_SIZE), MinimapBackground);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, new Rectangle((int)_minimapPosition.X, (int)_minimapPosition.Y, MINIMAP_SIZE, MINIMAP_SIZE), MinimapBackground);
 
         foreach (var checkpoint in checkpoints)
         {
             XnaVector2 pos = GetMinimapPosition(checkpoint.Position);
             Color color = checkpoint.Checked ? Color.LightGreen : Color.Yellow;
-            spriteBatch.Draw(_progressBarTexture, new Rectangle((int)(pos.X - 4), (int)(pos.Y - 4), 8, 8), color);
+            GameGlobals.SpriteBatch.Draw(_progressBarTexture, new Rectangle((int)(pos.X - 4), (int)(pos.Y - 4), 8, 8), color);
         }
 
         XnaVector2 ballPos = GetMinimapPosition(playerBall.Position);
-        spriteBatch.Draw(_progressBarTexture, new Rectangle((int)(ballPos.X - 3), (int)(ballPos.Y - 3), 6, 6), Color.Red);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, new Rectangle((int)(ballPos.X - 3), (int)(ballPos.Y - 3), 6, 6), Color.Red);
 
-        spriteBatch.End();
+        GameGlobals.SpriteBatch.End();
     }
 
     private void DrawEndGameMessage()
@@ -154,13 +149,13 @@ public class HUD
         if (!GameState.Won && !GameState.Lost)
             return;
 
-        spriteBatch.Begin();
+        GameGlobals.SpriteBatch.Begin();
 
         string message = GameState.Won ? "GANASTE" : "PERDISTE";
         var font = FontsManager.LucidaConsole60;
 
         XnaVector2 textSize = font.MeasureString(message);
-        XnaVector2 screenCenter = new XnaVector2(graphicsDevice.Viewport.Width / 2f, graphicsDevice.Viewport.Height / 2f);
+        XnaVector2 screenCenter = new XnaVector2(GameGlobals.GraphicsDevice.Viewport.Width / 2f, GameGlobals.GraphicsDevice.Viewport.Height / 2f);
         XnaVector2 textOrigin = textSize / 2f;
 
         int paddingX = 30;
@@ -173,12 +168,12 @@ public class HUD
             (int)textSize.Y + 2 * paddingY
         );
 
-        spriteBatch.Draw(_progressBarTexture, backgroundRect, MinimapBackground);
+        GameGlobals.SpriteBatch.Draw(_progressBarTexture, backgroundRect, MinimapBackground);
 
         Color color = GameState.Won ? Color.LimeGreen : Color.Red;
-        spriteBatch.DrawString(font, message, screenCenter, color, 0f, textOrigin, 1f, SpriteEffects.None, 0f);
+        GameGlobals.SpriteBatch.DrawString(font, message, screenCenter, color, 0f, textOrigin, 1f, SpriteEffects.None, 0f);
 
-        spriteBatch.End();
+        GameGlobals.SpriteBatch.End();
     }
 
     private XnaVector2 GetMinimapPosition(XnaVector3 worldPosition)

@@ -37,14 +37,13 @@ public class KinematicFloor : IColisionable
     private const float Friction = 0.2f;
 
     public KinematicFloor(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaVector3 direction)
     {
         this.physicsManager = physicsManager;
         this.direction = direction;
 
-        model = ModelManager.CreateBox(graphicsDevice, Depth, Width, Width);
+        model = ModelManager.CreateBox(Depth, Width, Width);
         boundingVolume = this.physicsManager.AddKinematicBox(Width, Depth, Width, Mass, Friction, position, XnaQuaternion.Identity, this);
 
         world = XnaMatrix.CreateTranslation(position);

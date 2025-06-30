@@ -56,7 +56,6 @@ public class PlayerBall : IColisionable
     private float ZScale => ballProperties.Radius / ModelRadius;
 
     public PlayerBall(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         bool isDummy = false)
     {

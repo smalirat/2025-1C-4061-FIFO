@@ -1,5 +1,4 @@
 ﻿using BepuPhysics;
-using Microsoft.Xna.Framework.Graphics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
@@ -34,7 +33,6 @@ public class DynamicBox : IColisionable
     public bool CanPlayerBallJumpOnIt => false;
 
     public DynamicBox(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 initialPosition,
         XnaQuaternion initialRotation,
         float sideLength,
@@ -49,7 +47,7 @@ public class DynamicBox : IColisionable
         Friction = friction;
         Mass = mass;
 
-        model = ModelManager.CreateBox(graphicsDevice, sideLength, sideLength, sideLength);
+        model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
         boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);

@@ -9,12 +9,11 @@ namespace TGC.TP.FIFO.Skybox;
 public class SimpleSkyBox
 {
     private readonly BoxPrimitive model;
-
     private const float Size = 2500f;
 
-    public SimpleSkyBox(GraphicsDevice graphicsDevice)
+    public SimpleSkyBox()
     {
-        model = ModelManager.CreateBox(graphicsDevice, Size, Size, Size);
+        model = ModelManager.CreateBox(Size, Size, Size);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 cameraPosition, GraphicsDevice graphicsDevice)

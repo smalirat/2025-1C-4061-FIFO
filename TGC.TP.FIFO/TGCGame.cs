@@ -9,6 +9,7 @@ using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
 using TGC.TP.FIFO.Fuentes;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.HUDS;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
@@ -27,7 +28,6 @@ public class TGCGame : Game
 {
     private readonly GraphicsDeviceManager GraphicsDeviceManager;
     private readonly PhysicsManager PhysicsManager;
-    private SpriteBatch SpriteBatch;
 
     private TargetCamera TargetCamera;
     private HUD HUD;
@@ -66,15 +66,16 @@ public class TGCGame : Game
         GraphicsDeviceManager.ApplyChanges();
 
         PhysicsManager.Initialize();
+        GameGlobals.GraphicsDevice = GraphicsDevice;
+        GameGlobals.SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        SpriteBatch = new SpriteBatch(GraphicsDevice);
-        HUD = new HUD(SpriteBatch, GraphicsDevice);
-        Skybox = new SimpleSkyBox(GraphicsDevice);
-        PlayerBall = new PlayerBall(PhysicsManager, GraphicsDevice, new Vector3(0, 50f, 0f));
+        HUD = new HUD();
+        Skybox = new SimpleSkyBox();
+        PlayerBall = new PlayerBall(PhysicsManager, initialPosition: new Vector3(0f, 50f, 0f));
 
         InitializeScenario();
 
-        TargetCamera = new TargetCamera(MathF.PI / 3f, GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, PlayerBall.Position, 30f, 0.01f);
+        TargetCamera = new TargetCamera(PlayerBall.Position);
 
         base.Initialize();
     }
@@ -88,7 +89,7 @@ public class TGCGame : Game
         FontsManager.Load(Content);
         HUD.LoadContent(Content);
 
-        GameMenu = new GameMenu(PhysicsManager, GraphicsDevice, SpriteBatch, Exit, NewGame, PlayerBall.Reset);
+        GameMenu = new GameMenu(PhysicsManager, Exit, NewGame, PlayerBall.Reset);
         AudioManager.PlayBackgroundMusic();
 
         base.LoadContent();
@@ -230,21 +231,21 @@ public class TGCGame : Game
         Checkpoints.Add(new Checkpoint(PhysicsManager, position: new XnaVector3(0f, 175f, 800f), glow: true)); // Final
 
         // Pisos
-        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 0f, 74.6f), width: 150f, length: 300f));
-        Floors.Add(new Floor(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.5f, 591.2f), width: 150f, length: 450f));
+        Floors.Add(new Floor(PhysicsManager, position: new XnaVector3(0f, 0f, 74.6f), width: 150f, length: 300f));
+        Floors.Add(new Floor(PhysicsManager, position: new XnaVector3(0f, -46.5f, 591.2f), width: 150f, length: 450f));
 
         // Rampas
-        Ramps.Add(new Ramp(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -23.2f, 296f), width: 150f, length: 150f));
+        Ramps.Add(new Ramp(PhysicsManager, position: new XnaVector3(0f, -23.2f, 296f), width: 150f, length: 150f));
 
         // Paredes
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, -46.7f + 75f, 742f + 75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f));
-        Walls.Add(new Wall(PhysicsManager, GraphicsDevice, new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), 150f, 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(0f, 75f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(0f, -46.7f + 75f, 817f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(-75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(75f, 75f, 0f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(-75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(75f, 75f, 150f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(-75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), width: 150f, height: 150f));
+        Walls.Add(new Wall(PhysicsManager, position: new XnaVector3(75f, -46.7f + 75f, 742f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, -MathF.PI / 2f), width: 150f, height: 150f));
 
         // Power Ups de Velocidad
         SpeedPowerUps.Add(new HighSpeedPowerUp(PhysicsManager, position: new XnaVector3(-44f, -44.5f, 442f)));
@@ -266,34 +267,34 @@ public class TGCGame : Game
         JumpPowerUps.Add(new HighJumpPowerUp(PhysicsManager, position: new XnaVector3(25f, 2f, 80f)));
 
         // Paredes Obstaculos
-        KinematicWalls.Add(new KinematicWall(PhysicsManager, GraphicsDevice, new XnaVector3(0f, 11f, 225f), 40f, 20f, 50f));
+        KinematicWalls.Add(new KinematicWall(PhysicsManager, position: new XnaVector3(0f, 11f, 225f), width: 40f, height: 20f, speed: 50f));
 
         for (int i = 0; i < 5; i++)
         {
-            KinematicWalls.Add(new KinematicWall(PhysicsManager, GraphicsDevice, new XnaVector3(0, -46.5f + 10f, 410f + 21f * i), 20f, 20f, 150f - i * 4));
+            KinematicWalls.Add(new KinematicWall(PhysicsManager, position: new XnaVector3(0f, -36.5f, 431f * i), width: 20f, height: 20f, speed: 150f - i * 4));
         }
 
         // Pisos Flotantes Movedizos
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 2f, 712f), XnaVector3.Left));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 22f, 712f), XnaVector3.Forward));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 42f, 712f), XnaVector3.Right));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 62f, 712f), XnaVector3.Backward));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 82f, 712f), XnaVector3.Left));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 102f, 712f), XnaVector3.Forward));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 122f, 712f), XnaVector3.Right));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 142f, 712f), XnaVector3.Backward));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(10f, -46.7f + 162f, 712f), XnaVector3.Left));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(20f, -46.7f + 182f, 712f), XnaVector3.Forward));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -46.7f + 222f, 712f), XnaVector3.Right));
-        KinematicFloors.Add(new KinematicFloor(PhysicsManager, GraphicsDevice, new XnaVector3(-20f, -46.7f + 242f, 712f), XnaVector3.Backward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(10f, -46.7f + 2f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(20f, -46.7f + 22f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-10f, -46.7f + 42f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-20f, -46.7f + 62f, 712f), XnaVector3.Backward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(10f, -46.7f + 82f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(20f, -46.7f + 102f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-10f, -46.7f + 122f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-20f, -46.7f + 142f, 712f), XnaVector3.Backward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(10f, -46.7f + 162f, 712f), XnaVector3.Left));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(20f, -46.7f + 182f, 712f), XnaVector3.Forward));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-10f, -46.7f + 222f, 712f), XnaVector3.Right));
+        KinematicFloors.Add(new KinematicFloor(PhysicsManager, new XnaVector3(-20f, -46.7f + 242f, 712f), XnaVector3.Backward));
 
         // Cajas Dinamicas Dispersas
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-55f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 5, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(-10f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 6, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(22f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 8, 1f, 0.1f));
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, new XnaVector3(52f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 3, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(-55f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 5, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(-30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(-10f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 6, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(22f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 2, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(30f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 8, 1f, 0.1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, new XnaVector3(52f, -36.5f, 550f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, (float)(random.NextDouble() * 2 * MathF.PI)), 3, 1f, 0.1f));
 
         // Cajas Dinamicas en Piramide
         float boxSize = 5f;
@@ -302,20 +303,20 @@ public class TGCGame : Game
 
         for (int i = -3; i <= 3; i++)
         {
-            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, 0f, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, baseCenter + new XnaVector3(i * spacing, 0f, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
         }
 
         for (int i = -2; i <= 2; i++)
         {
-            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, baseCenter + new XnaVector3(i * spacing, spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
         }
 
         for (int i = -1; i <= 1; i++)
         {
-            DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(i * spacing, 2 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+            DynamicBoxes.Add(new DynamicBox(PhysicsManager, baseCenter + new XnaVector3(i * spacing, 2 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
         }
 
-        DynamicBoxes.Add(new DynamicBox(PhysicsManager, GraphicsDevice, baseCenter + new XnaVector3(0f, 3 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
+        DynamicBoxes.Add(new DynamicBox(PhysicsManager, baseCenter + new XnaVector3(0f, 3 * spacing, 0f), XnaQuaternion.Identity, boxSize, 1f, 1f));
 
         // Cajas Estáticas Dispersas
         List<(XnaVector3 pos, XnaQuaternion rot, float size)> cajas = new();
@@ -374,7 +375,7 @@ public class TGCGame : Game
 
         foreach (var (pos, rot, ssize) in cajas)
         {
-            StaticBoxes.Add(new StaticBox(PhysicsManager, GraphicsDevice, pos, rot, ssize));
+            StaticBoxes.Add(new StaticBox(PhysicsManager, pos, rot, ssize));
         }
 
         // Cajas Estáticas en Piramide
@@ -401,7 +402,7 @@ public class TGCGame : Game
                     float x = startX + i * spacingX;
                     float y = baseFloorY + filaY * spacingY + size / 2f;
 
-                    StaticBoxes.Add(new StaticBox(PhysicsManager, GraphicsDevice, new XnaVector3(x, y, z), XnaQuaternion.Identity, size));
+                    StaticBoxes.Add(new StaticBox(PhysicsManager, new XnaVector3(x, y, z), XnaQuaternion.Identity, size));
                 }
 
                 filaY++;

@@ -26,8 +26,8 @@ public static class ModelManager
         return content.Load<Model>(ContentFolderModels + path);
     }
 
-    public static BoxPrimitive CreateBox(GraphicsDevice graphicsDevice, float height, float width, float length)
+    public static BoxPrimitive CreateBox(float height, float width, float length)
     {
-        return new BoxPrimitive(graphicsDevice, new XnaVector3(width, height, length));
+        return new BoxPrimitive(new XnaVector3(width, height, length));
     }
 }

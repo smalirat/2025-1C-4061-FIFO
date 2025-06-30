@@ -34,7 +34,6 @@ public abstract class FloorWallRamp : IColisionable
     private const float Height = 1.25f;
 
     public FloorWallRamp(PhysicsManager physicsManager,
-        GraphicsDevice graphicsDevice,
         XnaVector3 position,
         XnaQuaternion rotation,
         float width,
@@ -49,7 +48,7 @@ public abstract class FloorWallRamp : IColisionable
         FloorWallRampType = floorWallRampType;
         CanPlayerBallJumpOnIt = floorWallRampType != FloorWallRampType.Wall;
 
-        model = ModelManager.CreateBox(graphicsDevice, Height, width, length);
+        model = ModelManager.CreateBox(Height, width, length);
         boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
 
         world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
