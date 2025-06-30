@@ -43,8 +43,16 @@ public static class PhysicsManager
 
     public static void Update(float deltaTime)
     {
-        float safeDeltaTime = Math.Max(deltaTime, 1f / 240f);
-        Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
+        const float minStep = 1f / 240f;
+        const float maxStep = 1f / 30f;
+
+        float remaining = MathF.Max(deltaTime, minStep);
+        while (remaining > 0f)
+        {
+            var step = MathF.Min(remaining, maxStep);
+            Simulation.Timestep(step, ThreadDispatcher);
+            remaining -= step;
+        }
     }
 
     public static BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, ICollisionable collidableReference)
