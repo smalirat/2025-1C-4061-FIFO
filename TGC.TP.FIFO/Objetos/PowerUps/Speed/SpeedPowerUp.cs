@@ -13,19 +13,22 @@ namespace TGC.TP.FIFO.Objetos.PowerUps.Speed;
 
 public abstract class SpeedPowerUp : IGameObject
 {
-    private Color color;
-    private XnaQuaternion rotation;
-    private XnaVector3 position;
     private const float xScale = 3f / 492.08f;
     private const float yScale = 3f / 859.56f;
     private const float zScale = 1f / 115.72f;
+
+    private readonly XnaVector3 modelOffset = new(0f, 2f, 0f);
+
+    private Color color;
+    private XnaQuaternion rotation;
+    private XnaVector3 position;
 
     public float SpeedMultiplier { get; private set; }
 
     public SpeedPowerUp(XnaVector3 position, float speedMultiplier, Color color)
     {
+        this.position = position + modelOffset;
         this.color = color;
-        this.position = position;
 
         rotation = XnaQuaternion.Identity;
         SpeedMultiplier = speedMultiplier;

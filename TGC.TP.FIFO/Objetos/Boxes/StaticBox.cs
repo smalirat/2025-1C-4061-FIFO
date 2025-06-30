@@ -17,12 +17,14 @@ public class StaticBox : IGameObject
     private readonly BoxPrimitive model;
     private readonly XnaMatrix world;
 
-    public StaticBox(XnaVector3 position, XnaQuaternion rotation, float sideLength)
+    public StaticBox(XnaVector3 position, XnaQuaternion? rotation = null, float sideLength = 10f)
     {
-        PhysicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
+        rotation ??= XnaQuaternion.Identity;
+
+        PhysicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation.Value, this);
 
         model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
-        world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
+        world = XnaMatrix.CreateFromQuaternion(rotation.Value) * XnaMatrix.CreateTranslation(position);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)

@@ -62,18 +62,18 @@ public class GameMenu
         ParedFondo = new Wall(MenuPosition + new XnaVector3(50f, 65f, -75f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f), 150f, 150f);
         ParedIzquierda = new Wall(MenuPosition + new XnaVector3(-25f, 65f, -50f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Forward, MathF.PI / 2f), 150f, 150f);
 
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 13f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 16f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 19f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 10f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 15f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 12f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 18f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 0.5f, 17f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 0.5f, 14f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(20f, -4f, -5f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
-        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(0f, -4f, -25f), XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 13f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 16f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 19f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -3.5f, 10f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 15f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 12f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, -1.5f, 18f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 0.5f, 17f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 0.5f, 14f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(-9f, 2.5f, 15.5f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 0f), 2f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(20f, -4f, -5f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, 60f), 10f));
+        StaticBoxes.Add(new StaticBox(position: MenuPosition + new XnaVector3(0f, -4f, -25f), rotation: XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, -60f), 10f));
 
         menuEntries = new Dictionary<Tuple<MenuState, MenuState>, MenuEntry[]>
         {

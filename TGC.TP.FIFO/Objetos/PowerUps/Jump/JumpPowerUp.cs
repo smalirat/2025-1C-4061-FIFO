@@ -14,17 +14,21 @@ namespace TGC.TP.FIFO.Objetos.PowerUps.Jump;
 
 public abstract class JumpPowerUp : IGameObject
 {
-    private Color color;
-    private XnaQuaternion rotation;
-    private XnaVector3 position;
     private const float xScale = 1f / 0.78f;
     private const float yScale = 5f / 3.72f;
     private const float zScale = 3f / 5.66f;
+
+    private readonly XnaVector3 modelOffset = new(0f, 2f, 0f);
+
+    private Color color;
+    private XnaQuaternion rotation;
+    private XnaVector3 position;
+
     public float JumpMultiplier { get; private set; }
 
     public JumpPowerUp(XnaVector3 position, float jumpMultiplier, Color color)
     {
-        this.position = position;
+        this.position = position + modelOffset;
         this.color = color;
 
         rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f);

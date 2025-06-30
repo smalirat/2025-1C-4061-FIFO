@@ -1,5 +1,7 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Diagnostics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
@@ -14,25 +16,26 @@ namespace TGC.TP.FIFO.Objetos.Boxes;
 
 public class DynamicBox : IGameObject
 {
+    private const float Friction = 1f;
     private readonly XnaVector3 initialPosition;
     private readonly XnaQuaternion initialRotation;
     private readonly float sideLength;
     private readonly float mass;
-    private readonly float friction;
     private readonly BoxPrimitive model;
     private XnaMatrix world;
     private BodyHandle boundingVolume;
 
-    public DynamicBox(XnaVector3 initialPosition, XnaQuaternion initialRotation, float sideLength, float friction, float mass)
+    public DynamicBox(XnaVector3 initialPosition, XnaQuaternion? initialRotation = null, float sideLength = 5f)
     {
-        this.initialPosition = initialPosition;
-        this.initialRotation = initialRotation;
-        this.sideLength = sideLength;
-        this.friction = friction;
-        this.mass = mass;
+        Debug.WriteLine(initialPosition);
 
+        this.initialPosition = initialPosition;
+        this.initialRotation = initialRotation ?? XnaQuaternion.Identity;
+        this.sideLength = sideLength;
+
+        mass = MathF.Pow(sideLength / 5f, 3f);
         model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
-        world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
+        world = XnaMatrix.CreateFromQuaternion(this.initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
 
         CreateBoundingVolume();
     }
@@ -95,6 +98,6 @@ public class DynamicBox : IGameObject
 
     private void CreateBoundingVolume()
     {
-        boundingVolume = PhysicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
+        boundingVolume = PhysicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, Friction, initialPosition, initialRotation, this);
     }
 }

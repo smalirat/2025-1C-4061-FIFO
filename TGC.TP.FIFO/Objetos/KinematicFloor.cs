@@ -28,13 +28,13 @@ public class KinematicFloor : IGameObject
     private XnaMatrix world;
     private float tiempo;
 
-    public KinematicFloor(XnaVector3 position, XnaVector3 movementDirection)
+    public KinematicFloor(XnaVector3 initialPosition, XnaVector3 movementDirection)
     {
         this.movementDirection = movementDirection;
 
         model = ModelManager.CreateBox(Depth, Width, Width);
-        boundingVolume = PhysicsManager.AddKinematicBox(Width, Depth, Width, Mass, Friction, position, XnaQuaternion.Identity, this);
-        world = XnaMatrix.CreateTranslation(position);
+        boundingVolume = PhysicsManager.AddKinematicBox(Width, Depth, Width, Mass, Friction, initialPosition, XnaQuaternion.Identity, this);
+        world = XnaMatrix.CreateTranslation(initialPosition);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
