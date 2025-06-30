@@ -25,6 +25,8 @@ public class HUD
 
     private const float MIN_X = -75f, MAX_X = 75f, MIN_Z = -75f, MAX_Z = 900f;
 
+    private List<Checkpoint> checkpoints = [];
+
     public HUD()
     {
         _timerPosition = new XnaVector2(GameGlobals.GraphicsDevice.Viewport.Width / 2f, 50);
@@ -38,7 +40,7 @@ public class HUD
         _progressBarTexture.SetData(new[] { Color.White });
     }
 
-    public void Draw(PlayerBall playerBall, List<Checkpoint> checkpoints)
+    public void Draw(PlayerBall playerBall)
     {
         var originalDepthStencilState = GameGlobals.GraphicsDevice.DepthStencilState;
         var originalBlendState = GameGlobals.GraphicsDevice.BlendState;
@@ -48,7 +50,7 @@ public class HUD
 
         DrawTimer();
         DrawProgressBar();
-        DrawMinimap(playerBall, checkpoints);
+        DrawMinimap(playerBall);
         DrawEndGameMessage();
 
         GameGlobals.GraphicsDevice.DepthStencilState = originalDepthStencilState;
@@ -125,7 +127,7 @@ public class HUD
         GameGlobals.SpriteBatch.End();
     }
 
-    private void DrawMinimap(PlayerBall playerBall, List<Checkpoint> checkpoints)
+    private void DrawMinimap(PlayerBall playerBall)
     {
         GameGlobals.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
@@ -186,4 +188,9 @@ public class HUD
 
         return _minimapPosition + new XnaVector2(posX , posZ);
     }
+
+    public void SetCheckpoints(List<Checkpoint> checkpoints)
+    {
+        this.checkpoints = checkpoints;
+    } 
 }

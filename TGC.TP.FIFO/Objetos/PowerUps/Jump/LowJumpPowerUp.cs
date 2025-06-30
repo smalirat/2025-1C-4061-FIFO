@@ -1,11 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using TGC.TP.FIFO.Fisica;
 
 namespace TGC.TP.FIFO.Objetos.PowerUps.Jump;
 
 public class LowJumpPowerUp : JumpPowerUp
 {
-    public LowJumpPowerUp(PhysicsManager physicsManager, XnaVector3 position) : base(physicsManager, position, 0.1f, Color.Yellow)
+    public LowJumpPowerUp(XnaVector3 position) : base(position, jumpMultiplier: 0.1f, color: Color.Yellow)
     {
     }
 }

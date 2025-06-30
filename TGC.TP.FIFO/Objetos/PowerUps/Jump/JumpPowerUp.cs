@@ -1,48 +1,36 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using TGC.TP.FIFO.Audio;
+using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
-using TGC.TP.FIFO.Objetos.Ball;
 
 namespace TGC.TP.FIFO.Objetos.PowerUps.Jump;
 
-public abstract class JumpPowerUp : IColisionable
+public abstract class JumpPowerUp : IGameObject
 {
-    private readonly PhysicsManager physicsManager;
     private Color color;
     private XnaQuaternion rotation;
     private XnaVector3 position;
     private const float xScale = 1f / 0.78f;
     private const float yScale = 5f / 3.72f;
     private const float zScale = 3f / 5.66f;
-
-    public BodyType BodyType => BodyType.JumpPowerUp;
     public float JumpMultiplier { get; private set; }
-    public bool CanPlayerBallJumpOnIt => false;
 
-    public JumpPowerUp(PhysicsManager physicsManager,
-        XnaVector3 position,
-        float jumpMultiplier,
-        Color color)
+    public JumpPowerUp(XnaVector3 position, float jumpMultiplier, Color color)
     {
-        this.physicsManager = physicsManager;
         this.position = position;
         this.color = color;
 
         rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, -MathF.PI / 2f);
         JumpMultiplier = jumpMultiplier;
 
-        this.physicsManager.AddStaticBox(4.4f, 4.4f, 3.5f, position, rotation, this);
-    }
-
-    public void Update(float deltaTime)
-    {
-        var incrementalRotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, deltaTime * 0.5f);
-        rotation = XnaQuaternion.Normalize(incrementalRotation * rotation);
+        PhysicsManager.AddStaticBox(4.4f, 4.4f, 3.5f, position, rotation, this);
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
@@ -97,7 +85,14 @@ public abstract class JumpPowerUp : IColisionable
             mesh.Draw();
         }
     }
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
+
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
+    {
+        var incrementalRotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Up, deltaTime * 0.5f);
+        rotation = XnaQuaternion.Normalize(incrementalRotation * rotation);
+    }
+
+    public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
         if (contactSpeed >= GameState.MinBallSpeedForSounds)
         {
@@ -105,5 +100,12 @@ public abstract class JumpPowerUp : IColisionable
         }
     }
 
-    public void NotifyCollition(IColisionable with) { }
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return false;
+    }
+
+    public void Reset()
+    {
+    }
 }

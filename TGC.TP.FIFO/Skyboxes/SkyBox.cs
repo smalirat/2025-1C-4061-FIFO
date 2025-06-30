@@ -6,12 +6,12 @@ using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Skybox;
 
-public class SimpleSkyBox
+public class SkyBox
 {
     private readonly BoxPrimitive model;
     private const float Size = 2500f;
 
-    public SimpleSkyBox()
+    public SkyBox()
     {
         model = ModelManager.CreateBox(Size, Size, Size);
     }

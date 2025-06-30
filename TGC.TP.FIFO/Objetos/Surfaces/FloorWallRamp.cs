@@ -1,8 +1,11 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using TGC.TP.FIFO.Audio;
+using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
@@ -12,46 +15,24 @@ using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos.Surfaces;
 
-public abstract class FloorWallRamp : IColisionable
+public abstract class FloorWallRamp : IGameObject
 {
-    private readonly PhysicsManager physicsManager;
+    private const float Height = 1.25f;
 
     private readonly StaticHandle boundingVolume;
     private readonly BoxPrimitive model;
+    private readonly RampWallTextureType rampWallTextureType;
+    private readonly XnaMatrix world;
+    private readonly FloorWallRampType floorWallRampType;
 
-    private RampWallTextureType RampWallTextureType;
-
-    private XnaMatrix world;
-
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
-
-    public BodyType BodyType => BodyType.FloorRamp;
-
-    private FloorWallRampType FloorWallRampType;
-
-    public bool CanPlayerBallJumpOnIt { get; private set; }
-
-    private const float Height = 1.25f;
-
-    public FloorWallRamp(PhysicsManager physicsManager,
-        XnaVector3 position,
-        XnaQuaternion rotation,
-        float width,
-        float length,
-        FloorWallRampType floorWallRampType,
-        RampWallTextureType rampWallTextureType)
+    public FloorWallRamp(XnaVector3 position, XnaQuaternion rotation, float width, float length, FloorWallRampType floorWallRampType, RampWallTextureType rampWallTextureType)
     {
-
-        this.physicsManager = physicsManager;
-
-        RampWallTextureType = rampWallTextureType;
-        FloorWallRampType = floorWallRampType;
-        CanPlayerBallJumpOnIt = floorWallRampType != FloorWallRampType.Wall;
+        this.rampWallTextureType = rampWallTextureType;
+        this.floorWallRampType = floorWallRampType;
 
         model = ModelManager.CreateBox(Height, width, length);
-        boundingVolume = this.physicsManager.AddStaticBox(width, Height, length, position, rotation, this);
-
-        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+        boundingVolume = PhysicsManager.AddStaticBox(width, Height, length, position, rotation, this);
+        world = XnaMatrix.CreateFromQuaternion(PhysicsManager.GetOrientation(boundingVolume)) * XnaMatrix.CreateTranslation(PhysicsManager.GetPosition(boundingVolume));
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
@@ -60,7 +41,7 @@ public abstract class FloorWallRamp : IColisionable
         Texture2D texture = null;
         BlinnPhongMaterial material;
 
-        switch (RampWallTextureType)
+        switch (rampWallTextureType)
         {
             case RampWallTextureType.Dirt:
                 texture = TextureManager.DirtTexture;
@@ -108,13 +89,24 @@ public abstract class FloorWallRamp : IColisionable
         model.Draw(effect);
     }
 
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
-        if (!playerBall.isDummy && FloorWallRampType == FloorWallRampType.Wall && contactSpeed >= GameState.MinBallSpeedForSounds)
+    }
+
+    public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
+    {
+        if (!(playerBall as PlayerBall).IsDummy && floorWallRampType == FloorWallRampType.Wall)
         {
-            AudioManager.PlayWallHitSound(GameState.BallType);
+            AudioManager.PlayWallHitSound(GameState.BallType, contactSpeed);
         }
     }
 
-    public void NotifyCollition(IColisionable with) { }
+    public void Reset()
+    {
+    }
+
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return floorWallRampType != FloorWallRampType.Wall;
+    }
 }

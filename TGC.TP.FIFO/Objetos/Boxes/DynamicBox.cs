@@ -1,56 +1,40 @@
 ﻿using BepuPhysics;
+using Microsoft.Xna.Framework.Input;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
-using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
-using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos.Boxes;
 
-public class DynamicBox : IColisionable
+public class DynamicBox : IGameObject
 {
-    private readonly PhysicsManager physicsManager;
-
-    private BodyHandle boundingVolume;
+    private readonly XnaVector3 initialPosition;
+    private readonly XnaQuaternion initialRotation;
+    private readonly float sideLength;
+    private readonly float mass;
+    private readonly float friction;
     private readonly BoxPrimitive model;
-
     private XnaMatrix world;
+    private BodyHandle boundingVolume;
 
-    public BodyType BodyType => BodyType.Box;
-
-    public XnaVector3 Position => physicsManager.GetPosition(boundingVolume);
-    private XnaVector3 InitialPosition;
-    private XnaQuaternion InitialRotation;
-    private float SideLength;
-    private float Mass;
-    private float Friction;
-
-    public bool CanPlayerBallJumpOnIt => false;
-
-    public DynamicBox(PhysicsManager physicsManager,
-        XnaVector3 initialPosition,
-        XnaQuaternion initialRotation,
-        float sideLength,
-        float friction,
-        float mass)
+    public DynamicBox(XnaVector3 initialPosition, XnaQuaternion initialRotation, float sideLength, float friction, float mass)
     {
-        this.physicsManager = physicsManager;
-
-        InitialPosition = initialPosition;
-        InitialRotation = initialRotation;
-        SideLength = sideLength;
-        Friction = friction;
-        Mass = mass;
+        this.initialPosition = initialPosition;
+        this.initialRotation = initialRotation;
+        this.sideLength = sideLength;
+        this.friction = friction;
+        this.mass = mass;
 
         model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
-        boundingVolume = this.physicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
-
         world = XnaMatrix.CreateFromQuaternion(initialRotation) * XnaMatrix.CreateTranslation(initialPosition);
+
+        CreateBoundingVolume();
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
@@ -87,25 +71,30 @@ public class DynamicBox : IColisionable
         model.Draw(effect);
     }
 
-    public void Update(float deltaTime, TargetCamera camera)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
-        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
-                XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+        world = XnaMatrix.CreateFromQuaternion(PhysicsManager.GetOrientation(boundingVolume)) *
+                XnaMatrix.CreateTranslation(PhysicsManager.GetPosition(boundingVolume));
     }
 
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
+    public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (contactSpeed >= GameState.MinBallSpeedForSounds)
-        {
-            AudioManager.PlayWoodBoxHitSound();
-        }
+        AudioManager.PlayWoodBoxHitSound(contactSpeed);
     }
 
     public void Reset()
     {
-        physicsManager.RemoveBoundingVolume(boundingVolume);
-        boundingVolume = physicsManager.AddDynamicBox(SideLength, SideLength, SideLength, Mass, Friction, InitialPosition, InitialRotation, this);
+        PhysicsManager.RemoveBoundingVolume(boundingVolume);
+        CreateBoundingVolume();
     }
 
-    public void NotifyCollition(IColisionable with) { }
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return false;
+    }
+
+    private void CreateBoundingVolume()
+    {
+        boundingVolume = PhysicsManager.AddDynamicBox(sideLength, sideLength, sideLength, mass, friction, initialPosition, initialRotation, this);
+    }
 }

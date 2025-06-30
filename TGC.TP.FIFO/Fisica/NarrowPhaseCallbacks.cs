@@ -4,16 +4,19 @@ using BepuPhysics.CollisionDetection;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TGC.TP.FIFO.Objetos;
 using TGC.TP.FIFO.Objetos.Ball;
+using TGC.TP.FIFO.Objetos.PowerUps.Jump;
+using TGC.TP.FIFO.Objetos.PowerUps.Speed;
 
 namespace TGC.TP.FIFO.Fisica;
 
 public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
     private readonly CollidableProperty<MaterialProperties> CollidableMaterials;
-    private readonly Dictionary<CollidableReference, IColisionable> CollidableReferences;
+    private readonly Dictionary<CollidableReference, ICollisionable> CollidableReferences;
 
-    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> collidableMaterials, Dictionary<CollidableReference, IColisionable> collidableReferences)
+    public NarrowPhaseCallbacks(CollidableProperty<MaterialProperties> collidableMaterials, Dictionary<CollidableReference, ICollisionable> collidableReferences)
     {
         CollidableMaterials = collidableMaterials;
         CollidableReferences = collidableReferences;
@@ -63,27 +66,22 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
             return true;
         }
 
-        if (ContactWith(collidableReferenceA, collidableReferenceB, BodyType.PlayerBall))
+        if (collidableReferenceA is PlayerBall || collidableReferenceB is PlayerBall)
         {
             var convexContact = contacts as ConvexContactManifold?;
 
             var playerBall = collidableReferenceA is PlayerBall ? collidableReferenceA as PlayerBall : collidableReferenceB as PlayerBall;
             var contactWithPlayerBall = collidableReferenceA is PlayerBall ? collidableReferenceB : collidableReferenceA;
 
-            contactWithPlayerBall.NotifyCollitionWithPlayerBall(playerBall, convexContact?.Normal, playerBall.GetLinearSpeed());
-            playerBall.NotifyCollition(contactWithPlayerBall, convexContact?.Normal);
+            contactWithPlayerBall.NotifyCollition(playerBall, convexContact?.Normal, playerBall.GetLinearSpeed());
+            playerBall.NotifyCollition(contactWithPlayerBall, convexContact?.Normal, 0f);
         }
 
-        var ignorePhyisicsReactionToCollition = ContactWith(collidableReferenceA, collidableReferenceB, BodyType.Checkpoint) ||
-                                                ContactWith(collidableReferenceA, collidableReferenceB, BodyType.SpeedPowerUp) ||
-                                                ContactWith(collidableReferenceA, collidableReferenceB, BodyType.JumpPowerUp);
+        var ignorePhyisicsReactionToCollition = collidableReferenceA is Checkpoint || collidableReferenceB is Checkpoint ||
+                                                collidableReferenceA is SpeedPowerUp || collidableReferenceB is SpeedPowerUp ||
+                                                collidableReferenceA is JumpPowerUp || collidableReferenceB is JumpPowerUp;
 
         return !ignorePhyisicsReactionToCollition;
-    }
-
-    private bool ContactWith(IColisionable a, IColisionable b, BodyType bodyType)
-    {
-        return a.BodyType == bodyType || b.BodyType == bodyType;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

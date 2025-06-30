@@ -17,6 +17,7 @@ public static class AudioManager
 
     // Efectos de sonido para diferentes tipos de bola
     public static SoundEffect MetalJumpSound { get; private set; }
+
     public static SoundEffect RubberJumpSound { get; private set; }
     public static SoundEffect StoneJumpSound { get; private set; }
     public static SoundEffect BallRollingSound { get; private set; }
@@ -79,7 +80,11 @@ public static class AudioManager
 
     public static void PlayJumpSound(BallType ballType)
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing)
+        {
+            return;
+        }
+
         switch (ballType)
         {
             case BallType.Metal:
@@ -96,9 +101,13 @@ public static class AudioManager
         }
     }
 
-    public static void PlayWallHitSound(BallType ballType)
+    public static void PlayWallHitSound(BallType ballType, float contactSpeed)
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing || contactSpeed < GameState.MinBallSpeedForSounds)
+        {
+            return;
+        }
+
         switch (ballType)
         {
             case BallType.Metal:
@@ -125,9 +134,13 @@ public static class AudioManager
         }
     }
 
-    public static void PlayWoodBoxHitSound()
+    public static void PlayWoodBoxHitSound(float contactSpeed)
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing || contactSpeed < GameState.MinBallSpeedForSounds)
+        {
+            return;
+        }
+
         if (WoodBoxHitSoundInstance.State != SoundState.Playing)
         {
             WoodBoxHitSoundInstance.Play();
@@ -136,7 +149,11 @@ public static class AudioManager
 
     public static void PlaySpeedPowerUpSound()
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing)
+        {
+            return;
+        }
+
         if (SpeedPowerUpInstance.State != SoundState.Playing)
         {
             SpeedPowerUpInstance.Play();
@@ -145,7 +162,11 @@ public static class AudioManager
 
     public static void PlayJumpPowerUpSound()
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing)
+        {
+            return;
+        }
+
         if (JumpPowerUpInstance.State != SoundState.Playing)
         {
             JumpPowerUpInstance.Play();
@@ -154,7 +175,11 @@ public static class AudioManager
 
     public static void PlayCheckpointSound()
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing)
+        {
+            return;
+        }
+
         if (CheckpointInstance.State != SoundState.Playing)
         {
             CheckpointInstance.Play();
@@ -163,7 +188,11 @@ public static class AudioManager
 
     public static void PlayRollingSound()
     {
-        if (!GameState.Playing) return;
+        if (!GameState.Playing)
+        {
+            return;
+        }
+
         float volume = 1.0f;
         BallRollInstance.Volume = volume;
         BallRollInstance.Play();

@@ -5,7 +5,7 @@ namespace TGC.TP.FIFO.Objetos.PowerUps.Speed;
 
 public class MediumSpeedPowerUp : SpeedPowerUp
 {
-    public MediumSpeedPowerUp(PhysicsManager physicsManager, XnaVector3 position) : base(physicsManager, position, 30f, Color.Orange)
+    public MediumSpeedPowerUp(XnaVector3 position) : base(position, speedMultiplier: 30f, color: Color.Orange)
     {
     }
 }

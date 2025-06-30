@@ -1,53 +1,40 @@
 ﻿using BepuPhysics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
-using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos;
 
-public class KinematicWall : IColisionable
+public class KinematicWall : IGameObject
 {
-    private readonly PhysicsManager physicsManager;
-
-    private readonly BodyHandle boundingVolume;
-    private readonly BoxPrimitive model;
-
-    private XnaMatrix world;
-
-    public BodyType BodyType => BodyType.FloorRamp;
-
-    private float tiempo;
-
-    public bool CanPlayerBallJumpOnIt => false;
-
     private const float Depth = 1.25f;
     private const float Mass = 1f;
     private const float Friction = 1f;
 
-    private float speed;
+    private readonly BodyHandle boundingVolume;
+    private readonly BoxPrimitive model;
+    private readonly float movementSpeed;
 
-    public KinematicWall(PhysicsManager physicsManager,
-        XnaVector3 position,
-        float width,
-        float height,
-        float speed)
+    private float tiempo;
+    private XnaMatrix world;
+
+    public KinematicWall(XnaVector3 position, float width, float height, float movementSpeed)
     {
-        this.physicsManager = physicsManager;
-        this.speed = speed;
+        this.movementSpeed = movementSpeed;
 
         var rotation = XnaQuaternion.CreateFromAxisAngle(XnaVector3.Right, MathF.PI / 2f);
 
         model = ModelManager.CreateBox(Depth, width, height);
-        boundingVolume = this.physicsManager.AddKinematicBox(width, Depth, height, Mass, Friction, position, rotation, this);
-
+        boundingVolume = PhysicsManager.AddKinematicBox(width, Depth, height, Mass, Friction, position, rotation, this);
         world = XnaMatrix.CreateTranslation(position) * XnaMatrix.CreateFromQuaternion(rotation);
     }
 
@@ -85,29 +72,33 @@ public class KinematicWall : IColisionable
         model.Draw(effect);
     }
 
-    public void Update(float deltaTime, TargetCamera camera)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
-        physicsManager.Awake(boundingVolume);
+        PhysicsManager.Awake(boundingVolume);
 
         tiempo += deltaTime;
-        float x = MathF.Sin(tiempo) * speed;
+        float x = MathF.Sin(tiempo) * movementSpeed;
 
-        var previousPosition = physicsManager.GetPosition(boundingVolume);
+        var previousPosition = PhysicsManager.GetPosition(boundingVolume);
 
-        physicsManager.SetPosition(boundingVolume, new BepuVector3(x, previousPosition.Y, previousPosition.Z));
+        PhysicsManager.SetPosition(boundingVolume, new BepuVector3(x, previousPosition.Y, previousPosition.Z));
 
         // Actualizo matriz mundo
-        world = XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
-                XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
+        world = XnaMatrix.CreateFromQuaternion(PhysicsManager.GetOrientation(boundingVolume)) *
+                XnaMatrix.CreateTranslation(PhysicsManager.GetPosition(boundingVolume));
     }
 
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
+    public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
     {
-        if (contactSpeed >= GameState.MinBallSpeedForSounds)
-        {
-            AudioManager.PlayWallHitSound(GameState.BallType);
-        }
+        AudioManager.PlayWallHitSound(GameState.BallType, contactSpeed);
     }
 
-    public void NotifyCollition(IColisionable with) { }
+    public void Reset()
+    {
+    }
+
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return false;
+    }
 }

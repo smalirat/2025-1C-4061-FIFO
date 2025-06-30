@@ -2,11 +2,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
 using TGC.TP.FIFO.Audio;
 using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
@@ -17,57 +17,43 @@ using TGC.TP.FIFO.Utilidades;
 
 namespace TGC.TP.FIFO.Objetos.Ball;
 
-public class PlayerBall : IColisionable
+public class PlayerBall : IGameObject
 {
-    private float inactivityTimer = 0f;
-    private float canJumpTimer = 0f;
-
-    private XnaVector3 respawnPosition;
     private const float InactivityThreshold = 10f;
     private const float CanJumpThreshold = 0.5f;
-
-    public XnaVector3 Position => world.Translation.ToBepuVector3();
-    private XnaVector3 InitialPosition;
-
-    public BodyType BodyType => BodyType.PlayerBall;
-
-    public bool CanPlayerBallJumpOnIt => false;
-
     private const float ModelRadius = 1.00f;
 
-    private readonly PhysicsManager physicsManager;
-
+    private float inactivityTimer = 0f;
+    private float canJumpTimer = 0f;
+    private XnaVector3 respawnPosition;
+    private XnaVector3 initialPosition;
     private BodyHandle boundingVolume;
-
     private XnaMatrix world;
-
     private BallProperties ballProperties;
-
-    public bool canJump;
-    private bool jumpMultiplierApplied;
-    private bool speedMultiplierApplied;
+    private bool jumpMultiplierApplied = false;
+    private bool speedMultiplierApplied = false;
     private bool isRolling = false;
-    private float speedMultiplier;
-    private float jumpMultiplier;
-    public bool isDummy;
+    private float speedMultiplier = 0f;
+    private float jumpMultiplier = 0f;
 
     private float XScale => ballProperties.Radius / ModelRadius;
     private float YScale => ballProperties.Radius / ModelRadius;
     private float ZScale => ballProperties.Radius / ModelRadius;
 
-    public PlayerBall(PhysicsManager physicsManager,
-        XnaVector3 initialPosition,
-        bool isDummy = false)
+    public XnaVector3 Position => world.Translation.ToBepuVector3();
+    public bool CanJump = false;
+    public bool IsDummy;
+
+    public PlayerBall(XnaVector3 initialPosition, bool isDummy = false)
     {
-        this.physicsManager = physicsManager;
-        this.isDummy = isDummy;
+        this.initialPosition = initialPosition;
 
-        InitialPosition = initialPosition;
+        IsDummy = isDummy;
         respawnPosition = initialPosition;
-
         ballProperties = BallPresets.Presets[GameState.BallType];
+        world = XnaMatrix.CreateTranslation(respawnPosition);
 
-        boundingVolume = this.physicsManager.AddDynamicSphere(
+        boundingVolume = PhysicsManager.AddDynamicSphere(
             radius: ballProperties.Radius,
             mass: ballProperties.Mass,
             friction: ballProperties.Friction,
@@ -76,131 +62,10 @@ public class PlayerBall : IColisionable
             maximumRecoveryVelocity: ballProperties.MaximumRecoveryVelocity,
             initialPosition: respawnPosition,
             this);
-
-        world = XnaMatrix.CreateTranslation(respawnPosition);
-
-        canJump = false;
-        jumpMultiplierApplied = false;
-        speedMultiplierApplied = false;
-    }
-
-    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
-    {
-        var keyPressed = false;
-        var impulseDirection = BepuVector3.Zero;
-
-        // La pelota siempre esta activa en el mundo física
-        physicsManager.Awake(boundingVolume);
-
-        if (keyboardState.IsKeyDown(Keys.R))
-        {
-            physicsManager.SetPosition(boundingVolume, respawnPosition);
-            return;
-        }
-
-        if (jumpMultiplierApplied)
-        {
-            physicsManager.ApplyImpulse(boundingVolume,
-                XnaVector3.Up,
-                ballProperties.JumpForce * jumpMultiplier,
-                deltaTime);
-        }
-        else if (speedMultiplierApplied)
-        {
-            physicsManager.ApplyImpulse(boundingVolume,
-                -camera.ForwardXZ.ToBepuVector3(),
-                ballProperties.ImpulseForce * speedMultiplier,
-                deltaTime);
-        }
-        else
-        {
-            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
-            {
-                keyPressed = true;
-                impulseDirection -= camera.ForwardXZ.ToBepuVector3();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
-            {
-                keyPressed = true;
-                impulseDirection += camera.ForwardXZ.ToBepuVector3();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
-            {
-                keyPressed = true;
-                impulseDirection -= camera.RightXZ.ToBepuVector3();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
-            {
-                keyPressed = true;
-                impulseDirection += camera.RightXZ.ToBepuVector3();
-            }
-
-            if (keyPressed)
-            {
-                physicsManager.ApplyImpulse(boundingVolume,
-                    impulseDirection,
-                    ballProperties.ImpulseForce,
-                    deltaTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Space) && canJump && canJumpTimer >= CanJumpThreshold)
-            {
-                canJumpTimer = 0f;
-                AudioManager.PlayJumpSound(GameState.BallType);
-
-                physicsManager.ApplyImpulse(boundingVolume,
-                    XnaVector3.Up,
-                    ballProperties.JumpForce,
-                    deltaTime);
-            }
-        }
-
-        float currentSpeed = physicsManager.GetLinearVelocity(boundingVolume).Length();
-
-        if (currentSpeed > 0.1f && canJump)
-        {
-            if (!isRolling)
-            {
-                isRolling = true;
-                AudioManager.PlayRollingSound();
-            }
-            AudioManager.UpdateRollingSound(GameState.BallType, currentSpeed);
-        }
-        else
-        {
-            if (isRolling)
-            {
-                isRolling = false;
-                AudioManager.StopRollingSound();
-            }
-        }
-
-        // Actualizo matriz mundo
-        world = XnaMatrix.CreateScale(XScale, YScale, ZScale) *
-                XnaMatrix.CreateFromQuaternion(physicsManager.GetOrientation(boundingVolume)) *
-                XnaMatrix.CreateTranslation(physicsManager.GetPosition(boundingVolume));
-
-        canJump = false;
-        speedMultiplierApplied = false;
-        jumpMultiplierApplied = false;
-
-        inactivityTimer += deltaTime;
-        canJumpTimer += deltaTime;
-
-        if (inactivityTimer >= InactivityThreshold)
-        {
-            physicsManager.SetPosition(boundingVolume, respawnPosition);
-            inactivityTimer = 0f;
-        }
     }
 
     public void Draw(XnaMatrix view, XnaMatrix projection, XnaVector3 lightPosition, XnaVector3 eyePosition)
     {
-        Debug.WriteLine($"BALL SPEED {GetLinearSpeed()}");
-
         var model = ModelManager.SphereModel;
         var effect = EffectManager.BlinnPhongShader;
         Texture2D texture;
@@ -270,32 +135,140 @@ public class PlayerBall : IColisionable
         }
     }
 
-
-
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed) {}
-    public void NotifyCollition(IColisionable with) { }
-
-    public void NotifyCollition(IColisionable with, XnaVector3? contactNormal)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
-        if (with.CanPlayerBallJumpOnIt && contactNormal?.Y != 0)
+        var keyPressed = false;
+        var impulseDirection = BepuVector3.Zero;
+
+        // La pelota siempre esta activa en el mundo física
+        PhysicsManager.Awake(boundingVolume);
+
+        if (keyboardState.IsKeyDown(Keys.R))
         {
-            canJump = true;
+            PhysicsManager.SetPosition(boundingVolume, respawnPosition);
+            return;
         }
 
-        if (with.BodyType == BodyType.Checkpoint)
+        if (jumpMultiplierApplied)
+        {
+            PhysicsManager.ApplyImpulse(boundingVolume,
+                XnaVector3.Up,
+                ballProperties.JumpForce * jumpMultiplier,
+                deltaTime);
+        }
+        else if (speedMultiplierApplied)
+        {
+            PhysicsManager.ApplyImpulse(boundingVolume,
+                -camera.ForwardXZ.ToBepuVector3(),
+                ballProperties.ImpulseForce * speedMultiplier,
+                deltaTime);
+        }
+        else
+        {
+            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
+            {
+                keyPressed = true;
+                impulseDirection -= camera.ForwardXZ.ToBepuVector3();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
+            {
+                keyPressed = true;
+                impulseDirection += camera.ForwardXZ.ToBepuVector3();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
+            {
+                keyPressed = true;
+                impulseDirection -= camera.RightXZ.ToBepuVector3();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
+            {
+                keyPressed = true;
+                impulseDirection += camera.RightXZ.ToBepuVector3();
+            }
+
+            if (keyPressed)
+            {
+                PhysicsManager.ApplyImpulse(boundingVolume,
+                    impulseDirection,
+                    ballProperties.ImpulseForce,
+                    deltaTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Space) && CanJump && canJumpTimer >= CanJumpThreshold)
+            {
+                canJumpTimer = 0f;
+                AudioManager.PlayJumpSound(GameState.BallType);
+
+                PhysicsManager.ApplyImpulse(boundingVolume,
+                    XnaVector3.Up,
+                    ballProperties.JumpForce,
+                    deltaTime);
+            }
+        }
+
+        float currentSpeed = PhysicsManager.GetLinearVelocity(boundingVolume).Length();
+
+        if (currentSpeed > 0.1f && CanJump)
+        {
+            if (!isRolling)
+            {
+                isRolling = true;
+                AudioManager.PlayRollingSound();
+            }
+            AudioManager.UpdateRollingSound(GameState.BallType, currentSpeed);
+        }
+        else
+        {
+            if (isRolling)
+            {
+                isRolling = false;
+                AudioManager.StopRollingSound();
+            }
+        }
+
+        // Actualizo matriz mundo
+        world = XnaMatrix.CreateScale(XScale, YScale, ZScale) *
+                XnaMatrix.CreateFromQuaternion(PhysicsManager.GetOrientation(boundingVolume)) *
+                XnaMatrix.CreateTranslation(PhysicsManager.GetPosition(boundingVolume));
+
+        CanJump = false;
+        speedMultiplierApplied = false;
+        jumpMultiplierApplied = false;
+
+        inactivityTimer += deltaTime;
+        canJumpTimer += deltaTime;
+
+        if (inactivityTimer >= InactivityThreshold)
+        {
+            PhysicsManager.SetPosition(boundingVolume, respawnPosition);
+            inactivityTimer = 0f;
+        }
+    }
+
+    public void NotifyCollition(ICollisionable with, XnaVector3? contactNormal, float contactSpeed)
+    {
+        if (with.CanPlayerBallJumpOnIt() && contactNormal?.Y != 0)
+        {
+            CanJump = true;
+        }
+
+        if (with is Checkpoint)
         {
             var checkpoint = with as Checkpoint;
             respawnPosition = checkpoint.GetPlayerBallRespawnPosition();
         }
 
-        if (with.BodyType == BodyType.SpeedPowerUp)
+        if (with is SpeedPowerUp)
         {
             var speedPowerUp = with as SpeedPowerUp;
             speedMultiplierApplied = true;
             speedMultiplier = speedPowerUp.SpeedMultiplier;
         }
 
-        if (with.BodyType == BodyType.JumpPowerUp)
+        if (with is JumpPowerUp)
         {
             var jumpPowerUp = with as JumpPowerUp;
             jumpMultiplierApplied = true;
@@ -305,32 +278,37 @@ public class PlayerBall : IColisionable
         inactivityTimer = 0f;
     }
 
-    public float GetCurrentSpeed()
-    {
-        return physicsManager.GetLinearVelocity(boundingVolume).Length();
-    }
-
     public void Reset()
     {
-        physicsManager.RemoveBoundingVolume(boundingVolume);
+        PhysicsManager.RemoveBoundingVolume(boundingVolume);
 
         ballProperties = BallPresets.Presets[GameState.BallType];
 
-        boundingVolume = physicsManager.AddDynamicSphere(
+        boundingVolume = PhysicsManager.AddDynamicSphere(
             radius: ballProperties.Radius,
             mass: ballProperties.Mass,
             friction: ballProperties.Friction,
             dampingRatio: ballProperties.DampingRatio,
             springFrequency: ballProperties.SpringFrequency,
             maximumRecoveryVelocity: ballProperties.MaximumRecoveryVelocity,
-            initialPosition: InitialPosition,
+            initialPosition: initialPosition,
             this);
 
-        world = XnaMatrix.CreateTranslation(InitialPosition);
+        world = XnaMatrix.CreateTranslation(initialPosition);
 
-        canJump = false;
+        CanJump = false;
         jumpMultiplierApplied = false;
         speedMultiplierApplied = false;
+    }
+
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return false;
+    }
+
+    public float GetCurrentSpeed()
+    {
+        return PhysicsManager.GetLinearVelocity(boundingVolume).Length();
     }
 
     public void UpdatePositionAndRotation(XnaVector3 position, XnaQuaternion rotation)
@@ -342,6 +320,6 @@ public class PlayerBall : IColisionable
 
     public float GetLinearSpeed()
     {
-        return physicsManager.GetLinearSpeed(boundingVolume);
+        return PhysicsManager.GetLinearSpeed(boundingVolume);
     }
 }

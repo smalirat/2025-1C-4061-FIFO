@@ -1,41 +1,27 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Input;
 using TGC.TP.FIFO.Audio;
+using TGC.TP.FIFO.Cameras;
 using TGC.TP.FIFO.Efectos;
 using TGC.TP.FIFO.Fisica;
+using TGC.TP.FIFO.Globales;
 using TGC.TP.FIFO.Luz;
 using TGC.TP.FIFO.Menu;
 using TGC.TP.FIFO.Modelos;
 using TGC.TP.FIFO.Modelos.Primitivas;
-using TGC.TP.FIFO.Objetos.Ball;
 using TGC.TP.FIFO.Texturas;
 
 namespace TGC.TP.FIFO.Objetos.Boxes;
 
-public class StaticBox : IColisionable
+public class StaticBox : IGameObject
 {
-    private readonly PhysicsManager physicsManager;
     private readonly BoxPrimitive model;
+    private readonly XnaMatrix world;
 
-    private XnaMatrix world;
-
-    public BodyType BodyType => BodyType.Box;
-    public bool CanPlayerBallJumpOnIt => true;
-
-    private float MinContactSpeedForSound;
-
-    public StaticBox(PhysicsManager physicsManager,
-        XnaVector3 position,
-        XnaQuaternion rotation,
-        float sideLength,
-        float minContactSpeedForSound = GameState.MinBallSpeedForSounds)
+    public StaticBox(XnaVector3 position, XnaQuaternion rotation, float sideLength)
     {
-        this.physicsManager = physicsManager;
-
-        MinContactSpeedForSound = minContactSpeedForSound;
+        PhysicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
 
         model = ModelManager.CreateBox(sideLength, sideLength, sideLength);
-        this.physicsManager.AddStaticBox(sideLength, sideLength, sideLength, position, rotation, this);
-
         world = XnaMatrix.CreateFromQuaternion(rotation) * XnaMatrix.CreateTranslation(position);
     }
 
@@ -73,13 +59,21 @@ public class StaticBox : IColisionable
         model.Draw(effect);
     }
 
-    public void NotifyCollitionWithPlayerBall(PlayerBall playerBall, XnaVector3? contactNormal, float contactSpeed)
+    public void Update(KeyboardState keyboardState, float deltaTime, TargetCamera camera)
     {
-        if (contactSpeed >= MinContactSpeedForSound)
-        {
-            AudioManager.PlayWallHitSound(GameState.BallType);
-        }
     }
 
-    public void NotifyCollition(IColisionable with) { }
+    public void NotifyCollition(ICollisionable playerBall, XnaVector3? contactNormal, float contactSpeed)
+    {
+        AudioManager.PlayWallHitSound(GameState.BallType, contactSpeed);
+    }
+
+    public bool CanPlayerBallJumpOnIt()
+    {
+        return true;
+    }
+
+    public void Reset()
+    {
+    }
 }

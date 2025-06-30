@@ -9,16 +9,16 @@ using TGC.TP.FIFO.Utilidades;
 
 namespace TGC.TP.FIFO.Fisica;
 
-public class PhysicsManager
+public static class PhysicsManager
 {
-    private Simulation Simulation;
-    public BufferPool BufferPool { get; private set; }
-    public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
+    private static Simulation Simulation;
+    public static BufferPool BufferPool { get; private set; }
+    public static SimpleThreadDispatcher ThreadDispatcher { get; private set; }
 
-    private CollidableProperty<MaterialProperties> MaterialProperties;
-    public Dictionary<CollidableReference, IColisionable> CollidableReferences = new();
+    private static CollidableProperty<MaterialProperties> MaterialProperties;
+    public static Dictionary<CollidableReference, ICollisionable> CollidableReferences = new();
 
-    public void Initialize()
+    public static void Initialize()
     {
         BufferPool = new BufferPool();
 
@@ -40,13 +40,13 @@ public class PhysicsManager
         MaterialProperties.Initialize(Simulation);
     }
 
-    public void Update(float deltaTime)
+    public static void Update(float deltaTime)
     {
         float safeDeltaTime = Math.Max(deltaTime, 1f / 240f);
         Simulation.Timestep(safeDeltaTime, ThreadDispatcher);
     }
 
-    public BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, IColisionable collidableReference)
+    public static BodyHandle AddDynamicSphere(float radius, float mass, float friction, float dampingRatio, float springFrequency, float maximumRecoveryVelocity, XnaVector3 initialPosition, ICollisionable collidableReference)
     {
         var sphereShape = new Sphere(radius);
         var shapeIndex = Simulation.Shapes.Add(sphereShape);
@@ -73,7 +73,7 @@ public class PhysicsManager
         return handle;
     }
 
-    public BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    public static BodyHandle AddDynamicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, ICollisionable collidableReference)
     {
         var boxShape = new Box(width, height, length);
         var shapeIndex = Simulation.Shapes.Add(boxShape);
@@ -100,7 +100,7 @@ public class PhysicsManager
         return handle;
     }
 
-    public StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    public static StaticHandle AddStaticBox(float width, float height, float length, XnaVector3 initialPosition, XnaQuaternion initialRotation, ICollisionable collidableReference)
     {
         var boxShape = new Box(width, height, length);
         var shapeIndex = Simulation.Shapes.Add(boxShape);
@@ -125,7 +125,7 @@ public class PhysicsManager
         return handle;
     }
 
-    public BodyHandle AddKinematicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, IColisionable collidableReference)
+    public static BodyHandle AddKinematicBox(float width, float height, float length, float mass, float friction, XnaVector3 initialPosition, XnaQuaternion initialRotation, ICollisionable collidableReference)
     {
         var boxShape = new Box(width, height, length);
         var shapeIndex = Simulation.Shapes.Add(boxShape);
@@ -151,49 +151,49 @@ public class PhysicsManager
         return handle;
     }
 
-    public float GetLinearSpeed(BodyHandle bodyHandle)
+    public static float GetLinearSpeed(BodyHandle bodyHandle)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
         return bodyRef.Velocity.Linear.Length();
     }
 
-    public XnaVector3 GetPosition(BodyHandle bodyHandle)
+    public static XnaVector3 GetPosition(BodyHandle bodyHandle)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
         return bodyRef.Pose.Position.ToXnaVector3();
     }
 
-    public XnaVector3 GetPosition(StaticHandle staticHandle)
+    public static XnaVector3 GetPosition(StaticHandle staticHandle)
     {
         var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
         return bodyRef.Pose.Position.ToXnaVector3();
     }
 
-    public XnaQuaternion GetOrientation(BodyHandle bodyHandle)
+    public static XnaQuaternion GetOrientation(BodyHandle bodyHandle)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
         return bodyRef.Pose.Orientation.ToXnaQuaternion();
     }
 
-    public XnaQuaternion GetOrientation(StaticHandle staticHandle)
+    public static XnaQuaternion GetOrientation(StaticHandle staticHandle)
     {
         var bodyRef = Simulation.Statics.GetStaticReference(staticHandle);
         return bodyRef.Pose.Orientation.ToXnaQuaternion();
     }
 
-    public void Awake(BodyHandle bodyHandle)
+    public static void Awake(BodyHandle bodyHandle)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
         bodyRef.Awake = true;
     }
 
-    public XnaVector3 GetLinearVelocity(BodyHandle bodyHandle)
+    public static XnaVector3 GetLinearVelocity(BodyHandle bodyHandle)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
         return bodyRef.Velocity.Linear.ToXnaVector3();
     }
 
-    public void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
+    public static void ApplyImpulse(BodyHandle bodyHandle, XnaVector3 impulseDirection, float impulseForce, float deltaTime)
     {
         var bodyRef = Simulation.Bodies.GetBodyReference(bodyHandle);
 
@@ -205,14 +205,14 @@ public class PhysicsManager
         bodyRef.ApplyLinearImpulse(impulse.ToBepuVector3());
     }
 
-    public void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)
+    public static void SetPosition(BodyHandle bodyHandle, XnaVector3 newPosition)
     {
         var body = Simulation.Bodies.GetBodyReference(bodyHandle);
         body.Pose.Position = newPosition.ToBepuVector3();
         body.Velocity.Linear = BepuVector3.Zero;
     }
 
-    public void RemoveBoundingVolume(BodyHandle bodyHandle)
+    public static void RemoveBoundingVolume(BodyHandle bodyHandle)
     {
         Simulation.Bodies.Remove(bodyHandle);
     }
